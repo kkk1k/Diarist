@@ -1,32 +1,47 @@
-import React from 'react';
-import {Text, View, StyleSheet} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {Text, Dimensions} from 'react-native';
+import {NavigationContainer} from '@react-navigation/native';
+import styled, {ThemeProvider} from 'styled-components/native';
 import useFonts from './hooks/useFont';
+import MyStack from './MyStack';
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  text: {
-    fontSize: 18,
-    marginVertical: 4,
-  },
-});
+const FIGMA_WIDTH = 640;
+
+const LoadingContainer = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+`;
 
 export default function App() {
+  const [widthRatio, setWidthRatio] = useState(1);
   const fontsLoaded = useFonts();
+
+  useEffect(() => {
+    const updateWidthRatio = () => {
+      const {width} = Dimensions.get('window');
+      const newWidthRatio = width / FIGMA_WIDTH;
+      setWidthRatio(newWidthRatio);
+    };
+
+    updateWidthRatio();
+    const subscription = Dimensions.addEventListener('change', updateWidthRatio);
+
+    return () => {
+      subscription?.remove();
+    };
+  }, []);
+  const theme = {
+    widthRatio,
+    backgroundColor: '#ffffff', // 배경색을 흰색으로 설정
+    fontFamily: 'Pretendard-Regular', // 기본 폰트 설정
+  };
 
   if (!fontsLoaded) {
     return (
-      <View style={styles.loadingContainer}>
+      <LoadingContainer>
         <Text>Loading...</Text>
-      </View>
+      </LoadingContainer>
     );
   }
 
@@ -38,11 +53,10 @@ export default function App() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text>안녕하세요 (Regular)</Text>
-      <Text style={{fontFamily: 'Pretendard-Bold'}}>안녕하세요 (Bold)</Text>
-      <Text style={{fontFamily: 'Pretendard-ExtraBold'}}>안녕하세요 (ExtraBold)</Text>
-      {/* 필요한 다른 폰트 스타일도 추가하세요 */}
-    </View>
+    <ThemeProvider theme={theme}>
+      <NavigationContainer>
+        <MyStack />
+      </NavigationContainer>
+    </ThemeProvider>
   );
 }
