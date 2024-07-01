@@ -76,6 +76,7 @@ const ButtonText = styled(Text)`
 `;
 
 function Login({navigation}) {
+<<<<<<< HEAD
   const redirectUrl = AuthSession.makeRedirectUri({scheme: 'diarist'});
   console.log(redirectUrl);
   const token = {
@@ -104,6 +105,8 @@ function Login({navigation}) {
     setMethod();
   }, []);
 
+=======
+>>>>>>> 5d711a7 (feat : PROJ-142 : 카카오 로그인 버튼 클릭시 로그인 페이지로 리다이렉트)
   return (
     <Container>
       <StyledText>나의 하루를</StyledText>

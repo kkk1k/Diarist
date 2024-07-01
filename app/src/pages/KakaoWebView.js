@@ -1,7 +1,11 @@
 import React from 'react';
 import styled from 'styled-components/native';
 import WebView from 'react-native-webview';
+<<<<<<< HEAD
 import {KAKAO_API, IP} from '@env';
+=======
+import {KAKAO_API} from '@env';
+>>>>>>> 5d711a7 (feat : PROJ-142 : 카카오 로그인 버튼 클릭시 로그인 페이지로 리다이렉트)
 
 const StyledSafeAreaView = styled.SafeAreaView`
   flex: 1;
@@ -12,6 +16,7 @@ const StyledWebView = styled(WebView)`
   flex: 1;
 `;
 
+<<<<<<< HEAD
 function KakaoWebView({navigation}) {
   const handleShouldStartLoadWithRequest = event => {
     if (event.url.startsWith(`${IP}/oauth2/kakao/login?code=`)) {
@@ -43,6 +48,13 @@ function KakaoWebView({navigation}) {
         }}
         originWhitelist={['*']}
         onShouldStartLoadWithRequest={handleShouldStartLoadWithRequest}
+=======
+function KakaoWebView() {
+  return (
+    <StyledSafeAreaView>
+      <StyledWebView
+        source={{uri: KAKAO_API}}
+>>>>>>> 5d711a7 (feat : PROJ-142 : 카카오 로그인 버튼 클릭시 로그인 페이지로 리다이렉트)
         onError={syntheticEvent => {
           const {nativeEvent} = syntheticEvent;
           console.warn('WebView error: ', nativeEvent);
