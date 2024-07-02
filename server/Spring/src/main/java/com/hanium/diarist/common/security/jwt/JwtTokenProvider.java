@@ -8,6 +8,7 @@ import com.hanium.diarist.common.exception.BusinessException;
 import com.hanium.diarist.common.exception.ErrorCode;
 import com.hanium.diarist.common.security.jwt.exception.ExpiredAccessTokenException;
 import com.hanium.diarist.common.security.jwt.exception.InvalidTokenException;
+import com.hanium.diarist.domain.oauth.dto.ResponseJwtToken;
 import com.hanium.diarist.domain.user.domain.UserRole;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -66,20 +67,21 @@ public class JwtTokenProvider {
     }
 
     @PostConstruct
-    public void init() {
+    public void init() { // 디코딩이 제대로 되는지 확인하는 코드
         byte[] keyBytes = Base64.getDecoder().decode(secret);
         SecretKey key = Keys.hmacShaKeyFor(keyBytes);
         log.info("JWT Provider initialized with secret: {}", Base64.getEncoder().encodeToString(key.getEncoded()));
     }
 
 
-    protected String createToken(Long userId, UserRole userRole, long tokenValid) {
+    protected String createToken(Long userId, UserRole userRole,JwtType tokenType, long tokenValid) {
         Map<String, Object> header = new HashMap<>();
         header.put("typ", "JWT");
 
         Claims claims = Jwts.claims();
         claims.put(CLAIM_USER_ID, userId.toString());
         claims.put(CLAIM_USER_ROLE, userRole);
+        claims.put("type", tokenType.name());
 
         Date date = new Date();
         return Jwts.builder()
@@ -91,11 +93,12 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+
     public String createAccessToken(Long userId, UserRole userRole) {
-        return createToken(userId, userRole, ACCESS_TOKEN_EXPIRE_TIME);
+        return createToken(userId, userRole,JwtType.ACCESS ,ACCESS_TOKEN_EXPIRE_TIME);
     }
     public String createRefreshToken(Long userId, UserRole userRole) {
-        return createToken(userId, userRole, REFRESH_TOKEN_EXPIRE_TIME);
+        return createToken(userId, userRole,JwtType.REFRESH, REFRESH_TOKEN_EXPIRE_TIME);
     }
 
     public String expireToken(String jwtToken) {
@@ -107,13 +110,18 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String createNewAccessTokenFromRefreshToken(String refreshToken) {
+    public Map<String, String> createNewAccessTokenFromRefreshToken(String refreshToken) {
         String payload = new String(Base64.getUrlDecoder().decode(refreshToken.split("\\.")[1]));
         try {
             JsonNode jsonNode = objectMapper.readTree(payload);
             long userId = jsonNode.get(CLAIM_USER_ID).asLong();
             UserRole role = UserRole.valueOf(jsonNode.get(CLAIM_USER_ROLE).asText());
-            return createAccessToken(userId, role);
+            String accessToken = createAccessToken(userId, role);
+            String newRefreshToken = createRefreshToken(userId, role);
+            Map<String, String> tokens = new HashMap<>();
+            tokens.put("accessToken", accessToken);
+            tokens.put("refreshToken", newRefreshToken);
+            return tokens;
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -158,9 +166,12 @@ public class JwtTokenProvider {
                 .parseClaimsJws(accessToken)
                 .getBody();
     }
-    public void validAccessToken(String accessToken) {
+
+    public boolean validAccessToken(String accessToken) {
         try {
-            parseClaims(accessToken);
+            Claims claims = parseClaims(accessToken);
+            JwtType tokenType =JwtType.valueOf(claims.get("type", String.class));
+            return JwtType.ACCESS==tokenType;
         } catch (ExpiredJwtException e) {
             throw new ExpiredAccessTokenException();
         } catch (Exception e) {
