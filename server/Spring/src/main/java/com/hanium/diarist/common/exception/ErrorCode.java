@@ -12,6 +12,8 @@ public enum ErrorCode {
     JSON_PROCESS_ERROR(500, "C003", "JSON 처리 중 오류가 발생했습니다."),
 
     // User
+    USER_NOT_FOUND(404,"U001" ,"회원을 찾을 수 없습니다."),
+
 
     // security
     AUTHORITY_NOT_FOUND(404, "S001", "유저 권한이 없습니다."),
@@ -31,6 +33,7 @@ public enum ErrorCode {
     INVALID_DIARY_ID(400, "D002", "일기 ID 형식이 잘못되었습니다."),
 
     SSE_ERROR(500, "D004", "SSE 처리 중 오류가 발생했습니다.");
+
 
     // Emotion
 

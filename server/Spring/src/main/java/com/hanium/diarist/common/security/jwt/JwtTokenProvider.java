@@ -1,29 +1,32 @@
 package com.hanium.diarist.common.security.jwt;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanium.diarist.common.exception.BusinessException;
 import com.hanium.diarist.common.exception.ErrorCode;
 import com.hanium.diarist.common.security.jwt.exception.ExpiredAccessTokenException;
 import com.hanium.diarist.common.security.jwt.exception.InvalidTokenException;
+import com.hanium.diarist.domain.oauth.domain.Auth;
+import com.hanium.diarist.domain.oauth.dto.ResponseJwtToken;
+import com.hanium.diarist.domain.oauth.repository.AuthRepository;
+import com.hanium.diarist.domain.user.domain.User;
 import com.hanium.diarist.domain.user.domain.UserRole;
-import io.jsonwebtoken.*;
+import com.hanium.diarist.domain.user.repository.UserRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-
 import lombok.extern.slf4j.Slf4j;
-import org.springdoc.core.configuration.SpringDocUIConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.jwt.Jwt;
-
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -49,6 +52,13 @@ public class JwtTokenProvider {
     private final Key key;
     private final ObjectMapper objectMapper;
 
+    @Autowired
+    private final AuthRepository authRepository;
+
+
+    @Autowired
+    private final UserRepository userRepository;
+
     @Value("${jwt.secret}")
     private String secret;
 
@@ -56,9 +66,11 @@ public class JwtTokenProvider {
     public JwtTokenProvider(@Value("${jwt.access-token-expire-time}") long accessTime,
                             @Value("${jwt.refresh-token-expire-time}") long refreshTime,
                             @Value("${jwt.secret}") String secretKey,
-                            JwtDecoder jwtDecoder) {
+                            JwtDecoder jwtDecoder, AuthRepository authRepository, UserRepository userRepository) {
         this.ACCESS_TOKEN_EXPIRE_TIME = accessTime;
         this.REFRESH_TOKEN_EXPIRE_TIME = refreshTime;
+        this.authRepository = authRepository;
+        this.userRepository = userRepository;
         byte[] keyBytes = Base64.getDecoder().decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.objectMapper = new ObjectMapper();
@@ -66,20 +78,21 @@ public class JwtTokenProvider {
     }
 
     @PostConstruct
-    public void init() {
+    public void init() { // 디코딩이 제대로 되는지 확인하는 코드
         byte[] keyBytes = Base64.getDecoder().decode(secret);
         SecretKey key = Keys.hmacShaKeyFor(keyBytes);
         log.info("JWT Provider initialized with secret: {}", Base64.getEncoder().encodeToString(key.getEncoded()));
     }
 
 
-    protected String createToken(Long userId, UserRole userRole, long tokenValid) {
+    protected String createToken(Long userId, UserRole userRole,JwtType tokenType, long tokenValid) {
         Map<String, Object> header = new HashMap<>();
         header.put("typ", "JWT");
 
         Claims claims = Jwts.claims();
         claims.put(CLAIM_USER_ID, userId.toString());
         claims.put(CLAIM_USER_ROLE, userRole);
+        claims.put("type", tokenType.name());
 
         Date date = new Date();
         return Jwts.builder()
@@ -91,11 +104,12 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+
     public String createAccessToken(Long userId, UserRole userRole) {
-        return createToken(userId, userRole, ACCESS_TOKEN_EXPIRE_TIME);
+        return createToken(userId, userRole,JwtType.ACCESS ,ACCESS_TOKEN_EXPIRE_TIME);
     }
     public String createRefreshToken(Long userId, UserRole userRole) {
-        return createToken(userId, userRole, REFRESH_TOKEN_EXPIRE_TIME);
+        return createToken(userId, userRole,JwtType.REFRESH, REFRESH_TOKEN_EXPIRE_TIME);
     }
 
     public String expireToken(String jwtToken) {
@@ -107,20 +121,47 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String createNewAccessTokenFromRefreshToken(String refreshToken) {
-        String payload = new String(Base64.getUrlDecoder().decode(refreshToken.split("\\.")[1]));
+    public ResponseJwtToken refreshToken(String refreshToken) {
         try {
-            JsonNode jsonNode = objectMapper.readTree(payload);
-            long userId = jsonNode.get(CLAIM_USER_ID).asLong();
-            UserRole role = UserRole.valueOf(jsonNode.get(CLAIM_USER_ROLE).asText());
-            return createAccessToken(userId, role);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            if(!validRefreshToken(refreshToken)){// 리프레시 토큰이 유효한지 확인
+                throw new InvalidTokenException();
+            }
+            Claims claims = parseClaims(refreshToken);
+            Long userId = Long.parseLong((String) claims.get(CLAIM_USER_ID));
+            UserRole role = UserRole.valueOf((String) claims.get(CLAIM_USER_ROLE));
+
+            String accessToken = createAccessToken(userId, role); // 새
+            String newRefreshToken = refreshToken;
+
+            if(shouldReissueRefreshToken(claims)) {
+                newRefreshToken = createRefreshToken(userId, role);
+                User user = userRepository.findById(userId).orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+                Auth auth = authRepository.findByUser(user).orElseThrow(() -> new BusinessException(ErrorCode.AUTHORITY_NOT_FOUND));
+                auth.setRefreshToken(newRefreshToken);
+                authRepository.save(auth);
+            }
+            ResponseJwtToken tokens = ResponseJwtToken.of(accessToken, newRefreshToken);
+            return tokens;
+        } catch (ExpiredJwtException e) {
+            throw new ExpiredAccessTokenException();
+        }catch (Exception e){
+            throw new InvalidTokenException(e);
         }
 
     }
 
-//    public Authentication getAuthentication(String accessToken) {
+    private boolean shouldReissueRefreshToken(Claims claims) { // 기간이 얼마 남았는지 확인하는 메서드
+        Date expiration = claims.getExpiration();
+        Date now = new Date();
+        long timeLeft = expiration.getTime() - now.getTime();
+        long totalValidity = REFRESH_TOKEN_EXPIRE_TIME;
+
+        // 남은 수명이 25% 이하일 때 재발급
+        return timeLeft < totalValidity * 0.25;
+    }
+
+
+    //    public Authentication getAuthentication(String accessToken) {
 //        Claims claims = parseClaims(accessToken);
 //        if(claims.get(CLAIM_USER_ROLE)==null || !StringUtils.hasText(
 //                claims.get(CLAIM_USER_ROLE).toString())){
@@ -158,9 +199,29 @@ public class JwtTokenProvider {
                 .parseClaimsJws(accessToken)
                 .getBody();
     }
-    public void validAccessToken(String accessToken) {
+
+    public boolean validAccessToken(String accessToken) {
         try {
-            parseClaims(accessToken);
+            Claims claims = parseClaims(accessToken);
+            JwtType tokenType =JwtType.valueOf(claims.get("type", String.class));
+            Date expiration = claims.getExpiration();
+            Date now = new Date();
+
+            return (JwtType.ACCESS == tokenType && expiration.after(now));
+        } catch (ExpiredJwtException e) {
+            throw new ExpiredAccessTokenException();
+        } catch (Exception e) {
+            throw new InvalidTokenException(e);
+        }
+    }
+
+    public boolean validRefreshToken(String refreshToken) {
+        try {
+            Claims claims = parseClaims(refreshToken);
+            JwtType tokenType =JwtType.valueOf(claims.get("type", String.class));
+            Date expiration = claims.getExpiration();
+            Date now = new Date();
+            return (JwtType.REFRESH == tokenType && expiration.after(now));
         } catch (ExpiredJwtException e) {
             throw new ExpiredAccessTokenException();
         } catch (Exception e) {

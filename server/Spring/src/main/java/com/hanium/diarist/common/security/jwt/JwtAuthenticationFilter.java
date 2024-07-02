@@ -10,12 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.AntPathMatcher;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-
 
 @Slf4j
 @RequiredArgsConstructor
@@ -26,7 +23,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        authentication();
+        try {
+            if (!shouldNotFilter(request)) {
+                String accessToken = HeaderUtils.getJwtToken(request, JwtType.ACCESS);
+                if (accessToken != null && jwtTokenProvider.validAccessToken(accessToken)) {
+                    Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    log.debug("Set Authentication to security context for '{}', uri: {}", authentication.getName(), request.getRequestURI());
+                } else {
+                    log.debug("No valid JWT token found, uri: {}", request.getRequestURI());
+                }
+            }
+        } catch (Exception e) {
+            log.error("Cannot set user authentication: {}", e.getMessage());
+            SecurityContextHolder.clearContext();
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
+            return;
+        }
+
         filterChain.doFilter(request, response);
     }
 
@@ -34,26 +48,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         AntPathMatcher pathMatcher = new AntPathMatcher();
-        // permitAllEndpointList에 있는 endpoint는 인증을 거치지 않고 접근 가능
         for (String permitAllEndpoint : permitAllEndpointList) {
             if (pathMatcher.match(permitAllEndpoint, requestURI)) {
+                log.debug("Skipping authentication for permitted endpoint: {}", requestURI);
                 return true;
             }
         }
         return false;
-    }
-
-    private void authentication() {
-        String accessToken = HeaderUtils.getJwtToken(getRequest(), JwtType.ACCESS);
-
-        jwtTokenProvider.validAccessToken(accessToken);
-
-        Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
-
-    private HttpServletRequest getRequest() {
-        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-        return servletRequestAttributes.getRequest();
     }
 }
