@@ -1,5 +1,7 @@
 package com.hanium.diarist.domain.user.service;
 
+import com.hanium.diarist.domain.oauth.domain.Auth;
+import com.hanium.diarist.domain.oauth.repository.AuthRepository;
 import com.hanium.diarist.domain.user.domain.SocialCode;
 import com.hanium.diarist.domain.user.domain.User;
 import com.hanium.diarist.domain.user.repository.UserRepository;
@@ -12,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final AuthRepository authRepository;
 
     // 테스트용 회원가입 메서드
     @Transactional
@@ -23,7 +26,7 @@ public class UserService {
     @Transactional
     public User registerUser(String email, String name,SocialCode socialCode, String refreshToken){
         User user = userRepository.save(User.create(email,name, socialCode));
-//        authRepository.save(Auth.create(user, refreshToken);
+        authRepository.save(Auth.create(user, refreshToken)); // user 회원가입시 user와 refreshToken을 저장
         return user;
     }
 

@@ -59,7 +59,7 @@ public class SecurityConfig {
         return new String[]{
                 "/swagger-ui/**",
                 "/v3/api-docs/**",
-                "/oauth2/kakao/**"
+                "/oauth2/**"
 
         };
     }
