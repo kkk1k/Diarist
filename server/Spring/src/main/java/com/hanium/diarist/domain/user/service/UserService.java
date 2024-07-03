@@ -24,9 +24,8 @@ public class UserService {
     }
 
     @Transactional
-    public User registerUser(String email, String name,SocialCode socialCode, String refreshToken){
+    public User registerUser(String email, String name,SocialCode socialCode){
         User user = userRepository.save(User.create(email,name, socialCode));
-        authRepository.save(Auth.create(user, refreshToken)); // user 회원가입시 user와 refreshToken을 저장
         return user;
     }
 

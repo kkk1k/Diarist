@@ -19,10 +19,13 @@ public class KakaoProperties {
     private String clientSecret;
     @Value("${security.oauth2.client.registration.kakao.rest-api-key}")
     private String restApiKey;
+    @Value("${security.oauth2.client.registration.kakao.redirect-uri}")
+    private String redirectUri;
+    @Value("${security.oauth2.client.registration.kakao.admin-key}")
+    private String adminKey;
 
     private String tokenUrl = "https://kauth.kakao.com/oauth/token";
     private String userInfoUrl = "https://kapi.kakao.com/v2/user/me";
-    private String redirectUri = "http://localhost:8080/oauth2/kakao/login";
     private String deleteAccountUrl = "https://kapi.kakao.com/v1/user/unlink";
 
 }
