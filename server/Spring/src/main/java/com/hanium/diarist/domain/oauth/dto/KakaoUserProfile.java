@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class KakaoUserProfile {
 
+    private Long id;
     private Properties properties;
     private KakaoAccount kakao_account;
 

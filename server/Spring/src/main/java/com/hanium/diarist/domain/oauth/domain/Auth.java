@@ -24,16 +24,26 @@ public class Auth extends BaseEntity {
     @Column(nullable = false)
     private String refreshToken;
 
-    private Auth(User user, String refreshToken) {
+    /*
+    google은 google refresh token이 계정 삭제에 필요하고, kakao는 kakao userId가 계정 삭제에 필요하다.
+     */
+    @NotNull
+    @Column(nullable = false)
+    private String deleteUtil;
+
+    public Auth(User user, String refreshToken, String deleteUtil) {
         this.user = user;
         this.refreshToken = refreshToken;
+        this.deleteUtil = deleteUtil;
     }
 
-    public static Auth create(User user, String refreshToken) { // 메서드로만 객체 생성 가능하도록 생성자를 private로 변경
-        return new Auth(user, refreshToken);
+    public static Auth create(User user, String refreshToken,String deleteUtil) { // 메서드로만 객체 생성 가능하도록 생성자를 private로 변경
+        return new Auth(user, refreshToken, deleteUtil);
     }
 
     public void setRefreshToken(String refreshToken) { // refresh token 갱신시 변경
         this.refreshToken = refreshToken;
     }
+
+
 }

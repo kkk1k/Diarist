@@ -10,6 +10,8 @@ public enum ErrorCode {
     // Common
     KAFKFA_CONNECT_ERROR(500, "C001", "Kafka 연결 중 오류가 발생했습니다."),
     JSON_PROCESS_ERROR(500, "C003", "JSON 처리 중 오류가 발생했습니다."),
+    INTERNAL_SERVER_ERROR(500, "C004", "서버 오류"),
+
 
     // User
     USER_NOT_FOUND(404,"U001" ,"회원을 찾을 수 없습니다."),
@@ -25,6 +27,10 @@ public enum ErrorCode {
     AUTH_CODE_NOT_FOUND(404, "S007", "authorization header가 비었습니다."),
     JWT_TOKEN_NOT_FOUND(404, "S008", "jwt token이 없습니다."),
 
+    // oauth
+    OAUTH_NOT_FOUND(404, "O001", "유저의 refresh token을 찾을 수 없습니다."),
+    OAUTH_SERVER_FAILED(500, "O002", "OAuth 서버와의 통신 중 에러가 발생하였습니다."),
+
 
 
 
@@ -33,6 +39,7 @@ public enum ErrorCode {
     INVALID_DIARY_ID(400, "D002", "일기 ID 형식이 잘못되었습니다."),
 
     SSE_ERROR(500, "D004", "SSE 처리 중 오류가 발생했습니다.");
+
 
 
     // Emotion

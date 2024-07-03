@@ -1,7 +1,5 @@
 package com.hanium.diarist.common.security.jwt;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanium.diarist.common.exception.BusinessException;
 import com.hanium.diarist.common.exception.ErrorCode;
@@ -18,7 +16,6 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,11 +24,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -41,7 +36,6 @@ import java.util.stream.Collectors;
 @PropertySource("classpath:application.yml")
 public class JwtTokenProvider {
 
-    private final JwtDecoder jwtDecoder;
 
     private final String CLAIM_USER_ID = JwtProperties.USER_ID;
     private final String CLAIM_USER_ROLE = JwtProperties.USER_ROLE;
@@ -66,7 +60,7 @@ public class JwtTokenProvider {
     public JwtTokenProvider(@Value("${jwt.access-token-expire-time}") long accessTime,
                             @Value("${jwt.refresh-token-expire-time}") long refreshTime,
                             @Value("${jwt.secret}") String secretKey,
-                            JwtDecoder jwtDecoder, AuthRepository authRepository, UserRepository userRepository) {
+                            AuthRepository authRepository, UserRepository userRepository) {
         this.ACCESS_TOKEN_EXPIRE_TIME = accessTime;
         this.REFRESH_TOKEN_EXPIRE_TIME = refreshTime;
         this.authRepository = authRepository;
@@ -74,15 +68,9 @@ public class JwtTokenProvider {
         byte[] keyBytes = Base64.getDecoder().decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.objectMapper = new ObjectMapper();
-        this.jwtDecoder = jwtDecoder;
     }
 
-    @PostConstruct
-    public void init() { // 디코딩이 제대로 되는지 확인하는 코드
-        byte[] keyBytes = Base64.getDecoder().decode(secret);
-        SecretKey key = Keys.hmacShaKeyFor(keyBytes);
-        log.info("JWT Provider initialized with secret: {}", Base64.getEncoder().encodeToString(key.getEncoded()));
-    }
+
 
 
     protected String createToken(Long userId, UserRole userRole,JwtType tokenType, long tokenValid) {
