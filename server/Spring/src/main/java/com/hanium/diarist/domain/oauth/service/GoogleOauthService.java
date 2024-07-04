@@ -46,7 +46,7 @@ public class GoogleOauthService {
         GoogleAccessToken token = getGoogleAccessToken(code);
         String socialRefreshToken = token.getRefreshToken();
         GoogleUserProfile userProfile = getUserProfile(token);
-        User user = validateUserService.validateRegisteredUserByEmail(userProfile.getEmail());
+        User user = validateUserService.validateRegisteredUserByEmail(userProfile.getEmail(),SocialCode.GOOGLE);
 
         if(user == null){ // 회원가입을 해야하는 경우
             user = userService.registerUser(userProfile.getEmail(), userProfile.getName(), SocialCode.GOOGLE);
