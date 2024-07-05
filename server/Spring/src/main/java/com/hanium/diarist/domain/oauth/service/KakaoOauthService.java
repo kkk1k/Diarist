@@ -52,7 +52,7 @@ public class KakaoOauthService {
         KakaoUserProfile userProfile = getUserProfile(accessToken);
         Long userId = userProfile.getId();// 회원탈퇴시 사용될 userid
 
-        User user = validateUserService.validateRegisteredUserByEmail(userProfile.getKakao_account().getEmail());
+        User user = validateUserService.validateRegisteredUserByEmail(userProfile.getKakao_account().getEmail(),SocialCode.KAKAO);
 
         if(user == null){ // 회원가입을 해야하는 경우
             user = userService.registerUser(userProfile.getKakao_account().getEmail(), userProfile.getProperties().getNickname(), SocialCode.KAKAO);
