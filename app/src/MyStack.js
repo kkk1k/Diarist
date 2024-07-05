@@ -18,7 +18,6 @@ function MyStack() {
     >
       <Stack.Screen name='Login' component={Login} />
       <Stack.Screen name='KakaoWebView' component={KakaoWebView} />
-
       <Stack.Screen name='Test' component={Test} options={{animation: 'none'}} />
       <Stack.Screen
         name='KakaoLoginRedirect'
