@@ -8,6 +8,7 @@ import com.hanium.diarist.common.security.jwt.JwtType;
 import com.hanium.diarist.common.security.jwt.exception.ExpiredAccessTokenException;
 import com.hanium.diarist.common.security.jwt.exception.InvalidTokenException;
 import com.hanium.diarist.common.utils.HeaderUtils;
+import com.hanium.diarist.domain.oauth.dto.AuthorizationCode;
 import com.hanium.diarist.domain.oauth.dto.ResponseJwtToken;
 import com.hanium.diarist.domain.oauth.service.GoogleOauthService;
 import com.hanium.diarist.domain.oauth.service.KakaoOauthService;
@@ -39,7 +40,7 @@ public class OAuthController {
         return SuccessResponse.of(null).asHttp(HttpStatus.OK);
     }
 
-    @Operation(summary = "구글 승인코드", description = "카카오에서 Authorization code를 받아옵니다.")
+    @Operation(summary = "구글 승인코드", description = "구글에서 Authorization code를 받아옵니다.")
     @GetMapping("/google/login")
     public ResponseEntity<SuccessResponse<Object>> googleCallback() {
         return SuccessResponse.of(null).asHttp(HttpStatus.OK);
@@ -62,8 +63,9 @@ public class OAuthController {
                     description = "O002 : 카카오 OAuth 서버와의 통신에 실패했습니다.",content = @Content(schema = @Schema(hidden = true)))
     })
     @PostMapping("/kakao/login")
-    public ResponseEntity<SuccessResponse<ResponseJwtToken>> kakaoLogin(@RequestBody String code) {
+    public ResponseEntity<SuccessResponse<ResponseJwtToken>> kakaoLogin(@RequestBody AuthorizationCode authorizationCode) {
 //        System.out.println(code);
+        String code = authorizationCode.getCode();
         return SuccessResponse.of(kakaoOauthService.login(code)).asHttp(HttpStatus.OK);
     }
 
@@ -83,8 +85,8 @@ public class OAuthController {
                     description = "O002 : 구글 OAuth 서버와의 통신에 실패했습니다.",content = @Content(schema = @Schema(hidden = true)))
     })
     @PostMapping("/google/login")
-    public ResponseEntity<SuccessResponse<ResponseJwtToken>> googleCallback(@RequestBody String code) {
-//        System.out.println(googleOauthService.login(code));
+    public ResponseEntity<SuccessResponse<ResponseJwtToken>> googleCallback(@RequestBody AuthorizationCode authorizationCode) {
+        String code = authorizationCode.getCode();
         return SuccessResponse.of(googleOauthService.login(code)).asHttp(HttpStatus.OK);
     }
 
