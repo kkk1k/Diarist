@@ -11,11 +11,29 @@ const StyledSafeAreaView = styled.SafeAreaView`
 const StyledWebView = styled(WebView)`
   flex: 1;
 `;
-function KakaoWebView() {
-  console.log(KAKAO_API);
+
+function KakaoWebView({navigation}) {
+  const handleShouldStartLoadWithRequest = event => {
+    if (event.url.startsWith(`${IP}/oauth2/kakao/login?code=`)) {
+      const code = event.url.split('code=')[1]?.split('&')[0];
+      if (code) {
+        navigation.navigate(
+          'KakaoLoginRedirect',
+          {code},
+          {
+            animation: 'none',
+          },
+        );
+        return false; // 페이지 로딩을 중단
+      }
+    }
+    return true; // 다른 URL은 정상적으로 로드
+  };
+
   return (
     <StyledSafeAreaView>
       <StyledWebView
+<<<<<<< HEAD
         source={{uri: KAKAO_API}}
         originWhitelist={['*']}
         onNavigationStateChange={navState => {
@@ -29,7 +47,17 @@ function KakaoWebView() {
             console.log('Authorization code:', code);
             // 이 코드를 서버로 보내거나 다른 처리를 수행합니다.
           }
+=======
+        source={{
+          uri: KAKAO_API,
+          method: 'GET',
+          headers: {
+            'Accept-Language': 'ko-KR,ko',
+          },
+>>>>>>> 1488252 (feat : PROJ-142 : 인증코드 통해 토큰 발급후 페이지 이동)
         }}
+        originWhitelist={['*']}
+        onShouldStartLoadWithRequest={handleShouldStartLoadWithRequest}
         onError={syntheticEvent => {
           const {nativeEvent} = syntheticEvent;
           console.warn('WebView error: ', nativeEvent);
