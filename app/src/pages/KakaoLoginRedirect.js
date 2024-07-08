@@ -28,6 +28,9 @@ function KakaoLoginRedirect({navigation, route}) {
           const response = await axios.post(`${IP}/oauth2/kakao/login`, {code});
           console.log(response.data.data);
           console.log('잘가져오는지 확인:', code);
+          // 암호화된 스토리지에 데이터 저장
+          await encryptStorage.setItem('authTokens', data);
+
           navigation.navigate('Test');
         } catch (error) {
           console.error('Error during API call:', error);

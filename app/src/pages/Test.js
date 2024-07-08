@@ -1,5 +1,6 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import styled from 'styled-components/native';
+import {EncryptStorage} from 'encrypt-storage';
 
 const Container = styled.View`
   flex: 1;
@@ -17,6 +18,17 @@ const TextSuccess = styled.Text`
 `;
 
 export default function Test() {
+  const getData = async () => {
+    try {
+      const data = await EncryptStorage.getItem('authTokens');
+      console.log(data);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  useEffect(() => {
+    getData();
+  }, []);
   return (
     <Container>
       <TextSuccess>로그인 성공</TextSuccess>
