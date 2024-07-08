@@ -6,8 +6,7 @@ import WritingDiaryPage from './pages/WritingDiaryPage';
 import DrawCompletedPage from './pages/DrawCompletedPage';
 import SelectDrawerPage from './pages/SelectDrawerPage';
 import DrawerListPage from './pages/DrawerListPage';
-import AlbumThumbnailPage from './pages/AlbumThumbnailPage';
-import AlbumListPage from './pages/AlbumListPage';
+import AlbumPage from './pages/AlbumPage';
 import SelectEmotionPage from './pages/SelectEmotionPage';
 import DrawDetailPage from './pages/DrawDetailPage';
 import GlobalStyle from './GlobalStyle';
@@ -44,8 +43,7 @@ function App() {
         <Route path='/selectdrawer' element={<SelectDrawerPage />} />
         <Route path='/drawerlist' element={<DrawerListPage />} />
         <Route path='write' element={<WritingDiaryPage />} />
-        <Route path='thumbnail' element={<AlbumThumbnailPage />} />
-        <Route path='list' element={<AlbumListPage />} />
+        <Route path='album' element={<AlbumPage />} />
         <Route path='emotion' element={<SelectEmotionPage />} />
         <Route path='detail' element={<DrawDetailPage />} />
       </Routes>
