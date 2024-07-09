@@ -2,12 +2,10 @@ package com.hanium.diarist.domain.artist.controller;
 
 import com.hanium.diarist.common.response.SuccessResponse;
 import com.hanium.diarist.domain.artist.domain.Period;
-import com.hanium.diarist.domain.artist.dto.ArtistFilterByPeriodResponse;
-import com.hanium.diarist.domain.artist.dto.CreateArtistRequest;
-import com.hanium.diarist.domain.artist.dto.CreateArtistResponse;
-import com.hanium.diarist.domain.artist.dto.SelectArtistResponse;
+import com.hanium.diarist.domain.artist.dto.*;
 import com.hanium.diarist.domain.artist.service.ArtistService;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +31,11 @@ public class ArtistController {
         return SuccessResponse.of(artists).asHttp(HttpStatus.OK);
     }
 
+    @GetMapping("/list/{artistId}")
+    public ResponseEntity<SuccessResponse<ArtistResponse>> getArtist(@PathVariable Long artistId) {
+        ArtistResponse artist = artistService.getArtist(artistId);
+        return SuccessResponse.of(artist).asHttp(HttpStatus.OK);
+    }
 
     @GetMapping("/select/{artistId}")
     public ResponseEntity<SuccessResponse<SelectArtistResponse>> selectArtist(@PathVariable Long artistId) {
