@@ -3,7 +3,9 @@ package com.hanium.diarist.domain.diary.service;
 import com.hanium.diarist.domain.artist.domain.Artist;
 import com.hanium.diarist.domain.artist.domain.Period;
 import com.hanium.diarist.domain.diary.domain.Diary;
+import com.hanium.diarist.domain.diary.domain.Image;
 import com.hanium.diarist.domain.diary.dto.BookmarkDiaryResponse;
+import com.hanium.diarist.domain.diary.dto.DiaryDetailResponse;
 import com.hanium.diarist.domain.diary.exception.DiaryNotFoundException;
 import com.hanium.diarist.domain.diary.repository.DiaryRepository;
 import com.hanium.diarist.domain.emotion.domain.Emotion;
@@ -41,7 +43,7 @@ class DiaryServiceTest {
     void bookmarkDiary() {
         //given
         User user = User.create("a@gmail.com","test", SocialCode.KAKAO );
-        Artist artist = Artist.create("test1","test", Period.Contemporary, "test","test.png");
+        Artist artist = Artist.create("test1","test", Period.Contemporary, "test","test.png","example.png");
         Emotion emotion = Emotion.create("test", "testPrompt", "test.png");
 
         boolean favorite=true;
@@ -65,7 +67,7 @@ class DiaryServiceTest {
     void BookmarkDiary_DiaryNotFound(){
         // given
         User user = User.create("a@gmail.com","test", SocialCode.KAKAO );
-        Artist artist = Artist.create("test1","test", Period.Contemporary, "test","test.png");
+        Artist artist = Artist.create("test1","test", Period.Contemporary, "test","test.png","example.png");
         Emotion emotion = Emotion.create("test", "testPrompt", "test.png");
 
         boolean favorite=true;
@@ -87,7 +89,7 @@ class DiaryServiceTest {
     void deleteBookmarkDiary() {
         List<Long> diaryIdList = Arrays.asList(1L, 2L, 3L);
         User user = User.create("a@gmail.com","test", SocialCode.KAKAO );
-        Artist artist = Artist.create("test1","test", Period.Contemporary, "test","test.png");
+        Artist artist = Artist.create("test1","test", Period.Contemporary, "test","test.png","example.png");
         Emotion emotion = Emotion.create("test", "testPrompt", "test.png");
 
         boolean favorite=true;
@@ -113,6 +115,42 @@ class DiaryServiceTest {
         verify(diaryRepository, times(1)).findAllById(diaryIdList);
         verify(diaryRepository, times(1)).saveAll(diaries);
     }
+
+    @Test
+    void getDiaryDetailExistingDiary(){
+        //given
+        long diaryId = 1L;
+        User user = User.create("a@gmail.com","test", SocialCode.KAKAO );
+        Artist artist = Artist.create("test1","test", Period.Contemporary, "test","test.png","example.png");
+        Emotion emotion = Emotion.create("test", "testPrompt", "test.png");
+
+
+        boolean favorite=true;
+        Diary mockDiary = new Diary(user, emotion,artist, LocalDate.now(), "test1", favorite,null);
+
+        Image image = new Image(mockDiary,"test.png");
+        mockDiary.setImage(image);
+
+        // when
+        when(diaryRepository.findByDiaryIdWithDetails(diaryId)).thenReturn(Optional.of(mockDiary));
+
+        DiaryDetailResponse diaryDetail = diaryService.getDiaryDetail(diaryId);
+
+        // then
+        assertNotNull(diaryDetail);
+        assertEquals(mockDiary.getDiaryDate().toString(), diaryDetail.getDiaryDate());
+        assertEquals(mockDiary.isFavorite(), diaryDetail.isFavorite());
+        assertEquals(mockDiary.getContent(), diaryDetail.getContent());
+        assertEquals(mockDiary.getEmotion().getEmotionName(), diaryDetail.getEmotionName());
+        assertEquals(mockDiary.getEmotion().getEmotionPicture(), diaryDetail.getEmotionPicture());
+        assertEquals(mockDiary.getArtist().getArtistName(), diaryDetail.getArtistName());
+        assertEquals(mockDiary.getArtist().getArtistPicture(), diaryDetail.getArtistPicture());
+
+        verify(diaryRepository, times(1)).findByDiaryIdWithDetails(diaryId);
+
+
+    }
+
 
 
 

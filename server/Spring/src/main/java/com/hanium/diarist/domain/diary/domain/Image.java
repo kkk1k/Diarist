@@ -27,7 +27,8 @@ public class Image extends BaseEntity {
     // 프롬프트 일단 생략
 
 
-
-
-
+    public Image(Diary diary, String imageUrl) {
+        this.diary = diary;
+        this.imageUrl = imageUrl;
+    }
 }
