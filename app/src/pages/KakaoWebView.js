@@ -33,28 +33,12 @@ function KakaoWebView({navigation}) {
   return (
     <StyledSafeAreaView>
       <StyledWebView
-<<<<<<< HEAD
-        source={{uri: KAKAO_API}}
-        originWhitelist={['*']}
-        onNavigationStateChange={navState => {
-<<<<<<< HEAD
-          if (navState.url.includes('/oauth2/kakao/login')) {
-=======
-          if (navState.url.includes(`${IP}/oauth2/kakao/login`)) {
->>>>>>> bf47c0b (chore : PROJ-28 : env파일 변경에 맞게 코드 변경)
-            // 여기서 필요한 처리를 수행합니다.
-            const code = navState.url.split('code=')[1];
-            console.log('Authorization code:', code);
-            // 이 코드를 서버로 보내거나 다른 처리를 수행합니다.
-          }
-=======
         source={{
           uri: KAKAO_API,
           method: 'GET',
           headers: {
             'Accept-Language': 'ko-KR,ko',
           },
->>>>>>> 1488252 (feat : PROJ-142 : 인증코드 통해 토큰 발급후 페이지 이동)
         }}
         originWhitelist={['*']}
         onShouldStartLoadWithRequest={handleShouldStartLoadWithRequest}
