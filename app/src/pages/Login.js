@@ -73,17 +73,17 @@ const ButtonText = styled(Text)`
   line-height: normal;
 `;
 
-function Login() {
+function Login({navigation}) {
   return (
     <Container>
       <StyledText>나의 하루를</StyledText>
       <StyledText>피카소가 그려준다면?</StyledText>
       <LogoIcon source={Splash} />
-      <KakaoButton>
+      <KakaoButton onPress={() => navigation.navigate('KakaoWebView')}>
         <KakaoIcon source={Kakao} />
         <ButtonText>Kakao 로그인</ButtonText>
       </KakaoButton>
-      <GoogleButton>
+      <GoogleButton onPress={() => navigation.navigate('GoogleWebView')}>
         <GoogleIcon source={Google} />
         <ButtonText>Google 로그인</ButtonText>
       </GoogleButton>
