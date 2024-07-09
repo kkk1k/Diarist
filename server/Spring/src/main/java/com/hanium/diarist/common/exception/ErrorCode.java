@@ -16,6 +16,9 @@ public enum ErrorCode {
     // User
     USER_NOT_FOUND(404,"U001" ,"회원을 찾을 수 없습니다."),
 
+    // artist
+    ARTIST_NOT_FOUND(404, "A001", "작가를 찾을 수 없습니다."),
+
 
     // security
     AUTHORITY_NOT_FOUND(404, "S001", "유저 권한이 없습니다."),

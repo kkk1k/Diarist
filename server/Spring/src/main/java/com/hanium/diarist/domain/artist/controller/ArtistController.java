@@ -5,6 +5,7 @@ import com.hanium.diarist.domain.artist.domain.Period;
 import com.hanium.diarist.domain.artist.dto.ArtistFilterByPeriodResponse;
 import com.hanium.diarist.domain.artist.dto.CreateArtistRequest;
 import com.hanium.diarist.domain.artist.dto.CreateArtistResponse;
+import com.hanium.diarist.domain.artist.dto.SelectArtistResponse;
 import com.hanium.diarist.domain.artist.service.ArtistService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,12 @@ public class ArtistController {
     public ResponseEntity<SuccessResponse<List<ArtistFilterByPeriodResponse>>> getArtistsFilterByPeriod(@RequestParam Period period) {
         List<ArtistFilterByPeriodResponse> artists = artistService.filterByPeriod(period);
         return SuccessResponse.of(artists).asHttp(HttpStatus.OK);
+    }
 
+
+    @GetMapping("/select/{artistId}")
+    public ResponseEntity<SuccessResponse<SelectArtistResponse>> selectArtist(@PathVariable Long artistId) {
+        SelectArtistResponse artist = artistService.selectArtist(artistId);
+        return SuccessResponse.of(artist).asHttp(HttpStatus.OK);
     }
 }
