@@ -17,9 +17,10 @@ public class CreateArtistRequest {
     private String description;
     private Period period;
     private String prompt;
+    private String examplePicture;
 
     public Artist toArtistEntity() {
-        return Artist.create(artistName, prompt,period, description ,artistPicture);
+        return Artist.create(artistName, prompt,period, description ,artistPicture,examplePicture);
 
     }
 

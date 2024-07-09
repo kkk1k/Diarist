@@ -12,6 +12,7 @@ public class CreateArtistResponse {
     private final String artistPicture;
     private final String description;
 
+
     public static CreateArtistResponse of(Artist artist) {
         return new CreateArtistResponse(artist.getArtistId(), artist.getArtistName(), artist.getArtistPicture(), artist.getDescription());
     }
