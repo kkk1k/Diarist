@@ -1,20 +1,15 @@
 package com.hanium.diarist.domain.diary.controller;
 
-import com.hanium.diarist.common.response.ErrorResponse;
 import com.hanium.diarist.common.response.SuccessResponse;
-import com.hanium.diarist.domain.diary.domain.Diary;
 import com.hanium.diarist.domain.diary.dto.*;
 import com.hanium.diarist.domain.diary.service.CreateDiaryConsumerService;
 import com.hanium.diarist.domain.diary.service.CreateDiaryProducerService;
 import com.hanium.diarist.domain.diary.service.DiaryService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -79,6 +74,14 @@ public class DiaryController {
     public ResponseEntity<SuccessResponse<List<BookmarkDiaryResponse>>> deleteBookmarkDiary(@RequestBody List<Long> diaryIdList) {
         List<BookmarkDiaryResponse> bookmarkDiaryResponses = diaryService.deleteBookmarkDiary(diaryIdList);
         return SuccessResponse.of(bookmarkDiaryResponses).asHttp(HttpStatus.OK);
+    }
+
+    @GetMapping("/detail/{diaryId}")
+    @Operation(summary = "일기 상세 조회", description = "일기 상세 조회 API.")
+    @ApiResponse(responseCode = "200", description = "일기 상세 조회 성공")
+    public ResponseEntity<SuccessResponse<DiaryDetailResponse>> getDiaryDetail(@PathVariable Long diaryId) {
+        DiaryDetailResponse diaryDetailResponse = diaryService.getDiaryDetail(diaryId);
+        return SuccessResponse.of(diaryDetailResponse).asHttp(HttpStatus.OK);
     }
 
 

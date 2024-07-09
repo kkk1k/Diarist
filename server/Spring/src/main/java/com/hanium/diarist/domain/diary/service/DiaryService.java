@@ -2,6 +2,7 @@ package com.hanium.diarist.domain.diary.service;
 
 import com.hanium.diarist.domain.diary.domain.Diary;
 import com.hanium.diarist.domain.diary.dto.BookmarkDiaryResponse;
+import com.hanium.diarist.domain.diary.dto.DiaryDetailResponse;
 import com.hanium.diarist.domain.diary.exception.DiaryNotFoundException;
 import com.hanium.diarist.domain.diary.repository.DiaryRepository;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,14 @@ public class DiaryService {
     }
 
 
+    public DiaryDetailResponse getDiaryDetail(Long diaryId) {
+        Optional<Diary> diary = diaryRepository.findByDiaryIdWithDetails(diaryId);
+        if(diary.isEmpty()){
+            throw new DiaryNotFoundException();
+        }
+        Diary diaryObject = diary.get(); // optional 객체를 diary 객체로 변환
+        return DiaryDetailResponse.of(diaryObject,diaryObject.getEmotion(),diaryObject.getArtist());
+    }
 }
 
 
