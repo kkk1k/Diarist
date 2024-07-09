@@ -11,11 +11,14 @@ import com.hanium.diarist.domain.diary.repository.DiaryRepository;
 import com.hanium.diarist.domain.emotion.domain.Emotion;
 import com.hanium.diarist.domain.user.domain.SocialCode;
 import com.hanium.diarist.domain.user.domain.User;
+import com.hanium.diarist.domain.user.service.ValidateUserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -32,6 +35,13 @@ class DiaryServiceTest {
 
     @Mock
     private DiaryRepository diaryRepository;
+
+    @Mock
+    private ValidateUserService validateUserService;
+    @Mock
+    private S3Client s3Client;
+
+
 
     @BeforeEach
     void setUp() {
@@ -147,10 +157,35 @@ class DiaryServiceTest {
         assertEquals(mockDiary.getArtist().getArtistPicture(), diaryDetail.getArtistPicture());
 
         verify(diaryRepository, times(1)).findByDiaryIdWithDetails(diaryId);
-
-
     }
 
+
+
+    @Test
+    void deleteDiaryTest() {
+        // given
+        long diaryId = 1L;
+        long userId = 1L;
+        User user = User.create("a@gmail.com", "test", SocialCode.KAKAO);
+        Artist artist = Artist.create("test1", "test", Period.Contemporary, "test", "test.png", "example.png");
+        Emotion emotion = Emotion.create("test", "testPrompt", "test.png");
+        boolean favorite = true;
+
+        Diary mockDiary = new Diary(user, emotion, artist, LocalDate.now(), "test1", favorite, null);
+        Image image = new Image(mockDiary, "test.png");
+        mockDiary.setImage(image);
+
+        when(diaryRepository.findByDiaryId(diaryId)).thenReturn(Optional.of(mockDiary));
+        when(validateUserService.validateUserById(userId)).thenReturn(user);
+
+        // when
+        diaryService.deleteDiary(diaryId, userId);
+
+        // then
+        verify(s3Client).deleteObject(any(DeleteObjectRequest.class));
+        assertNotNull(mockDiary.getDeletedAt()); // Soft delete 확인
+        assertEquals(mockDiary.getImage().getImageUrl(), "deleted");
+    }
 
 
 
