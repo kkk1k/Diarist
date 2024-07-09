@@ -2,9 +2,8 @@ package com.hanium.diarist.domain.artist.service;
 
 import com.hanium.diarist.domain.artist.domain.Artist;
 import com.hanium.diarist.domain.artist.domain.Period;
-import com.hanium.diarist.domain.artist.dto.ArtistFilterByPeriodResponse;
-import com.hanium.diarist.domain.artist.dto.CreateArtistRequest;
-import com.hanium.diarist.domain.artist.dto.CreateArtistResponse;
+import com.hanium.diarist.domain.artist.dto.*;
+import com.hanium.diarist.domain.artist.exception.ArtistNotFoundException;
 import com.hanium.diarist.domain.artist.repository.ArtistRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -39,5 +38,17 @@ public class ArtistService {
             artistFilterByPeriodResponses.add(ArtistFilterByPeriodResponse.of(artist));
         }
         return artistFilterByPeriodResponses;
+    }
+
+    @Transactional
+    public SelectArtistResponse selectArtist(Long artistId) {
+        Artist artist = artistRepository.findByArtistId(artistId).orElseThrow(ArtistNotFoundException::new);
+        return SelectArtistResponse.of(artist);
+    }
+
+    @Transactional
+    public ArtistResponse getArtist(Long artistId) {
+        Artist artist = artistRepository.findByArtistId(artistId).orElseThrow(ArtistNotFoundException::new);
+        return ArtistResponse.of(artist);
     }
 }

@@ -6,15 +6,14 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class CreateArtistResponse {
-    private final Long artistId;
+public class ArtistResponse {
+
     private final String artistName;
     private final String artistPicture;
     private final String description;
 
-
-    public static CreateArtistResponse of(Artist artist) {
-        return new CreateArtistResponse(artist.getArtistId(), artist.getArtistName(), artist.getArtistPicture(), artist.getDescription());
+    public static ArtistResponse of(Artist artist) {
+        return new ArtistResponse(artist.getArtistName(), artist.getArtistPicture(), artist.getDescription());
     }
 
 

@@ -31,23 +31,28 @@ public class Artist extends BaseEntity {
     @Column(nullable = false)
     private String artistPicture;
 
+    @Column(nullable = false)
+    private String examplePicture;
+
 
     @Builder(access = AccessLevel.PRIVATE)
-    public Artist(String artistName, String artistPrompt, Period period, String description, String artistPicture) {
+    public Artist(String artistName, String artistPrompt, Period period, String description, String artistPicture,String examplePicture) {
         this.artistName = artistName;
         this.artistPrompt = artistPrompt;
         this.period = period;
         this.description = description;
         this.artistPicture = artistPicture;
+        this.examplePicture = examplePicture;
     }
 
-    public static Artist create(String artistName, String artistPrompt, Period period, String description, String artistPicture) {
+    public static Artist create(String artistName, String artistPrompt, Period period, String description, String artistPicture,String examplePicture) {
         return Artist.builder()
                 .artistName(artistName)
                 .artistPrompt(artistPrompt)
                 .period(period)
                 .description(description)
                 .artistPicture(artistPicture)
+                .examplePicture(examplePicture)
                 .build();
     }
 
