@@ -1,6 +1,8 @@
 package com.hanium.diarist.domain.diary.controller;
 
+import com.hanium.diarist.common.resolver.AuthUser;
 import com.hanium.diarist.common.response.SuccessResponse;
+import com.hanium.diarist.common.security.jwt.JwtTokenInfo;
 import com.hanium.diarist.domain.diary.dto.*;
 import com.hanium.diarist.domain.diary.service.CreateDiaryConsumerService;
 import com.hanium.diarist.domain.diary.service.CreateDiaryProducerService;
@@ -82,6 +84,15 @@ public class DiaryController {
     public ResponseEntity<SuccessResponse<DiaryDetailResponse>> getDiaryDetail(@PathVariable Long diaryId) {
         DiaryDetailResponse diaryDetailResponse = diaryService.getDiaryDetail(diaryId);
         return SuccessResponse.of(diaryDetailResponse).asHttp(HttpStatus.OK);
+    }
+
+    @DeleteMapping("/detail/{diaryId}")
+    @Operation(summary = "일기 삭제", description = "일기 삭제 API.")
+    @ApiResponse(responseCode = "204", description = "일기 삭제 성공")
+    public ResponseEntity<SuccessResponse<String>> deleteDiary(@PathVariable Long diaryId, @AuthUser JwtTokenInfo jwtTokenInfo) {
+        Long userId = jwtTokenInfo.getUserId();
+        diaryService.deleteDiary(diaryId,userId);
+        return SuccessResponse.of("일기 삭제 성공").asHttp(HttpStatus.NO_CONTENT);
     }
 
 

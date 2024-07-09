@@ -90,4 +90,8 @@ public class Diary extends BaseEntityWithUpdate {
     public void setImage(Image image) {
         this.image = image;
     }
+
+    public void deleteDiary() {
+        this.deletedAt = LocalDateTime.now();
+    }// 일기 삭제
 }
