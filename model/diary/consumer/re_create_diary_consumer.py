@@ -85,7 +85,10 @@ def process_message(message):
 
         diary = Diary.objects.get(user=user, diary_date=diary_date)
 
+        old_image_url = diary.image.image_url
         old_image = diary.image
+
+        S3ImgUploader.delete_image(old_image_url)
         old_image.delete()
 
         new_image = Image.objects.create(image_url=s3_url)
