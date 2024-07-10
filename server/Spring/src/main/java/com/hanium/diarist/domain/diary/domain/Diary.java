@@ -52,7 +52,7 @@ public class Diary extends BaseEntityWithUpdate {
     @NotNull
     private boolean favorite;
 
-    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "image_id")
     private Image image;
 
@@ -67,27 +67,11 @@ public class Diary extends BaseEntityWithUpdate {
         this.image = null;
     }
 
-    public void setEmotion(Emotion emotion) {
-        this.emotion = emotion;
-    }
 
-    public void setArtist(Artist artist) {
-        this.artist = artist;
-    }
 
-    public void setContent(String content) {
-        this.content = content;
-    }
 
-    public void setDeletedAt(LocalDateTime deletedAt) {
-        this.deletedAt = deletedAt;
-    }
-
-    public void setFavorite(boolean favorite) {
-        this.favorite = favorite;
-    }
-
-    public void setImage(Image image) {
-        this.image = image;
-    }
+    public void deleteDiary() {
+        this.deletedAt = LocalDateTime.now();
+        this.image = null;
+    }// 일기 삭제
 }
