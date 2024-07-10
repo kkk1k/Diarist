@@ -55,3 +55,22 @@ class S3ImgUploader:
         except Exception as e:
             print(f"Failed to upload image to S3: {e}")
             return None
+
+    @staticmethod
+    def delete_image(image_url):
+        try:
+            s3_client = boto3.client(
+                "s3",
+                aws_access_key_id=AWS_ACCESS_KEY_ID,
+                aws_secret_access_key=AWS_SECRET_ACCESS_KEY
+            )
+            bucket_name = AWS_S3_BUCKET_NAME
+            key = image_url.replace(AWS_S3_ENDPOINT_URL, "")
+
+            s3_client.delete_object(Bucket=bucket_name, Key=key)
+            print(f"Deleted image from S3: {image_url}")
+        
+        except NoCredentialsError:
+            print("Credentials not available")
+        except Exception as e:
+            print(f"Failed to delete image from S3: {e}")
