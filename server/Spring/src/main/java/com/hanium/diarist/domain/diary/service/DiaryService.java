@@ -72,7 +72,7 @@ public class DiaryService {
         Diary diary = diaryOptional.get();
         Image image = diary.getImage();
         String imageUrl = diary.getImage().getImageUrl();
-        imageUrl = imageUrl.substring(imageUrl.lastIndexOf("/")+1);
+        imageUrl = imageUrl.substring(imageUrl.indexOf("/", imageUrl.indexOf("//") + 2) + 1);
         image.deleteImage();
 
         deleteFileFromS3(bucket,imageUrl);
