@@ -14,7 +14,7 @@ function Calendar() {
       <Link to='/write'>작성페이지 이동</Link>
       <Link to='/selectdrawer'>화가 선택 페이지 이동</Link>
       <Link to='/album'>앨범 페이지 이동</Link>
-      <Link to='emotion'>감정 선택 페이지 이동</Link>
+      <Link to='/emotion'>감정 선택 페이지 이동</Link>
       <Link to='/drawerlist'>asdad</Link>
       <Link to='/detail'>일기 상세 페이지</Link>
     </Div>
