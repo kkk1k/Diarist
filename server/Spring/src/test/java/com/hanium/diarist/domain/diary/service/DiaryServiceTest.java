@@ -2,22 +2,28 @@ package com.hanium.diarist.domain.diary.service;
 
 import com.hanium.diarist.domain.artist.domain.Artist;
 import com.hanium.diarist.domain.artist.domain.Period;
+import com.hanium.diarist.domain.artist.repository.ArtistRepository;
 import com.hanium.diarist.domain.diary.domain.Diary;
 import com.hanium.diarist.domain.diary.domain.Image;
+import com.hanium.diarist.domain.diary.dto.AlbumResponse;
 import com.hanium.diarist.domain.diary.dto.BookmarkDiaryResponse;
 import com.hanium.diarist.domain.diary.dto.DiaryDetailResponse;
 import com.hanium.diarist.domain.diary.exception.DiaryNotFoundException;
 import com.hanium.diarist.domain.diary.repository.DiaryRepository;
 import com.hanium.diarist.domain.diary.repository.ImageRepository;
 import com.hanium.diarist.domain.emotion.domain.Emotion;
+import com.hanium.diarist.domain.emotion.repository.EmotionRepository;
 import com.hanium.diarist.domain.user.domain.SocialCode;
 import com.hanium.diarist.domain.user.domain.User;
+import com.hanium.diarist.domain.user.repository.UserRepository;
 import com.hanium.diarist.domain.user.service.ValidateUserService;
+import jakarta.validation.constraints.Min;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 
@@ -30,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@Transactional
 class DiaryServiceTest {
     @InjectMocks
     private DiaryService diaryService;
@@ -43,7 +50,6 @@ class DiaryServiceTest {
     private ImageRepository imageRepository;
     @Mock
     private S3Client s3Client;
-
 
 
     @BeforeEach
@@ -188,6 +194,46 @@ class DiaryServiceTest {
         verify(s3Client).deleteObject(any(DeleteObjectRequest.class));
         assertNotNull(mockDiary.getDeletedAt()); // Soft delete 확인
         verify(imageRepository).delete(image);
+    }
+
+    @Test
+    void getBookmarkListTest() {
+        // Given
+        User user = User.create("a@gmail.com", "test", SocialCode.KAKAO);
+
+        Artist artist = Artist.create("test1", "test", Period.Contemporary, "test", "test.png", "example.png");
+
+        Emotion emotion = Emotion.create("test", "testPrompt", "test.png");
+
+        Diary diary1 = new Diary(user, emotion, artist, LocalDate.now(), "test1", true, null);
+        Diary diary2 = new Diary(user, emotion, artist, LocalDate.now(), "test2", true, null);
+        Diary diary3 = new Diary(user, emotion, artist, LocalDate.now(), "test3", true, null);
+        List<Diary> diaries = Arrays.asList(diary1, diary2, diary3);
+
+        Image image1 = new Image(diary1, "test1.png");
+        Image image2 = new Image(diary2, "test2.png");
+        Image image3 = new Image(diary3, "test3.png");
+
+        diary1.setImage(image1);
+        diary2.setImage(image2);
+        diary3.setImage(image3);
+
+        when(diaryRepository.findByUserIdAndFavorite(user.getUserId(),true)).thenReturn(diaries);
+
+        // When
+        List<AlbumResponse> bookmarkList = diaryService.getBookmarkList(user.getUserId());
+
+        // Then
+        assertNotNull(bookmarkList);
+        assertEquals(3, bookmarkList.size());
+
+        for (int i = 0; i < bookmarkList.size(); i++) {
+            AlbumResponse response = bookmarkList.get(i);
+            assertEquals("test" + (i + 1), response.getContent());
+            assertEquals("test" + (i + 1) + ".png", response.getImageUrl());
+        }
+
+        verify(diaryRepository, times(1)).findByUserIdAndFavorite(user.getUserId(),true);
     }
 
 
