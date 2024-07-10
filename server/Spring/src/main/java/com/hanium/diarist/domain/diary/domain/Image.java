@@ -6,19 +6,16 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Where;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Where(clause = "image_url != 'deleted'") // image_url 이 "deleted" 아닌 것만 조회
 public class Image extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long imageId;
 
-    @NotNull
     @OneToOne(mappedBy = "image",fetch = FetchType.LAZY)
     private Diary diary;
 
@@ -34,6 +31,7 @@ public class Image extends BaseEntity {
         this.imageUrl = imageUrl;
     }
 
+    @Deprecated
     public void deleteImage(){
         this.imageUrl = "deleted";
     }
