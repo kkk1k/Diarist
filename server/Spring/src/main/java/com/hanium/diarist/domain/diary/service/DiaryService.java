@@ -2,6 +2,7 @@ package com.hanium.diarist.domain.diary.service;
 
 import com.hanium.diarist.domain.diary.domain.Diary;
 import com.hanium.diarist.domain.diary.domain.Image;
+import com.hanium.diarist.domain.diary.dto.AlbumResponse;
 import com.hanium.diarist.domain.diary.dto.BookmarkDiaryResponse;
 import com.hanium.diarist.domain.diary.dto.DiaryDetailResponse;
 import com.hanium.diarist.domain.diary.exception.DiaryNotFoundException;
@@ -91,6 +92,13 @@ public class DiaryService {
 
 
 
+    @Transactional
+    public List<AlbumResponse> getBookmarkList(Long userId) {
+        List<Diary> diaries = diaryRepository.findByUserIdAndFavorite(userId, true);
+        return diaries.stream()
+                .map(diary -> new AlbumResponse(diary.getDiaryId(), diary.getDiaryDate().toString(), diary.getContent(), diary.getEmotion().getEmotionName(), diary.getArtist().getArtistName(), diary.getImage().getImageUrl()))
+                .collect(Collectors.toList());
+    }
 }
 
 

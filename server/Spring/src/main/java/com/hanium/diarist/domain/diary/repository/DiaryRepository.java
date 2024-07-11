@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public interface DiaryRepository extends JpaRepository<Diary, Long> {
@@ -16,4 +17,6 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
     @Query("select d from Diary d join fetch d.emotion join fetch d.artist join fetch d.image where d.diaryId = :diaryId")
     Optional<Diary> findByDiaryIdWithDetails(long diaryId);
 
+    @Query("select d from Diary d join fetch d.emotion join fetch d.artist join fetch d.image where d.user.userId = :userId and d.favorite = :bool")
+    List<Diary> findByUserIdAndFavorite(Long userId, boolean bool);
 }

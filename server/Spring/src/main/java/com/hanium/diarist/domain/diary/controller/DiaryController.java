@@ -95,5 +95,13 @@ public class DiaryController {
         return SuccessResponse.of("일기 삭제 성공").asHttp(HttpStatus.NO_CONTENT);
     }
 
+    @GetMapping("/bookmark/list")
+    @Operation(summary = "일기 앨범 리스트", description = "일기 앨범 리스트 API")
+    @ApiResponse(responseCode = "200", description = "일기 앨범 리스트 가져오기")
+    public ResponseEntity<SuccessResponse<List<AlbumResponse>>> AlbumList(@AuthUser JwtTokenInfo jwtTokenInfo) {
+        List<AlbumResponse> response = diaryService.getBookmarkList(jwtTokenInfo.getUserId());
+        return SuccessResponse.of(response).asHttp(HttpStatus.OK);
+    }
+
 
 }
