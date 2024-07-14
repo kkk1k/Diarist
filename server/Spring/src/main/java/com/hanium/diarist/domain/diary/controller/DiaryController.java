@@ -35,6 +35,7 @@ public class DiaryController {
     private final CreateDiaryConsumerService createDiaryConsumerService;
     private final DiaryService diaryService;
 
+    @Deprecated
     @PostMapping("create/no_ad")
     @Operation(summary = "일기 생성 요청, 광고 없음", description = "일기 생성 요청 API.")
     @ApiResponse(responseCode = "200", description = "일기 생성 요청 메세지큐에 등록 완료")
@@ -100,6 +101,14 @@ public class DiaryController {
     @ApiResponse(responseCode = "200", description = "일기 앨범 리스트 가져오기")
     public ResponseEntity<SuccessResponse<List<AlbumResponse>>> AlbumList(@AuthUser JwtTokenInfo jwtTokenInfo) {
         List<AlbumResponse> response = diaryService.getBookmarkList(jwtTokenInfo.getUserId());
+        return SuccessResponse.of(response).asHttp(HttpStatus.OK);
+    }
+
+    @GetMapping("/list")
+    @Operation(summary = "캘린더 리스트", description = "캘린더 페이지에 사용될 API")
+    @ApiResponse(responseCode = "200", description = "캘린더 리스트 가져오기")
+    public ResponseEntity<SuccessResponse<List<DiaryListResponse>>> getCalendarList(@AuthUser JwtTokenInfo jwtTokenInfo) {
+        List<DiaryListResponse> response = diaryService.getDiaryList(jwtTokenInfo.getUserId());
         return SuccessResponse.of(response).asHttp(HttpStatus.OK);
     }
 

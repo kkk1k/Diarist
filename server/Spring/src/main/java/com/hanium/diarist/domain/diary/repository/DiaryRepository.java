@@ -14,6 +14,9 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
     Optional<Diary> findByUserAndDiaryDate(User user, LocalDate diaryDate);
     Optional<Diary> findByDiaryId(long diaryId);
 
+    @Query("select d from Diary d join fetch d.image where d.user = :user")
+    List<Diary> findAllByUser(User user);
+
     @Query("select d from Diary d join fetch d.emotion join fetch d.artist join fetch d.image where d.diaryId = :diaryId")
     Optional<Diary> findByDiaryIdWithDetails(long diaryId);
 
