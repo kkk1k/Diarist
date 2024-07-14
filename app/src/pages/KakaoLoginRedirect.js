@@ -2,6 +2,7 @@ import axios from 'axios';
 import React, {useEffect} from 'react';
 import styled from 'styled-components/native';
 import {IP} from '@env';
+import * as SecureStore from 'expo-secure-store';
 
 const StyledSafeAreaView = styled.SafeAreaView`
   flex: 1;
@@ -27,11 +28,11 @@ function KakaoLoginRedirect({navigation, route}) {
         console.log(response.data.data);
         console.log('잘가져오는지 확인:', code);
         // 암호화된 스토리지에 데이터 저장
-        await encryptStorage.setItem('authTokens', data);
+        await SecureStore.setItemAsync('authTokens', JSON.stringify(response.data.data));
 
         navigation.navigate('Test');
       } catch (error) {
-        console.error('Error during API call:', error);
+        console.error('Error during API call:', error.message, error.response);
       }
     }
   };

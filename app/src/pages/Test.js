@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import styled from 'styled-components/native';
-import {EncryptStorage} from 'encrypt-storage';
+import * as SecureStore from 'expo-secure-store';
 
 const Container = styled.View`
   flex: 1;
@@ -20,7 +20,7 @@ const TextSuccess = styled.Text`
 export default function Test() {
   const getData = async () => {
     try {
-      const data = await EncryptStorage.getItem('authTokens');
+      const data = await SecureStore.getItem('authTokens');
       console.log(data);
     } catch (e) {
       console.log(e);
