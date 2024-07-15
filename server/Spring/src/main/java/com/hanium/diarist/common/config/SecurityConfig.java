@@ -1,6 +1,7 @@
 package com.hanium.diarist.common.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hanium.diarist.common.security.jwt.JwtAuthenticationEntryPoint;
 import com.hanium.diarist.common.security.jwt.JwtAuthenticationFilter;
 import com.hanium.diarist.common.security.jwt.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
@@ -49,7 +50,9 @@ public class SecurityConfig {
                                 .requestMatchers(permitAllEndpointList()).permitAll()
                                 .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthenticationEntryPoint(objectMapper(),permitAllEndpointList(),jwtTokenProvider),
+                        JwtAuthenticationFilter.class);
 
         return http.build();
     }
@@ -62,7 +65,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("*"));// 추후 프런트엔드 배포 이후 수정 필요.
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));// 추후 프런트엔드 배포 이후 수정 필요.
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
