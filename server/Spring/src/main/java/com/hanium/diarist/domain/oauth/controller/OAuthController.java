@@ -9,6 +9,7 @@ import com.hanium.diarist.common.security.jwt.exception.ExpiredAccessTokenExcept
 import com.hanium.diarist.common.security.jwt.exception.InvalidTokenException;
 import com.hanium.diarist.common.utils.HeaderUtils;
 import com.hanium.diarist.domain.oauth.dto.AuthorizationCode;
+import com.hanium.diarist.domain.oauth.dto.GoogleAccessToken;
 import com.hanium.diarist.domain.oauth.dto.ResponseJwtToken;
 import com.hanium.diarist.domain.oauth.service.GoogleOauthService;
 import com.hanium.diarist.domain.oauth.service.KakaoOauthService;
@@ -40,8 +41,9 @@ public class OAuthController {
         return SuccessResponse.of(null).asHttp(HttpStatus.OK);
     }
 
+    @Deprecated
     @Operation(summary = "구글 승인코드", description = "구글에서 Authorization code를 받아옵니다.")
-    @GetMapping("/google/login")
+    @GetMapping("/google/login/code")
     public ResponseEntity<SuccessResponse<Object>> googleCallback() {
         return SuccessResponse.of(null).asHttp(HttpStatus.OK);
     }
@@ -69,7 +71,29 @@ public class OAuthController {
         return SuccessResponse.of(kakaoOauthService.login(code)).asHttp(HttpStatus.OK);
     }
 
-    @Operation(summary = "구글 로그인", description = "프론트로부터 Authorization code를 받아 구글 로그인을 진행합니다.")
+    @Deprecated
+    @Operation(summary = "구글 로그인 - 승인코드버전", description = "프론트로부터 Authorization code를 받아 구글 로그인을 진행합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "구글 로그인 성공"),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "C001 : 토큰 형식이 Bearer 형식이 아닙니다.",content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "S007 : Authorization header에 토큰이 비었습니다.",content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "O002 : 구글 OAuth 서버와의 통신에 실패했습니다.",content = @Content(schema = @Schema(hidden = true)))
+    })
+    @PostMapping("/google/login/code")
+    public ResponseEntity<SuccessResponse<ResponseJwtToken>> googleCallback(@RequestBody AuthorizationCode authorizationCode) {
+        String code = authorizationCode.getCode();
+        return SuccessResponse.of(googleOauthService.login(code)).asHttp(HttpStatus.OK);
+    }
+
+    @Operation(summary = "구글 로그인", description = "프론트로부터 access Token과 refresh token을 받아 구글 로그인을 진행합니다.")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
@@ -85,9 +109,8 @@ public class OAuthController {
                     description = "O002 : 구글 OAuth 서버와의 통신에 실패했습니다.",content = @Content(schema = @Schema(hidden = true)))
     })
     @PostMapping("/google/login")
-    public ResponseEntity<SuccessResponse<ResponseJwtToken>> googleCallback(@RequestBody AuthorizationCode authorizationCode) {
-        String code = authorizationCode.getCode();
-        return SuccessResponse.of(googleOauthService.login(code)).asHttp(HttpStatus.OK);
+    public ResponseEntity<SuccessResponse<ResponseJwtToken>> googleLogin(@RequestBody GoogleAccessToken token) {
+        return SuccessResponse.of(googleOauthService.loginByToken(token)).asHttp(HttpStatus.OK);
     }
 
 
