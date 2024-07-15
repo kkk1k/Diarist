@@ -5,9 +5,11 @@ import com.hanium.diarist.domain.diary.domain.Image;
 import com.hanium.diarist.domain.diary.dto.AlbumResponse;
 import com.hanium.diarist.domain.diary.dto.BookmarkDiaryResponse;
 import com.hanium.diarist.domain.diary.dto.DiaryDetailResponse;
+import com.hanium.diarist.domain.diary.dto.DiaryListResponse;
 import com.hanium.diarist.domain.diary.exception.DiaryNotFoundException;
 import com.hanium.diarist.domain.diary.repository.DiaryRepository;
 import com.hanium.diarist.domain.diary.repository.ImageRepository;
+import com.hanium.diarist.domain.user.domain.User;
 import com.hanium.diarist.domain.user.service.ValidateUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -97,6 +99,14 @@ public class DiaryService {
         List<Diary> diaries = diaryRepository.findByUserIdAndFavorite(userId, true);
         return diaries.stream()
                 .map(diary -> new AlbumResponse(diary.getDiaryId(), diary.getDiaryDate().toString(), diary.getContent(), diary.getEmotion().getEmotionName(), diary.getArtist().getArtistName(), diary.getImage().getImageUrl()))
+                .collect(Collectors.toList());
+    }
+
+    public List<DiaryListResponse> getDiaryList(Long userId) {
+        User user = validateUserService.validateUserById(userId);
+        List<Diary> diaryList = diaryRepository.findAllByUser(user);
+        return diaryList.stream()
+                .map(diary -> new DiaryListResponse(diary.getDiaryId(), diary.getDiaryDate().toString(),diary.getImage().getImageUrl()))
                 .collect(Collectors.toList());
     }
 }

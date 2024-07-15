@@ -8,6 +8,7 @@ import com.hanium.diarist.domain.diary.domain.Image;
 import com.hanium.diarist.domain.diary.dto.AlbumResponse;
 import com.hanium.diarist.domain.diary.dto.BookmarkDiaryResponse;
 import com.hanium.diarist.domain.diary.dto.DiaryDetailResponse;
+import com.hanium.diarist.domain.diary.dto.DiaryListResponse;
 import com.hanium.diarist.domain.diary.exception.DiaryNotFoundException;
 import com.hanium.diarist.domain.diary.repository.DiaryRepository;
 import com.hanium.diarist.domain.diary.repository.ImageRepository;
@@ -234,6 +235,41 @@ class DiaryServiceTest {
         }
 
         verify(diaryRepository, times(1)).findByUserIdAndFavorite(user.getUserId(),true);
+    }
+
+    @Test
+    void getDiaryListTest() {
+        // Given
+        User user = User.create("a@gmail.com", "test", SocialCode.KAKAO);
+
+        Artist artist = Artist.create("test1", "test", Period.Contemporary, "test", "test.png", "example.png");
+
+        Emotion emotion = Emotion.create("test", "testPrompt", "test.png");
+
+        Diary diary1 = new Diary(user, emotion, artist, LocalDate.now(), "test1", true, null);
+        Diary diary2 = new Diary(user, emotion, artist, LocalDate.now(), "test2", true, null);
+        Diary diary3 = new Diary(user, emotion, artist, LocalDate.now(), "test3", true, null);
+        List<Diary> diaries = Arrays.asList(diary1, diary2, diary3);
+
+        Image image1 = new Image(diary1, "test1.png");
+        Image image2 = new Image(diary2, "test2.png");
+        Image image3 = new Image(diary3, "test3.png");
+
+        diary1.setImage(image1);
+        diary2.setImage(image2);
+        diary3.setImage(image3);
+
+        when(validateUserService.validateUserById(user.getUserId())).thenReturn(user);
+        when(diaryRepository.findAllByUser(user)).thenReturn(diaries);
+
+        // When
+        List<DiaryListResponse> diaryList = diaryService.getDiaryList(user.getUserId());
+
+        // Then
+        assertNotNull(diaryList);
+        assertEquals(3, diaryList.size());
+
+        verify(diaryRepository, times(1)).findAllByUser(user);
     }
 
 
