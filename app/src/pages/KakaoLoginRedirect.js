@@ -9,15 +9,6 @@ const StyledSafeAreaView = styled.SafeAreaView`
   background-color: #ffffff;
 `;
 
-const TextLoading = styled.Text`
-  text-align: center;
-  color: #0f0f0f;
-  font-size: ${props => 100 * props.theme.widthRatio}px;
-  font-family: 'Pretendard-Regular';
-  font-weight: 500;
-  line-height: normal;
-`;
-
 function KakaoLoginRedirect({navigation, route}) {
   const {code} = route.params;
   console.log(code);

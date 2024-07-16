@@ -20,8 +20,9 @@ const TextSuccess = styled.Text`
 export default function Test() {
   const getData = async () => {
     try {
-      const data = await SecureStore.getItem('authTokens');
-      console.log(data);
+      const stringData = await SecureStore.getItem('token');
+      const token = JSON.parse(stringData);
+      console.log(token);
     } catch (e) {
       console.log(e);
     }

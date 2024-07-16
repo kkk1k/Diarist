@@ -5,7 +5,6 @@ import KakaoWebView from './pages/KakaoWebView';
 import Test from './pages/Test';
 import KakaoLoginRedirect from './pages/KakaoLoginRedirect';
 import GoogleWebView from './pages/GoogleWebView';
-import GoogleLoginRedirect from './pages/GoogleLoginRedirect';
 
 const Stack = createNativeStackNavigator();
 
@@ -24,8 +23,7 @@ function MyStack() {
         component={KakaoLoginRedirect}
         options={{animation: 'none'}}
       />
-      <Stack.Screen name='GoogleWebView' component={GoogleWebView} />
-      <Stack.Screen name='GoogleLoginRedirect' component={GoogleLoginRedirect} />
+      <Stack.Screen name='GoogleWebView' component={GoogleWebView} options={{animation: 'none'}} />
     </Stack.Navigator>
   );
 }

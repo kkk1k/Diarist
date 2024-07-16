@@ -25,10 +25,10 @@ function KakaoWebView({navigation}) {
             animation: 'none',
           },
         );
-        return false; // 페이지 로딩을 중단
+        return false;
       }
     }
-    return true; // 다른 URL은 정상적으로 로드
+    return true;
   };
 
   return (

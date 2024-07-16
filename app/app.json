@@ -5,8 +5,8 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./src/assets/icon.png",
-    "scheme": "hellorvdworld",
     "userInterfaceStyle": "light",
+    "scheme": "diarist",
     "splash": {
       "image": "./src/assets/splash.png",
       "resizeMode": "contain",
@@ -14,47 +14,25 @@
     },
     "ios": {
       "supportsTablet": true,
-      "associatedDomains": [
-        "applinks:hellorvdworld.com"
-      ]
+      "bundleIdentifier": "com.diarist.app"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "intentFilters": [
-        {
-          "action": "VIEW",
-          "autoVerify": true,
-          "data": [
-            {
-              "scheme": "https",
-              "host": "hellorvdworld.com",
-              "pathPrefix": "/oauth2/google/login"
-            }
-          ],
-          "category": [
-            "BROWSABLE",
-            "DEFAULT"
-          ]
-        }
-      ],
       "package": "com.diarist.app"
     },
     "web": {
       "favicon": "./src/assets/favicon.png"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "plugins": [
-      "expo-secure-store"
-    ],
+    "assetBundlePatterns": ["**/*"],
+    "plugins": ["expo-secure-store"],
     "extra": {
       "eas": {
         "projectId": "05ea68e6-0032-47e3-994d-79443cf8adba"
       }
-    }
+    },
+    "platforms": ["ios", "android", "web"]
   }
 }
