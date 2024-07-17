@@ -121,4 +121,29 @@ public class GoogleOauthService {
         }
 
     }
+
+    @Transactional
+    public ResponseJwtToken loginByToken(GoogleAccessToken token) {
+        String socialRefreshToken = token.getRefreshToken();
+        GoogleUserProfile userProfile = getUserProfile(token);
+        User user = validateUserService.validateRegisteredUserByEmail(userProfile.getEmail(),SocialCode.GOOGLE);
+
+        if(user == null){ // 회원가입을 해야하는 경우
+            user = userService.registerUser(userProfile.getEmail(), userProfile.getName(), SocialCode.GOOGLE);
+        }
+
+        String jwtAccessToken = jwtTokenProvider.createAccessToken(user.getUserId(),
+                user.getUserRole());
+        String jwtRefreshToken = jwtTokenProvider.createRefreshToken(user.getUserId(),
+                user.getUserRole());
+
+        Optional<Auth> auth = authRepository.findByUser(user);
+        if (auth.isEmpty()) {
+            // 새로운 Auth 객체 생성 및 저장
+            auth = Optional.of(Auth.create(user, jwtRefreshToken, socialRefreshToken));// google refresh token이 회원탈퇴시 사용.
+        }
+        authRepository.save(auth.get());
+
+        return ResponseJwtToken.of(jwtAccessToken, jwtRefreshToken);
+    }
 }
