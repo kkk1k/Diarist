@@ -126,8 +126,7 @@ const BottomButton = styled.button`
 `;
 
 const API_BASE_URL = 'https://hellorvdworld.com';
-const TOKEN =
-  'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ1c2VySWQiOiIyOCIsIkF1dGhlbnRpY2F0aW9uUm9sZSI6IlVTRVIiLCJ0eXBlIjoiQUNDRVNTIiwiaWF0IjoxNzIxMjkwMTQwLCJleHAiOjE3MjEyOTM3NDB9.R0owhkLPPzXBQYcH_lFK8VXw2qqOF_ldoK5CETSeDWrGhLssjlx6y3dOQEhmh3Gu73lYmHyA8wNDZM_PSI2SZw';
+const TOKEN = '';
 
 function AlbumPage() {
   const [view, setView] = useState('thumbnail');
