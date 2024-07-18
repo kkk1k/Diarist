@@ -33,6 +33,7 @@ const TitleContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
   padding-top: ${props => 10 * props.theme.widthRatio}px;
 `;
 
@@ -69,10 +70,15 @@ const Button = styled.button`
   display: flex;
   background-color: transparent;
   gap: ${props => 20 * props.theme.widthRatio}px;
+  width: 100%;
 `;
 
 const ImageContainer = styled.div`
   position: relative;
+`;
+
+const ContentContainer = styled.div`
+  width: 100%;
 `;
 
 function ListAlbum({
@@ -98,7 +104,7 @@ function ListAlbum({
           />
           {isSelected && isSelectionMode && <CheckImage src='CheckBox.png' alt='체크박스' />}
         </ImageContainer>
-        <div>
+        <ContentContainer>
           <TitleContainer>
             <H4>{date}</H4>
             <HashContainer>
@@ -107,7 +113,7 @@ function ListAlbum({
             </HashContainer>
           </TitleContainer>
           <Content>{content}</Content>
-        </div>
+        </ContentContainer>
       </Button>
     </ListLi>
   );
