@@ -33,6 +33,7 @@
         "projectId": "05ea68e6-0032-47e3-994d-79443cf8adba"
       }
     },
-    "platforms": ["ios", "android", "web"]
+    "platforms": ["ios", "android", "web"],
+    "owner": "kkk1k"
   }
 }

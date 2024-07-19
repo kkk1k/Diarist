@@ -18,10 +18,13 @@ const TextSuccess = styled.Text`
 `;
 
 export default function Test() {
+  console.log(Date.now());
+
   const getData = async () => {
     try {
       const stringData = await SecureStore.getItem('token');
       const token = JSON.parse(stringData);
+
       console.log(token);
     } catch (e) {
       console.log(e);

@@ -10,11 +10,13 @@ const StyledSafeAreaView = styled.SafeAreaView`
   flex: 1;
   background-color: #ffffff;
 `;
+
 WebBrowser.maybeCompleteAuthSession();
 
 function GoogleWebView({navigation}) {
   const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId: WEB_ID,
+    clientId: WEB_ID,
+    expoClientId: WEB_ID,
     androidClientId: ANDROID_ID,
     iosClientId: IOS_ID,
     usePKCE: false,
@@ -31,6 +33,7 @@ function GoogleWebView({navigation}) {
       include_granted_scopes: 'true',
     },
   });
+
   const sendAuthCodeToServer = async (
     accessToken,
     expiresIn,
@@ -58,8 +61,10 @@ function GoogleWebView({navigation}) {
         },
       );
 
-      const token = JSON.stringify(serverResponse.data.data);
-      await SecureStore.setItemAsync('token', token);
+      const accessJWTToken = JSON.stringify(serverResponse.data.data.accessToken);
+      const refreshJWTToken = JSON.stringify(serverResponse.data.data.refreshToken);
+      await SecureStore.setItemAsync('accessToken', accessJWTToken);
+      await SecureStore.setItemAsync('refreshToken', refreshJWTToken);
       navigation.navigate('Test');
     } catch (error) {
       console.error(
@@ -71,12 +76,8 @@ function GoogleWebView({navigation}) {
 
   useEffect(() => {
     if (response?.type === 'success') {
-      const {accessToken} = response.authentication;
-      const {expiresIn} = response.authentication;
-      const {refreshToken} = response.authentication;
-      const {scope} = response.authentication;
-      const {tokenType} = response.authentication;
-      const {idToken} = response.authentication;
+      const {accessToken, expiresIn, refreshToken, scope, tokenType, idToken} =
+        response.authentication;
       console.log(response);
 
       sendAuthCodeToServer(accessToken, expiresIn, refreshToken, scope, idToken, tokenType);
