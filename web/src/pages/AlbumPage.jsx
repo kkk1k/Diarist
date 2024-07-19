@@ -1,5 +1,7 @@
 import {React, useState, useEffect} from 'react';
 import styled from 'styled-components';
+import axios from 'axios';
+import {parseISO, format, compareDesc, compareAsc} from 'date-fns';
 import ListAlbum from '../components/ListAlbum';
 import ThumbnailAlbum from '../components/ThumbnailAlbum';
 
@@ -53,6 +55,12 @@ const HeaderMenu = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: ${props => 20 * props.theme.widthRatio}px;
+`;
+
+const ThumbnailHeaderMenu = styled.div`
+  display: flex;
+  justify-content: flex-end;
   margin-bottom: ${props => 20 * props.theme.widthRatio}px;
 `;
 
@@ -117,10 +125,20 @@ const BottomButton = styled.button`
   background-color: #fff;
 `;
 
+const API_BASE_URL = 'https://hellorvdworld.com';
+const TOKEN = '';
+
 function AlbumPage() {
   const [view, setView] = useState('thumbnail');
   const [selectedIds, setSelectedIds] = useState([]);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
+
+  const [bookmarks, setBookmarks] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const [sortOrder, setSortOrder] = useState('최신순');
+  const [originalBookmarks, setOriginalBookmarks] = useState([]);
 
   const handleListView = () => {
     setView('list');
@@ -137,6 +155,23 @@ function AlbumPage() {
     }
   };
 
+  const navigateToDetailPage = id => {
+    console.log('Navigate to detail page:', id);
+  };
+
+  const getSeason = month => {
+    if (month >= 3 && month <= 5) {
+      return '봄';
+    }
+    if (month >= 6 && month <= 8) {
+      return '여름';
+    }
+    if (month >= 9 && month <= 11) {
+      return '가을';
+    }
+    return '겨울';
+  };
+
   const handleThumbnailClick = id => {
     if (isSelectionMode) {
       setSelectedIds(prevSelectedIds =>
@@ -144,6 +179,53 @@ function AlbumPage() {
           ? prevSelectedIds.filter(selectedId => selectedId !== id)
           : [...prevSelectedIds, id],
       );
+    } else {
+      navigateToDetailPage(id);
+    }
+  };
+
+  const formatAndSortBookmarks = (data, order) =>
+    data
+      .sort((a, b) =>
+        order === '최신순'
+          ? compareDesc(parseISO(a.diaryDate), parseISO(b.diaryDate))
+          : compareAsc(parseISO(a.diaryDate), parseISO(b.diaryDate)),
+      )
+      .map(bookmark => ({
+        ...bookmark,
+        formattedDate: format(parseISO(bookmark.diaryDate), 'MM. dd'),
+        year: format(parseISO(bookmark.diaryDate), 'yyyy'),
+        season: getSeason(parseISO(bookmark.diaryDate).getMonth() + 1),
+      }));
+
+  const [sortedBookmarks, setSortedBookmarks] = useState([]);
+
+  useEffect(() => {
+    if (bookmarks.data) {
+      setSortedBookmarks(formatAndSortBookmarks(bookmarks.data, sortOrder));
+    }
+  }, [bookmarks.data, sortOrder]);
+
+  const fetchBookmarks = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/v1/diary/bookmark/list`, {
+        headers: {
+          Authorization: `Bearer ${TOKEN}`,
+          Accept: '*/*',
+        },
+      });
+      setOriginalBookmarks(response.data.data);
+      console.log(response.data);
+      const formattedAndSortedBookmarks = formatAndSortBookmarks(response.data.data, sortOrder);
+      console.log(formattedAndSortedBookmarks);
+      setBookmarks({...response.data, data: formattedAndSortedBookmarks});
+    } catch (err) {
+      console.error('Error fetching bookmarks:', err);
+      setError('북마크 목록을 불러오는 데 실패했습니다.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -152,6 +234,17 @@ function AlbumPage() {
       setSelectedIds([]);
     }
   }, [isSelectionMode]);
+
+  useEffect(() => {
+    fetchBookmarks();
+  }, []);
+
+  const handleSortChange = e => {
+    setSortOrder(e.target.value);
+  };
+
+  if (isLoading) return <div>로딩중</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <MainContainer>
@@ -189,49 +282,74 @@ function AlbumPage() {
       </HeaderMenu>
 
       {/* 앨범 네비바 */}
-      <HeaderMenu>
-        <H3>
-          2024년 <Bold>봄</Bold>
-        </H3>
-        <Select disabled={isSelectionMode}>
-          <option value='최신순'>최신순</option>
-          <option value='오래된순'>오래된순</option>
-        </Select>
-      </HeaderMenu>
 
       {view === 'thumbnail' && (
-        <ThumbnailUl>
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map(id => (
-            <ThumbnailAlbum
-              key={id}
-              src='/diary.webp'
-              id={id}
-              onClick={handleThumbnailClick}
-              isSelected={selectedIds.includes(id)}
-              isSelectionMode={isSelectionMode}
-            />
-          ))}
-        </ThumbnailUl>
+        <>
+          <ThumbnailHeaderMenu>
+            <Select disabled={isSelectionMode} onChange={handleSortChange} value={sortOrder}>
+              <option value='최신순'>최신순</option>
+              <option value='오래된순'>오래된순</option>
+            </Select>
+          </ThumbnailHeaderMenu>
+          <ThumbnailUl>
+            {sortedBookmarks.map(bookmark => (
+              <ThumbnailAlbum
+                key={bookmark.diaryId}
+                src={bookmark.imageUrl}
+                id={bookmark.diaryId}
+                onClick={() => handleThumbnailClick(bookmark.diaryId)}
+                isSelected={selectedIds.includes(bookmark.diaryId)}
+                isSelectionMode={isSelectionMode}
+              />
+            ))}
+          </ThumbnailUl>
+        </>
       )}
 
       {view === 'list' && (
         <ul>
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map(id => (
-            <ListAlbum
-              key={id}
-              src='/diary.webp'
-              id={id}
-              date='02.09'
-              artist='피카소'
-              emotion='행복'
-              content='오늘은 즐거운 하루 행복하자 모두 Fighting! 곧 종강이다! 오늘은 즐거운 하루 행복하자 모두 Fighting! 곧 종강 오늘은 즐거운 하루 행복하자 모두 Fighting! 곧 종강이다! 오늘은 즐거운 하루 행복하자 모두 Fighting! 곧 종강'
-              onClick={handleThumbnailClick}
-              isSelected={selectedIds.includes(id)}
-              isSelectionMode={isSelectionMode}
-            />
-          ))}
+          {sortedBookmarks.map((bookmark, index) => {
+            const showHeader =
+              index === 0 ||
+              sortedBookmarks[index - 1].year !== bookmark.year ||
+              sortedBookmarks[index - 1].season !== bookmark.season;
+
+            return (
+              <div key={bookmark.diaryId}>
+                {showHeader && (
+                  <HeaderMenu>
+                    <H3>
+                      {bookmark.year}년 <Bold>{bookmark.season}</Bold>
+                    </H3>
+                    {index === 0 && (
+                      <Select
+                        disabled={isSelectionMode}
+                        onChange={handleSortChange}
+                        value={sortOrder}
+                      >
+                        <option value='최신순'>최신순</option>
+                        <option value='오래된순'>오래된순</option>
+                      </Select>
+                    )}
+                  </HeaderMenu>
+                )}
+                <ListAlbum
+                  src={bookmark.imageUrl}
+                  id={bookmark.diaryId}
+                  date={bookmark.formattedDate}
+                  artist={bookmark.artist}
+                  emotion={bookmark.emotion}
+                  content={bookmark.content}
+                  onClick={() => handleThumbnailClick(bookmark.diaryId)}
+                  isSelected={selectedIds.includes(bookmark.diaryId)}
+                  isSelectionMode={isSelectionMode}
+                />
+              </div>
+            );
+          })}
         </ul>
       )}
+
       {isSelectionMode && selectedIds.length > 0 && (
         <BottomNav>
           <BottomP>
