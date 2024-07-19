@@ -26,7 +26,7 @@ function KakaoLoginRedirect({navigation, route}) {
             await SecureStore.setItemAsync('accessToken', accessJWTToken);
             await SecureStore.setItemAsync('refreshToken', refreshJWTToken);
 
-            navigation.navigate('Test');
+            navigation.navigate('Calendar');
           }
         } catch (e) {
           console.error('Error during API call:', e.message, e.response);
@@ -45,7 +45,7 @@ function KakaoLoginRedirect({navigation, route}) {
         await SecureStore.setItemAsync('accessToken', accessJWTToken);
         await SecureStore.setItemAsync('refreshToken', refreshJWTToken);
 
-        navigation.navigate('Test');
+        navigation.navigate('Calendar');
       })();
     }
   }, [data, navigation]);
