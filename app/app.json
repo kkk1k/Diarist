@@ -6,23 +6,34 @@
     "orientation": "portrait",
     "icon": "./src/assets/icon.png",
     "userInterfaceStyle": "light",
+    "scheme": "diarist",
     "splash": {
       "image": "./src/assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.diarist.app"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.diarist.app"
     },
     "web": {
       "favicon": "./src/assets/favicon.png"
     },
-    "assetBundlePatterns": ["**/*"]
+    "assetBundlePatterns": ["**/*"],
+    "plugins": ["expo-secure-store"],
+    "extra": {
+      "eas": {
+        "projectId": "05ea68e6-0032-47e3-994d-79443cf8adba"
+      }
+    },
+    "platforms": ["ios", "android", "web"],
+    "owner": "kkk1k"
   }
 }

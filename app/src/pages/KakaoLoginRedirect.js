@@ -1,45 +1,70 @@
-import axios from 'axios';
 import React, {useEffect} from 'react';
 import styled from 'styled-components/native';
+import * as SecureStore from 'expo-secure-store';
+import {Text} from 'react-native';
 import {IP} from '@env';
+import useApi from '../hooks/useApi'; // Adjust the import path as necessary
 
 const StyledSafeAreaView = styled.SafeAreaView`
   flex: 1;
   background-color: #ffffff;
 `;
 
-const TextLoading = styled.Text`
-  text-align: center;
-  color: #0f0f0f;
-  font-size: ${props => 100 * props.theme.widthRatio}px;
-  font-family: 'Pretendard-Regular';
-  font-weight: 500;
-  line-height: normal;
-`;
-
 function KakaoLoginRedirect({navigation, route}) {
   const {code} = route.params;
-  console.log(code);
+  const {data, isLoading, error, AxiosApi} = useApi();
 
   useEffect(() => {
     const fetchData = async () => {
       if (code) {
         try {
-          const response = await axios.post(`${IP}/oauth2/kakao/login`, {code});
-          console.log(response.data.data);
-          console.log('잘가져오는지 확인:', code);
-          // 암호화된 스토리지에 데이터 저장
-          await encryptStorage.setItem('authTokens', data);
+          await AxiosApi('POST', '/oauth2/kakao/login', {code});
 
-          navigation.navigate('Test');
-        } catch (error) {
-          console.error('Error during API call:', error);
+          if (data) {
+            const accessJWTToken = JSON.stringify(data.data.accessToken);
+            const refreshJWTToken = JSON.stringify(data.data.refreshToken);
+            await SecureStore.setItemAsync('accessToken', accessJWTToken);
+            await SecureStore.setItemAsync('refreshToken', refreshJWTToken);
+
+            navigation.navigate('Test');
+          }
+        } catch (e) {
+          console.error('Error during API call:', e.message, e.response);
         }
       }
     };
 
     fetchData();
-  }, [code, navigation]);
+  }, [code]);
+
+  useEffect(() => {
+    if (data) {
+      (async () => {
+        const accessJWTToken = JSON.stringify(data.data.accessToken);
+        const refreshJWTToken = JSON.stringify(data.data.refreshToken);
+        await SecureStore.setItemAsync('accessToken', accessJWTToken);
+        await SecureStore.setItemAsync('refreshToken', refreshJWTToken);
+
+        navigation.navigate('Test');
+      })();
+    }
+  }, [data, navigation]);
+
+  if (isLoading) {
+    return (
+      <StyledSafeAreaView>
+        <Text>Loading...</Text>
+      </StyledSafeAreaView>
+    );
+  }
+
+  if (error) {
+    return (
+      <StyledSafeAreaView>
+        <Text>Error: {error.message}</Text>
+      </StyledSafeAreaView>
+    );
+  }
 
   return <StyledSafeAreaView />;
 }

@@ -4,6 +4,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import styled, {ThemeProvider} from 'styled-components/native';
 import useFonts from './hooks/useFont';
 import MyStack from './MyStack';
+import {AuthProvider} from './context/AuthContext';
 
 const FIGMA_WIDTH = 640;
 
@@ -53,10 +54,12 @@ export default function App() {
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <NavigationContainer>
-        <MyStack />
-      </NavigationContainer>
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider theme={theme}>
+        <NavigationContainer>
+          <MyStack />
+        </NavigationContainer>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
