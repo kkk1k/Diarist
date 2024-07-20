@@ -23,7 +23,7 @@ public class CreateDiaryResponse {
     private String content;
     private String artistName;
     private String artistPicture;
-    private LocalDate diaryDate;
+    private String diaryDate;
     private String ImageUrl;
 
     @Override

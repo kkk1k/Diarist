@@ -47,7 +47,9 @@ public class DiaryController {
     @PostMapping("create/ad")
     @Operation(summary = "일기 생성 요청 및 광고 시청", description = "일기 생성 요청 및 광고 시청 API.")
     @ApiResponse(responseCode = "200", description = "일기 생성 요청 메세지큐에 등록 완료")
-    public ResponseEntity<SuccessResponse<AdResponse>> createDiaryWithAd(@Valid @RequestBody CreateDiaryRequest createDiaryRequest) {
+    public ResponseEntity<SuccessResponse<AdResponse>> createDiaryWithAd(@Valid @RequestBody CreateDiaryRequest createDiaryRequest
+            , @AuthUser JwtTokenInfo jwtTokenInfo) {
+        createDiaryRequest.setUserId(jwtTokenInfo.getUserId());
         boolean adRequired = createDiaryProducerService.sendCreateDiaryMessageWithAd(createDiaryRequest);
         return SuccessResponse.of(new AdResponse(adRequired)).asHttp(HttpStatus.CREATED);// 광고 시청 여부 반환
     }
@@ -58,9 +60,9 @@ public class DiaryController {
     @GetMapping(value = "/kafka-response", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @Operation(summary = "일기 생성 요청 응답", description = "일기 생성 완료 요청을 클라이언트에 던져주는 API.")
     @ApiResponse(responseCode = "200", description = "일기 생성 완료 요청을 클라이언트에 던져주는 API", content = @Content(array = @ArraySchema(schema = @Schema(implementation = CreateDiaryResponse.class))))
-    public SseEmitter kafkaResponse() {
+    public SseEmitter kafkaResponse(@AuthUser JwtTokenInfo jwtTokenInfo) {
         // kafka consumer 가 emitter 에 데이터를 보내면 emitter 가 클라이언트에게 데이터를 보냄
-        return createDiaryConsumerService.addEmitter();
+        return createDiaryConsumerService.addEmitter(jwtTokenInfo.getUserId());
     }
 
     @PostMapping("/bookmark")
