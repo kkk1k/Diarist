@@ -1,5 +1,5 @@
 import {React, useEffect, useState} from 'react';
-import {Dimensions, Image, StyleSheet, Text, View} from 'react-native';
+import {Dimensions, Image, Pressable, StyleSheet, Text, View} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
 import useApiCall from '../hooks/useApiTest';
 import useApi from '../hooks/useApi';
@@ -39,7 +39,7 @@ LocaleConfig.locales.fr = {
 };
 LocaleConfig.defaultLocale = 'fr';
 
-function Calendars() {
+function Calendars({navigation}) {
   const [widthRatio, setWidthRatio] = useState(0);
   const FIGMA_WIDTH = 640;
 
@@ -159,8 +159,6 @@ function Calendars() {
       try {
         await AxiosApi('get', '/api/v1/diary/list');
       } finally {
-        console.log('data');
-        console.log(data);
         console.log('done');
       }
     };
@@ -168,48 +166,19 @@ function Calendars() {
     fetchData();
   }, []);
 
-  
-
-  // 직접 API 호출
-  // const API_BASE_URL = 'https://hellorvdworld.com';
-  // const TOKEN =
-  //   'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ1c2VySWQiOiIyOCIsIkF1dGhlbnRpY2F0aW9uUm9sZSI6IlVTRVIiLCJ0eXBlIjoiQUNDRVNTIiwiaWF0IjoxNzIxMzczNjk1LCJleHAiOjE3MjEzNzcyOTV9.fMdJ-vCblE3gclQJNE9-QM3gBVoaRciOR18Zj7rlNrARBQZFyWWBJ7MykirdzHycII5U8BgstJwHs3249qXJng';
-  // const fetchCalendars = async () => {
-  //   try {
-  //     const response = await axios.get(`${API_BASE_URL}/api/v1/diary/bookmark/list`, {
-  //       headers: {
-  //         Authorization: `Bearer ${TOKEN}`,
-  //         Accept: '*/*',
-  //       },
-  //     });
-
-  //     console.log(response.data);
-  //   } catch (err) {
-  //     console.error('Error fetching bookmarks:', err);
-  //   } finally {
-  //     console.log('done');
-  //   }
-  // };
-
-  // const {callApi, data, loading, error} = useApiCall();
-
-  // useEffect(() => {
-  // 북마크 리스트 가져오기
-  //   callApi('GET', '/api/v1/diary/bookmark/list');
-  //   console.log(data.data);
-  // }, []);
-
-  // useEffect(() => {
-  //   fetchCalendars();
-  // }, []);
+  useEffect(() => {
+    if (data) {
+      console.log('바로 나오는지 확인하는', data);
+    }
+  }, [data]);
 
   // 현재 표시중인 월
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   // 이미지 URL을 날짜와 매핑한 객체 (서버에서 받아올 데이터)
   const diaryImages = {
-    '2024-07-01': require('./../assets/favicon.png'),
-    '2024-07-06': require('./../assets/favicon.png'),
+    '2024-07-01': require('../assets/favicon.png'),
+    '2024-07-06': require('../assets/favicon.png'),
   };
 
   // 요일 헤더 렌더링
@@ -237,9 +206,14 @@ function Calendars() {
       content = <Image source={imageSource} style={styles.diaryImage} />;
     } else if (isToday) {
       content = (
-        <View style={styles.todayPlaceholder}>
-          <Image source={require('./../assets/Plus.png')} style={styles.plusImage} />
-        </View>
+        <Pressable
+          style={styles.todayPlaceholder}
+          onPress={() => {
+            navigation.navigate('WriteDiaryWebView');
+          }}
+        >
+          <Image source={require('../assets/Plus.png')} style={styles.plusImage} />
+        </Pressable>
       );
     } else {
       content = <View style={styles.placeholder} />;

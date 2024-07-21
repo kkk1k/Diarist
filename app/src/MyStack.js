@@ -2,10 +2,11 @@ import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Login from './pages/Login';
 import KakaoWebView from './pages/KakaoWebView';
-import Test from './pages/Test';
 import KakaoLoginRedirect from './pages/KakaoLoginRedirect';
 import GoogleWebView from './pages/GoogleWebView';
 import Calendars from './pages/Calendar';
+import GoogleRedirect from './pages/GoogleRedirect';
+import WriteDiaryWebView from './pages/WriteDiaryWebView';
 
 const Stack = createNativeStackNavigator();
 
@@ -18,7 +19,6 @@ function MyStack() {
     >
       <Stack.Screen name='Login' component={Login} />
       <Stack.Screen name='KakaoWebView' component={KakaoWebView} />
-      <Stack.Screen name='Test' component={Test} options={{animation: 'none'}} />
       <Stack.Screen
         name='KakaoLoginRedirect'
         component={KakaoLoginRedirect}
@@ -26,6 +26,8 @@ function MyStack() {
       />
       <Stack.Screen name='GoogleWebView' component={GoogleWebView} options={{animation: 'none'}} />
       <Stack.Screen name='Calendar' component={Calendars} />
+      <Stack.Screen name='GoogleRedirect' component={GoogleRedirect} />
+      <Stack.Screen name='WriteDiaryWebView' component={WriteDiaryWebView} />
     </Stack.Navigator>
   );
 }

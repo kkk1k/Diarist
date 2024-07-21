@@ -3,7 +3,8 @@ import styled from 'styled-components/native';
 import * as SecureStore from 'expo-secure-store';
 import {Text} from 'react-native';
 import {IP} from '@env';
-import useApi from '../hooks/useApi'; // Adjust the import path as necessary
+import axios from 'axios';
+import {CommonActions} from '@react-navigation/native';
 
 const StyledSafeAreaView = styled.SafeAreaView`
   flex: 1;
@@ -12,21 +13,35 @@ const StyledSafeAreaView = styled.SafeAreaView`
 
 function KakaoLoginRedirect({navigation, route}) {
   const {code} = route.params;
-  const {data, isLoading, error, AxiosApi} = useApi();
 
   useEffect(() => {
     const fetchData = async () => {
       if (code) {
         try {
-          await AxiosApi('POST', '/oauth2/kakao/login', {code});
-
+          const response = await axios({
+            method: 'POST',
+            url: `${IP}/oauth2/kakao/login`,
+            headers: {
+              'Content-Type': 'application/json',
+              accept: '*/*',
+            },
+            data: {
+              code,
+            },
+          });
+          const {data} = response;
           if (data) {
             const accessJWTToken = JSON.stringify(data.data.accessToken);
             const refreshJWTToken = JSON.stringify(data.data.refreshToken);
             await SecureStore.setItemAsync('accessToken', accessJWTToken);
             await SecureStore.setItemAsync('refreshToken', refreshJWTToken);
 
-            navigation.navigate('Calendar');
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{name: 'Calendar'}],
+              }),
+            );
           }
         } catch (e) {
           console.error('Error during API call:', e.message, e.response);
@@ -35,36 +50,7 @@ function KakaoLoginRedirect({navigation, route}) {
     };
 
     fetchData();
-  }, [code]);
-
-  useEffect(() => {
-    if (data) {
-      (async () => {
-        const accessJWTToken = JSON.stringify(data.data.accessToken);
-        const refreshJWTToken = JSON.stringify(data.data.refreshToken);
-        await SecureStore.setItemAsync('accessToken', accessJWTToken);
-        await SecureStore.setItemAsync('refreshToken', refreshJWTToken);
-
-        navigation.navigate('Calendar');
-      })();
-    }
-  }, [data, navigation]);
-
-  if (isLoading) {
-    return (
-      <StyledSafeAreaView>
-        <Text>Loading...</Text>
-      </StyledSafeAreaView>
-    );
-  }
-
-  if (error) {
-    return (
-      <StyledSafeAreaView>
-        <Text>Error: {error.message}</Text>
-      </StyledSafeAreaView>
-    );
-  }
+  }, [code, navigation]);
 
   return <StyledSafeAreaView />;
 }

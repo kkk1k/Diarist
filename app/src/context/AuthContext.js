@@ -24,6 +24,7 @@ export function AuthProvider({children}) {
 
   const refreshAccessToken = async () => {
     try {
+      console.log('aytu', auth.accessToken);
       const response = await axios.post(`${IP}/oauth/refresh`, {
         refreshToken: auth.refreshToken,
       });
@@ -35,15 +36,10 @@ export function AuthProvider({children}) {
           ...prevAuth,
           refreshToken: newRefreshToken,
         }));
-
-        setAuth(prevAuth => ({
-          ...prevAuth,
-          accessToken: newAccessToken,
-        }));
         await SecureStore.setItemAsync('refreshToken', newRefreshToken);
       }
       await SecureStore.setItemAsync('accessToken', newAccessToken);
-
+      console.log('재발급하는', newAccessToken);
       return newAccessToken;
     } catch (error) {
       console.error('Failed to refresh access token:', error);
@@ -55,10 +51,13 @@ export function AuthProvider({children}) {
     const token = auth.accessToken || (await SecureStore.getItemAsync('accessToken'));
     if (token) {
       const tokenExp = JSON.parse(atob(token.split('.')[1])).exp;
+      console.log('만기시', tokenExp);
       const currentTime = Math.floor(Date.now() / 1000);
+      console.log('현재시간', currentTime);
       if (currentTime > tokenExp) {
         return refreshAccessToken();
       }
+      console.log('check하는', token);
       return token;
     }
     return null;

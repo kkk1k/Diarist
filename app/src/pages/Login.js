@@ -76,34 +76,6 @@ const ButtonText = styled(Text)`
 `;
 
 function Login({navigation}) {
-  const redirectUrl = AuthSession.makeRedirectUri({scheme: 'diarist'});
-  console.log(redirectUrl);
-  const token = {
-    accessToken:
-      'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ1c2VySWQiOiIyMiIsIkF1dGhlbnRpY2F0aW9uUm9sZSI6IlVTRVIiLCJ0eXBlIjoiQUNDRVNTIiwiaWF0IjoxNzIxMTI3Nzg4LCJleHAiOjE3MjExMzEzODh9.SE3QrCpHgJsrAMSd9JW6J9s_B1gtmr9SfbMDNUJ-AE_EHqBDAF7vgFCWwhhTmaJtW115iA9KiXXrGXAWoy2RsA',
-    refreshToken:
-      'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ1c2VySWQiOiIyMiIsIkF1dGhlbnRpY2F0aW9uUm9sZSI6IlVTRVIiLCJ0eXBlIjoiUkVGUkVTSCIsImlhdCI6MTcyMTEyNzc4OCwiZXhwIjoxNzI2MzExNzg4fQ.dkIjGlya6fXeV_0nGnXRhI8LNsYwN8FUiwJY-wIxhn9Ts_hkoadaZALIqU3k9gRjHmWTQm4wZNAjp57XN6Wd-Q',
-  };
-  const setMethod = async () => {
-    try {
-      console.log('Attempting to set item...');
-      const tokenString = JSON.stringify(token);
-      await SecureStore.setItemAsync('token', tokenString);
-      const storedTokenString = await SecureStore.getItemAsync('token');
-      if (storedTokenString) {
-        const storedToken = JSON.parse(storedTokenString);
-        console.log('accessToken:', storedToken.accessToken);
-        console.log('refreshToken:', storedToken.refreshToken);
-      }
-      console.log('Item set successfully');
-    } catch (error) {
-      console.error('Error setting item:', error);
-    }
-  };
-  useEffect(() => {
-    setMethod();
-  }, []);
-
   return (
     <Container>
       <StyledText>나의 하루를</StyledText>
@@ -116,6 +88,10 @@ function Login({navigation}) {
       <GoogleButton onPress={() => navigation.navigate('GoogleWebView')}>
         <GoogleIcon source={Google} />
         <ButtonText>Google 로그인</ButtonText>
+      </GoogleButton>
+      <GoogleButton onPress={() => navigation.navigate('GoogleRedirect')}>
+        <GoogleIcon source={Google} />
+        <ButtonText>Google 로그인 임시</ButtonText>
       </GoogleButton>
     </Container>
   );

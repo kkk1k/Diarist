@@ -13,8 +13,8 @@ function useApi() {
     setIsLoading(true);
     setError(null);
     try {
-      const token = await checkTokenExpiration();
-      console.log('Token:', token);
+      const token = JSON.parse(await checkTokenExpiration());
+      console.log('통신 토큰', token);
       const config = {
         method,
         url: `${IP}${url}`,
@@ -26,6 +26,7 @@ function useApi() {
       };
 
       const response = await axios(config);
+
       setData(response.data);
     } catch (e) {
       setError(e);
