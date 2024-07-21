@@ -14,6 +14,7 @@ function useApi() {
     setError(null);
     try {
       const token = await checkTokenExpiration();
+      console.log('Token:', token);
       const config = {
         method,
         url: `${IP}${url}`,
