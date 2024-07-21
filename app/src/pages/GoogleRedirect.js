@@ -4,10 +4,10 @@ import * as WebBrowser from 'expo-web-browser';
 import {GOOGLE_API, IP} from '@env';
 
 const StyledSafeAreaView = styled.SafeAreaView`
- flex: 1;
-  background-color: #ffffff;`
- 
-;
+  flex: 1;
+  background-color: #ffffff;
+`;
+
 function GoogleRedirect({navigation}) {
   const getQueryParam = (url, param) => {
     const searchParams = new URLSearchParams(url.split('?')[1]);
@@ -15,7 +15,7 @@ function GoogleRedirect({navigation}) {
   };
 
   const handleRedirect = url => {
-    if (url.startsWith(${IP}/oauth2/google/login)) {
+    if (url.startsWith(`${IP}/oauth2/google/login`)) {
       const code = getQueryParam(url, 'code');
       console.log(code);
       if (code) {
@@ -31,10 +31,10 @@ function GoogleRedirect({navigation}) {
   };
   const openGoogleAuth = async () => {
     try {
-      const result = await WebBrowser.openAuthSessionAsync(GOOGLE_API, `${IP}/oauth2/google/login`);
+      const result = await WebBrowser.openAuthSessionAsync(GOOGLE_API);
       console.log(result);
       if (result.type === 'success') {
-        handleRedirect(result.url);
+        navigation.
       }
       if (result.type === 'cancel') {
         navigation.navigate('Login');

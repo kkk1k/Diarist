@@ -117,6 +117,10 @@ function Login({navigation}) {
         <GoogleIcon source={Google} />
         <ButtonText>Google 로그인</ButtonText>
       </GoogleButton>
+      <GoogleButton onPress={() => navigation.navigate('GoogleRedirect')}>
+        <GoogleIcon source={Google} />
+        <ButtonText>Google 로그인 임시</ButtonText>
+      </GoogleButton>
     </Container>
   );
 }
