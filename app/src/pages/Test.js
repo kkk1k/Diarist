@@ -22,8 +22,8 @@ export default function Test() {
 
   const getData = async () => {
     try {
-      const stringData = await SecureStore.getItem('token');
-      const token = JSON.parse(stringData);
+      const accessToken = JSON.parse(await SecureStore.getItem('accessToken'));
+      const refreshToken = JSON.parse(await SecureStore.getItem('refreshToken'));
 
       console.log(token);
     } catch (e) {

@@ -14,6 +14,7 @@ function useApi() {
     setError(null);
     try {
       const token = await checkTokenExpiration();
+      console.log('통신 토큰', token);
       const config = {
         method,
         url: `${IP}${url}`,

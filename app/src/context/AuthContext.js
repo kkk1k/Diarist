@@ -35,11 +35,6 @@ export function AuthProvider({children}) {
           ...prevAuth,
           refreshToken: newRefreshToken,
         }));
-
-        setAuth(prevAuth => ({
-          ...prevAuth,
-          accessToken: newAccessToken,
-        }));
         await SecureStore.setItemAsync('refreshToken', newRefreshToken);
       }
       await SecureStore.setItemAsync('accessToken', newAccessToken);
