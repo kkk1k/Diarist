@@ -23,7 +23,7 @@ function WriteDiaryWebView({navigation}) {
   };
   return (
     <StyledSafeAreaView>
-      <StyledWebView source={{uri: `http://${LOCAL_IP}:5173/`}} onMessage={onMessage} />
+      <StyledWebView source={{uri: `http://${LOCAL_IP}:5173/emotion`}} onMessage={onMessage} />
     </StyledSafeAreaView>
   );
 }
