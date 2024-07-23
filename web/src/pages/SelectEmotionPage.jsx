@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import styled from 'styled-components';
 import Emotion from '../components/Emotion';
 import EmotionButton from '../components/EmotionButton';
@@ -42,9 +42,33 @@ const Container = styled.div`
 
 function SelectEmotionPage() {
   const [selectedEmotion, setSelectedEmotion] = useState('0');
-  const handleEmotionClick = id => {
-    setSelectedEmotion(String(id));
-  };
+  const [tokens, setTokens] = useState({accessToken: '', refreshToken: ''});
+  useEffect(() => {
+    const handleMessage = event => {
+      try {
+        const message = JSON.parse(event.data);
+        console.log(JSON.parse(event.data));
+        if (message.type === 'tokens' && message.accessToken && message.refreshToken) {
+          setTokens({
+            accessToken: message.accessToken,
+            refreshToken: message.refreshToken,
+          });
+        }
+      } catch (error) {
+        console.error('Error parsing message:', error);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, []);
+
+  useEffect(() => {
+    console.log('Tokens updated:', JSON.stringify(tokens.accessToken));
+  }, [tokens]);
 
   const emotions = [
     {src: '/happy.png', label: '행복', id: 1},

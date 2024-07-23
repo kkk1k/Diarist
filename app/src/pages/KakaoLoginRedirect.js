@@ -1,7 +1,6 @@
 import React, {useEffect} from 'react';
 import styled from 'styled-components/native';
 import * as SecureStore from 'expo-secure-store';
-import {Text} from 'react-native';
 import {IP} from '@env';
 import axios from 'axios';
 import {CommonActions} from '@react-navigation/native';
