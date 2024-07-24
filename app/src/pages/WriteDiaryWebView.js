@@ -27,7 +27,7 @@ function WriteDiaryWebView({navigation}) {
             window.postMessage(JSON.stringify({
               type: 'tokens',
               accessToken: ${accessToken},
-              refreshToken: ${JSON.stringify(refreshToken)}
+              refreshToken: ${refreshToken}
             }), '*');
             true;
           `;
@@ -43,7 +43,7 @@ function WriteDiaryWebView({navigation}) {
     };
 
     // 웹뷰가 로드된 후 토큰을 주입하기 위해 약간의 지연을 줍니다.
-    setTimeout(injectTokens, 1000);
+    setTimeout(injectTokens, 500);
   }, []);
 
   const onMessage = e => {

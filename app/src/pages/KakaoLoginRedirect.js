@@ -1,7 +1,6 @@
 import React, {useEffect} from 'react';
 import styled from 'styled-components/native';
 import * as SecureStore from 'expo-secure-store';
-import {Text, Dimensions} from 'react-native';
 import {IP} from '@env';
 import axios from 'axios';
 import {CommonActions} from '@react-navigation/native';
@@ -14,33 +13,13 @@ const StyledSafeAreaView = styled.SafeAreaView`
 function KakaoLoginRedirect({navigation, route}) {
   const {code} = route.params;
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     if (code) {
-  //       try {
-  //         await AxiosApi('POST', '/oauth2/kakao/login', {code});
-
-  //         if (data) {
-  //           const accessJWTToken = JSON.stringify(data.data.accessToken);
-  //           const refreshJWTToken = JSON.stringify(data.data.refreshToken);
-  //           await SecureStore.setItemAsync('accessToken', accessJWTToken);
-  //           await SecureStore.setItemAsync('refreshToken', refreshJWTToken);
-
-  //           navigation.navigate('Test');
-  //         }
-  //       } catch (e) {
-  //         console.error('Error during API call:', e.message, e.response);
-  //       }
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, [code, data, AxiosApi, navigation]);
-
   useEffect(() => {
+    console.log('KakaoLoginRedirect mounted, code:', code); // 추가된 로그
+
     const fetchData = async () => {
       if (code) {
         try {
+          console.log('Sending request to:', `${IP}/oauth2/kakao/login`); // 추가된 로그
           const response = await axios({
             method: 'POST',
             url: `${IP}/oauth2/kakao/login`,
@@ -58,7 +37,6 @@ function KakaoLoginRedirect({navigation, route}) {
             const refreshJWTToken = JSON.stringify(data.data.refreshToken);
             await SecureStore.setItemAsync('accessToken', accessJWTToken);
             await SecureStore.setItemAsync('refreshToken', refreshJWTToken);
-
             navigation.dispatch(
               CommonActions.reset({
                 index: 0,
@@ -67,14 +45,14 @@ function KakaoLoginRedirect({navigation, route}) {
             );
           }
         } catch (e) {
-          console.error('Error during API call:', e.message, e.response);
+          console.error('Error during API call:', e.message, e.response?.data);
         }
       }
     };
+
     fetchData();
   }, [code, navigation]);
 
   return <StyledSafeAreaView />;
 }
-
 export default KakaoLoginRedirect;

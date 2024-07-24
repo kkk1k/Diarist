@@ -1,6 +1,8 @@
 import React, {useEffect} from 'react';
 import styled from 'styled-components/native';
 import {TouchableOpacity, Text} from 'react-native';
+import * as SecureStore from 'expo-secure-store';
+import * as AuthSession from 'expo-auth-session';
 import Splash from '../assets/splash.png';
 import Google from '../assets/googleicon.png';
 import Kakao from '../assets/kakaoicon.png';

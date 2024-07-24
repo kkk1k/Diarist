@@ -43,12 +43,17 @@ const Container = styled.div`
 
 function SelectEmotionPage() {
   const [selectedEmotion, setSelectedEmotion] = useState('0');
-  const {setAuth} = useAuth(); // useAuth 훅을 사용하여 setAuth 함수를 가져옵니다
+  const {setAuth} = useAuth();
+
   useEffect(() => {
     const handleMessage = event => {
       try {
         const message = JSON.parse(event.data);
-        console.log(JSON.parse(event.data));
+        console.log(
+          'Tokens updated:',
+          JSON.stringify(message.accessToken),
+          JSON.stringify(message.refreshToken),
+        );
         if (message.type === 'tokens' && message.accessToken && message.refreshToken) {
           setAuth({
             accessToken: message.accessToken,
@@ -65,11 +70,7 @@ function SelectEmotionPage() {
     return () => {
       window.removeEventListener('message', handleMessage);
     };
-  }, [setAuth]);
-
-  useEffect(() => {
-    console.log('Tokens updated:', JSON.stringify(tokens.accessToken));
-  }, [tokens]);
+  }, []);
 
   const emotions = [
     {src: '/happy.png', label: '행복', id: 1},
