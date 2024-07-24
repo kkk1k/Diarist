@@ -14,9 +14,12 @@ function KakaoLoginRedirect({navigation, route}) {
   const {code} = route.params;
 
   useEffect(() => {
+    console.log('KakaoLoginRedirect mounted, code:', code); // 추가된 로그
+
     const fetchData = async () => {
       if (code) {
         try {
+          console.log('Sending request to:', `${IP}/oauth2/kakao/login`); // 추가된 로그
           const response = await axios({
             method: 'POST',
             url: `${IP}/oauth2/kakao/login`,
@@ -34,7 +37,6 @@ function KakaoLoginRedirect({navigation, route}) {
             const refreshJWTToken = JSON.stringify(data.data.refreshToken);
             await SecureStore.setItemAsync('accessToken', accessJWTToken);
             await SecureStore.setItemAsync('refreshToken', refreshJWTToken);
-
             navigation.dispatch(
               CommonActions.reset({
                 index: 0,
@@ -43,7 +45,7 @@ function KakaoLoginRedirect({navigation, route}) {
             );
           }
         } catch (e) {
-          console.error('Error during API call:', e.message, e.response);
+          console.error('Error during API call:', e.message, e.response?.data);
         }
       }
     };
@@ -53,5 +55,4 @@ function KakaoLoginRedirect({navigation, route}) {
 
   return <StyledSafeAreaView />;
 }
-
 export default KakaoLoginRedirect;
