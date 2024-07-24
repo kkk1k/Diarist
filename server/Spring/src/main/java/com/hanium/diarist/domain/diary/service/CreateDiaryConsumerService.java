@@ -28,7 +28,7 @@ public class CreateDiaryConsumerService {
     private final Map<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
 
     public SseEmitter addEmitter(Long userId) {
-        SseEmitter emitter = new SseEmitter(60000L);
+        SseEmitter emitter = new SseEmitter(120000L);
         this.emitters.put(userId, emitter);
         emitter.onCompletion(() -> this.emitters.remove(userId));
         emitter.onTimeout(() -> this.emitters.remove(userId));
@@ -54,8 +54,8 @@ public class CreateDiaryConsumerService {
     @KafkaListener(topics = "create-diary-response", groupId = "diary")
     public void consumeCreateDiaryResponse(HashMap<String, Object> message) {
         try {
-            long diaryId = Long.parseLong(String.valueOf(message.get("diaryId")));
-            long userId = Long.parseLong(String.valueOf(message.get("userId")));
+            long diaryId = Long.parseLong(String.valueOf(message.get("diary_id")));
+            long userId = Long.parseLong(String.valueOf(message.get("user_id")));
 
             Diary diary = diaryRepository.findByDiaryIdWithDetails(diaryId)
                     .orElseThrow(DiaryNotFoundException::new);
