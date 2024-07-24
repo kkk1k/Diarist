@@ -74,12 +74,8 @@ function TopNavBar({page, progress, title1, title2}) {
     navigate(-1);
   };
 
-  const openModal = () => {
-    setIsOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsOpen(false);
+  const handleClose = () => {
+    window.ReactNativeWebView.postMessage('closeWebView');
   };
   return (
     <>
@@ -87,13 +83,12 @@ function TopNavBar({page, progress, title1, title2}) {
         <A11yHidden>{page}</A11yHidden>
         <Img src='/btn_prev.png' alt='뒤로가기' onClick={handleBack} />
         <Span>{progress} / 3</Span>
-        <CloseImg src='/btn_x.png' alt='닫기' onClick={openModal} />
+        <CloseImg src='/btn_x.png' alt='닫기' onClick={handleClose} />
       </Header>
       <H2>
         <TitleSpan>{title1}</TitleSpan>
         <TitleSpan>{title2}</TitleSpan>
       </H2>
-      {isOpen && <CheckModal isOpen={isOpen} closeModal={closeModal} />}
     </>
   );
 }

@@ -117,7 +117,7 @@ const OpenButton = styled.button`
 function DrawCompletedPage() {
   const [favorite, setFavorite] = useReducer(state => !state, false);
   const [isOpened, setIsOpened] = useReducer(state => !state, false);
-  const [isOpenedModal, setIsOpenedModal] = useState(true);
+  const [isOpenedModal, setIsOpenedModal] = useState(false);
 
   const openModal = () => {
     setIsOpenedModal(true);

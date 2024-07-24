@@ -16,7 +16,7 @@ function KakaoWebView({navigation}) {
   const handleShouldStartLoadWithRequest = event => {
     if (event.url.startsWith(`${IP}/oauth2/kakao/login?code=`)) {
       const code = event.url.split('code=')[1]?.split('&')[0];
-      console.log('asd', code);
+
       if (code) {
         navigation.navigate(
           'KakaoLoginRedirect',

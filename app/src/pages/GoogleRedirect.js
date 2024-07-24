@@ -34,7 +34,7 @@ function GoogleRedirect({navigation}) {
       const result = await WebBrowser.openAuthSessionAsync(GOOGLE_API);
       console.log(result);
       if (result.type === 'success') {
-        navigation.
+        navigation.navigate('Test');
       }
       if (result.type === 'cancel') {
         navigation.navigate('Login');

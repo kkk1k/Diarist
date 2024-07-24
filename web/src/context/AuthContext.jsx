@@ -1,7 +1,5 @@
 import React, {createContext, useState, useEffect, useMemo} from 'react';
 import axios from 'axios';
-import * as SecureStore from 'expo-secure-store';
-import {IP} from '@env';
 
 const AuthContext = createContext();
 
@@ -11,20 +9,9 @@ export function AuthProvider({children}) {
     refreshToken: null,
   });
 
-  useEffect(() => {
-    const loadTokens = async () => {
-      const accessToken = await SecureStore.getItemAsync('accessToken');
-      const refreshToken = await SecureStore.getItemAsync('refreshToken');
-      if (accessToken && refreshToken) {
-        setAuth({accessToken, refreshToken});
-      }
-    };
-    loadTokens();
-  }, []);
-
   const refreshAccessToken = async () => {
     try {
-      const response = await axios.post(`${IP}/oauth/refresh`, {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/oauth/refresh`, {
         refreshToken: auth.refreshToken,
       });
 
@@ -35,9 +22,13 @@ export function AuthProvider({children}) {
           ...prevAuth,
           refreshToken: newRefreshToken,
         }));
-        await SecureStore.setItemAsync('refreshToken', newRefreshToken);
       }
-      await SecureStore.setItemAsync('accessToken', newAccessToken);
+
+      setAuth(prevAuth => ({
+        ...prevAuth,
+        accessToken: newAccessToken,
+      }));
+
       return newAccessToken;
     } catch (error) {
       console.error('Failed to refresh access token:', error);
@@ -46,7 +37,7 @@ export function AuthProvider({children}) {
   };
 
   const checkTokenExpiration = async () => {
-    const token = auth.accessToken || (await SecureStore.getItemAsync('accessToken'));
+    const token = auth.accessToken;
     if (token) {
       const tokenExp = JSON.parse(atob(token.split('.')[1])).exp;
       const currentTime = Math.floor(Date.now() / 1000);
@@ -62,5 +53,7 @@ export function AuthProvider({children}) {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
+
+export const useAuth = () => React.useContext(AuthContext);
 
 export default AuthContext;

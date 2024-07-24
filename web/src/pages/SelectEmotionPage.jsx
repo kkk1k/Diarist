@@ -1,8 +1,9 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import styled from 'styled-components';
 import Emotion from '../components/Emotion';
 import EmotionButton from '../components/EmotionButton';
 import TopNavBar from '../components/TopNavBar';
+import {useAuth} from '../context/AuthContext';
 
 const A11yHidden = styled.h1`
   position: absolute;
@@ -42,9 +43,33 @@ const Container = styled.div`
 
 function SelectEmotionPage() {
   const [selectedEmotion, setSelectedEmotion] = useState('0');
-  const handleEmotionClick = id => {
-    setSelectedEmotion(String(id));
-  };
+  const {setAuth} = useAuth(); // useAuth 훅을 사용하여 setAuth 함수를 가져옵니다
+  useEffect(() => {
+    const handleMessage = event => {
+      try {
+        const message = JSON.parse(event.data);
+        console.log(JSON.parse(event.data));
+        if (message.type === 'tokens' && message.accessToken && message.refreshToken) {
+          setAuth({
+            accessToken: message.accessToken,
+            refreshToken: message.refreshToken,
+          });
+        }
+      } catch (error) {
+        console.error('Error parsing message:', error);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, [setAuth]);
+
+  useEffect(() => {
+    console.log('Tokens updated:', JSON.stringify(tokens.accessToken));
+  }, [tokens]);
 
   const emotions = [
     {src: '/happy.png', label: '행복', id: 1},
