@@ -38,10 +38,10 @@ function App() {
       <GlobalStyle />
       <Routes>
         <Route path='/' element={<Calendar />} />
-        <Route path='/write' element={<WritingDiaryPage />} />
-        <Route path='/complete' element={<DrawCompletedPage />} />
-        <Route path='/selectdrawer' element={<SelectDrawerPage />} />
-        <Route path='/drawerlist' element={<DrawerListPage />} />
+        <Route path='write' element={<WritingDiaryPage />} />
+        <Route path='complete' element={<DrawCompletedPage />} />
+        <Route path='selectdrawer' element={<SelectDrawerPage />} />
+        <Route path='drawerlist' element={<DrawerListPage />} />
         <Route path='write' element={<WritingDiaryPage />} />
         <Route path='album' element={<AlbumPage />} />
         <Route path='emotion' element={<SelectEmotionPage />} />

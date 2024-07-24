@@ -1,7 +1,6 @@
 import {React, useEffect, useState} from 'react';
 import {Dimensions, Image, Pressable, StyleSheet, Text, View} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
-import useApiCall from '../hooks/useApiTest';
 import useApi from '../hooks/useApi';
 
 // 한글 설정
