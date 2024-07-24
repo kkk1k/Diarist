@@ -50,9 +50,9 @@ def generate_image(description):
     return response.data[0].url
 
 
-def send_response(diary_id):
+def send_response(user_id, diary_id):
     producer = Producer({'bootstrap.servers': KAFKA_BROKER_URL})
-    response_message = json.dumps({"diary_id": diary_id})
+    response_message = json.dumps({"diary_id": diary_id, "user_id": user_id})
     producer.produce(RESPONSE_DIARY_TOPIC, key=str(diary_id), value=response_message)
     producer.flush()
 
@@ -99,7 +99,7 @@ def process_message(message):
         diary.image = new_image
         diary.save()
 
-        send_response(diary.diary_id)
+        send_response(user_id, diary.diary_id)
 
     except Diary.DoesNotExist:
         return f"Diary for user {user_id} on {diary_date} does not exist."
