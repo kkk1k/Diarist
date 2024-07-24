@@ -53,7 +53,7 @@ public class CreateDiaryProducerService {
 
         try{
             String message = objectMapper.writeValueAsString(createDiaryRequest);
-            if (existingDiary.isPresent()|| !date.isEqual(LocalDate.now())) { // 당시 날짜의 일기가 있거나, 과거의 일기를 작성할 경우
+            if (existingDiary.isPresent()) { // 당시 날짜의 일기가 있거나
                 // 광고 시청 필수
                 sendKafkaMessage(reCreateTopicName, message);
                 watchAd();
