@@ -10,13 +10,15 @@ const FirstButton = styled.button`
   width: ${props => 280 * props.theme.widthRatio}px;
   height: ${props => 80 * props.theme.widthRatio}px;
   border-radius: 15px;
-  border: 1px solid #000;
-  background: #fff;
+  border: 1px solid ${props => (props.disabled ? '#999' : '#000')};
+  background: ${props => (props.disabled ? '#f0f0f0' : '#fff')};
   margin-left: ${props => 30 * props.theme.widthRatio}px;
   font-size: ${props => 24 * props.theme.widthRatio}px;
   font-style: normal;
   font-weight: 500;
   line-height: normal;
+  color: ${props => (props.disabled ? '#999' : '#000')};
+  cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
 `;
 
 const SecondButton = styled.button`
@@ -38,7 +40,6 @@ function EmotionButton({
   firstLabel,
   secondLabel,
   nextPath,
-  userId,
   diaryDate,
   emotionId,
   content,
@@ -54,15 +55,17 @@ function EmotionButton({
         type='button'
         disabled={firstDisabled}
         onClick={() => {
-          navigate(`/${nextPath}`, {
-            state: {
-              userId,
-              emotionId: 13,
-              content: '',
-              artistId,
-              diaryDate,
-            },
-          });
+          if (!firstDisabled) {
+            navigate(`/${nextPath}`, {
+              state: {
+                userId: 0,
+                emotionId: 13,
+                content: '',
+                artistId,
+                diaryDate,
+              },
+            });
+          }
         }}
       >
         {firstLabel}
@@ -73,7 +76,7 @@ function EmotionButton({
         onClick={() =>
           navigate(`/${nextPath}`, {
             state: {
-              userId,
+              userId: 0,
               emotionId,
               content,
               artistId,
