@@ -5,12 +5,16 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /app
 
 COPY requirements.txt /app/
+COPY . /app/
+COPY .env /app/.env
 
 RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update && \
+    apt-get install -y openjdk-17-jdk && \
+    apt-get clean
 
-COPY . /app/
-
-COPY .env /app/.env
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+ENV PATH=$JAVA_HOME/bin:$PATH
 
 EXPOSE 8000
 
