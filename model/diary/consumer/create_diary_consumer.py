@@ -1,11 +1,14 @@
 import json
 import os
 import sys
+from collections import Counter
 from datetime import datetime
 
 import django
 from confluent_kafka import Consumer, KafkaError, Producer
 from openai import OpenAI
+from deep_translator import GoogleTranslator
+from konlpy.tag import Okt
 
 sys.path.append('/app/')
 
@@ -25,14 +28,67 @@ OPENAI_API_KEY = settings.OPENAI_API_KEY
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
+okt = Okt()
+
+def translate_text(text, src='ko', dest='en'):
+    '''
+    텍스트 번역
+    '''
+    translated = GoogleTranslator(source=src, target=dest).translate(text)
+    return translated
+
+
+def extract_keywords(text, top_n=10):
+    '''
+    KoNLPY를 사용하여 텍스트에서 명사 추출 및 중복 제거
+    '''
+    try:
+        nouns = okt.nouns(text) 
+        unique_nouns = list(nouns)
+        translated_nouns = [translate_text(noun, src='ko', dest='en').lower() for noun in unique_nouns]
+        if len(translated_nouns) == 0:
+            raise ValueError("No keywords extracted")
+    except (ValueError, IndexError) as e:
+        print(f"키워드 추출에 실패했습니다. 기본 키워드를 사용합니다: {str(e)}")
+        translated_nouns = text.split()[:top_n]
+    return translated_nouns
+
+
+def emphasize_keywords(keywords):
+    '''
+    자주 나온 키워드를 강조
+    '''
+    counter = Counter(keywords)
+    emphasized_keywords = []
+    for keyword, count in counter.items():
+        emphasized_keywords.append((keyword + " ") * count)
+    return ' '.join(emphasized_keywords)
+
 
 def generate_description(diary_text, artist_style, emotion):
-    query = f"{diary_text}라는 내용을 {artist_style}의 화풍으로 그려줘. 감정은 {emotion}이야."
+    '''
+    GPT description 생성
+    '''
+    keywords = extract_keywords(diary_text)
+    translated_diary_text = translate_text(diary_text)
+    translated_emotion = translate_text(emotion)
+    emphasized_keywords = emphasize_keywords([translate_text(keyword) for keyword in keywords])
+
+    query = (f"Generate a simple, non-exaggerated description of a single scene based on the diary entry: '{translated_diary_text}'. "
+             f"The description should be in the style of {artist_style} and focus only on the essential elements mentioned in the diary. "
+             f"Ensure that the following keywords are included and emphasized: {emphasized_keywords}. "
+             f"Reflect the emotion '{translated_emotion}' throughout the painting. "
+             f"Do not add any additional details or elements, and ensure no people are included in the description. "
+             f"The painting should reflect the distinctive style of {artist_style}, including key characteristics like color palette, brush strokes, and composition. "
+             f"Draw the picture without being subject to copyright and content violation policies.")
+    
     response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4",
         messages=[
-            {"role": "system", "content": "Create an art diary entry response reflecting a specific artist's style without naming the artist."},
-            {"role": "system", "content": "Describe the scene you want to illustrate. Mention key characteristics of the style like impressionistic, vibrant colors, or soft lighting."},
+            {"role": "system", "content": (f"Create a simple, clear description of a single scene based on the user's diary entry, focusing on the landscape and objects mentioned. "
+                                           f"Ensure the following emphasized keywords are included: {emphasized_keywords}. "
+                                           f"Reflect the emotion '{translated_emotion}' throughout the painting. "
+                                           f"Do not include any people. Follow the specified {artist_style} style without exaggeration or adding extra elements.")},
             {"role": "user", "content": query}
         ],
     )
@@ -40,6 +96,9 @@ def generate_description(diary_text, artist_style, emotion):
 
 
 def generate_image(description):
+    '''
+    DALL-E 3를 사용하여 설명(description)에 기반한 이미지 생성
+    '''
     response = client.images.generate(
         model="dall-e-3",
         prompt=description,
@@ -51,6 +110,9 @@ def generate_image(description):
 
 
 def send_response(user_id, diary_id):
+    '''
+    Kafka에 일기생성완료 메세지 보냄
+    '''
     producer = Producer({'bootstrap.servers': KAFKA_BROKER_URL})
     response_message = json.dumps({"diary_id": diary_id, "user_id": user_id})
     producer.produce(RESPONSE_DIARY_TOPIC, key=str(diary_id), value=response_message)
@@ -58,6 +120,9 @@ def send_response(user_id, diary_id):
 
 
 def process_message(message):
+    '''
+    사용자게에 입력받은 일기 데이터를 통해 그림이미지 생성 및 저장로직
+    '''
     try:
         data = json.loads(message.value().decode('utf-8'))
         print(f"Received message: {data}")
