@@ -48,6 +48,10 @@ function SelectEmotionPage() {
   const [formattedDate, setFormattedDate] = useState('');
   const [receivedDate, setReceivedDate] = useState(null);
 
+  const handleEmotionClick = id => {
+    setSelectedEmotion(String(id));
+  };
+
   useEffect(() => {
     const handleMessage = event => {
       try {

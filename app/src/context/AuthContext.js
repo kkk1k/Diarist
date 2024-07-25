@@ -24,8 +24,12 @@ export function AuthProvider({children}) {
 
   const refreshAccessToken = async () => {
     try {
+      const refresh = JSON.parse(auth.refreshToken);
       const response = await axios.post(`${IP}/oauth/refresh`, {
-        refreshToken: auth.refreshToken,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${refresh}`,
+        },
       });
 
       const newAccessToken = response.data.data.accessToken;
@@ -46,7 +50,10 @@ export function AuthProvider({children}) {
   };
 
   const checkTokenExpiration = async () => {
-    const token = auth.accessToken || (await SecureStore.getItemAsync('accessToken'));
+    const token = await SecureStore.getItemAsync('accessToken');
+    console.log('auth', auth.accessToken);
+    console.log('secure', await SecureStore.getItemAsync('accessToken'));
+    console.log('refresh', await SecureStore.getItemAsync('refreshToken'));
     if (token) {
       const tokenExp = JSON.parse(atob(token.split('.')[1])).exp;
       const currentTime = Math.floor(Date.now() / 1000);

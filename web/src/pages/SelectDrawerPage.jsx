@@ -45,11 +45,10 @@ const DrawerImg = styled.img`
 `;
 
 function SelectDrawerPage() {
-  const newWidthRatio = window.innerWidth;
-  console.log(newWidthRatio);
+  const location = useLocation();
+  const info = location.state;
   const [selectCategory, setSelectCategory] = useState('르네상스');
   const [selectDrawer, setSelectDrawer] = useState('');
-  const location = useLocation();
   const categoryArr = ['르네상스', '근대', '현대', '기타'];
   const [openModal, setOpenModal] = useState(false);
   const handleModal = item => {
@@ -103,7 +102,6 @@ function SelectDrawerPage() {
     // 통신 코드 작성
     console.log('Selected Category:', englishCategory);
   };
-  console.log(data);
 
   return (
     <>
@@ -136,10 +134,7 @@ function SelectDrawerPage() {
           ))}
         </DrawerWrapper>
       </div>
-      {openModal && (
-        // <CheckModal data={selectDrawer} openModal={openModal} closeModal={closeModal} />
-        <BottomSheet data={selectDrawer} isOpen={openModal} isClose={closeModal} />
-      )}
+      {openModal && <BottomSheet data={selectDrawer} isOpen={openModal} isClose={closeModal} />}
     </>
   );
 }
