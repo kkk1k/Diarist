@@ -4,6 +4,7 @@ import Emotion from '../components/Emotion';
 import EmotionButton from '../components/EmotionButton';
 import TopNavBar from '../components/TopNavBar';
 import {useAuth} from '../context/AuthContext';
+import {useDiary} from '../hooks/DiaryContext';
 
 const A11yHidden = styled.h1`
   position: absolute;
@@ -42,7 +43,7 @@ const Container = styled.div`
 `;
 
 function SelectEmotionPage() {
-  const [selectedEmotion, setSelectedEmotion] = useState('0');
+  const {selectedEmotion, setSelectedEmotion} = useDiary();
   const {setAuth} = useAuth();
 
   useEffect(() => {
@@ -71,6 +72,10 @@ function SelectEmotionPage() {
       window.removeEventListener('message', handleMessage);
     };
   }, []);
+
+  const handleEmotionClick = id => {
+    setSelectedEmotion(prevEmotion => (prevEmotion === String(id) ? '0' : String(id)));
+  };
 
   const emotions = [
     {src: '/happy.png', label: '행복', id: 1},

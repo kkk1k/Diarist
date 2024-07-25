@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {Routes, Route} from 'react-router-dom';
 import {ThemeProvider} from 'styled-components';
+import {DiaryProvider} from './hooks/DiaryContext';
 import Calendar from './pages/Calendar';
 import WritingDiaryPage from './pages/WritingDiaryPage';
 import DrawCompletedPage from './pages/DrawCompletedPage';
@@ -10,6 +11,18 @@ import AlbumPage from './pages/AlbumPage';
 import SelectEmotionPage from './pages/SelectEmotionPage';
 import DrawDetailPage from './pages/DrawDetailPage';
 import GlobalStyle from './GlobalStyle';
+
+function DiaryFlow() {
+  return (
+    <DiaryProvider>
+      <Routes>
+        <Route path='/emotion' element={<SelectEmotionPage />} />
+        <Route path='/write' element={<WritingDiaryPage />} />
+        <Route path='/selectdrawer' element={<SelectDrawerPage />} />
+      </Routes>
+    </DiaryProvider>
+  );
+}
 
 function App() {
   const [widthRatio, setWidthRatio] = useState(0);
@@ -38,14 +51,11 @@ function App() {
       <GlobalStyle />
       <Routes>
         <Route path='/' element={<Calendar />} />
-        <Route path='write' element={<WritingDiaryPage />} />
-        <Route path='complete' element={<DrawCompletedPage />} />
-        <Route path='selectdrawer' element={<SelectDrawerPage />} />
-        <Route path='drawerlist' element={<DrawerListPage />} />
-        <Route path='write' element={<WritingDiaryPage />} />
-        <Route path='album' element={<AlbumPage />} />
-        <Route path='emotion' element={<SelectEmotionPage />} />
-        <Route path='detail' element={<DrawDetailPage />} />
+        <Route path='/complete' element={<DrawCompletedPage />} />
+        <Route path='/drawerlist' element={<DrawerListPage />} />
+        <Route path='/album' element={<AlbumPage />} />
+        <Route path='/detail' element={<DrawDetailPage />} />
+        <Route path='/*' element={<DiaryFlow />} />
       </Routes>
     </ThemeProvider>
   );

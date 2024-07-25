@@ -39,7 +39,6 @@ function DiaryButton({
   firstLabel,
   secondLabel,
   nextPath,
-  userId,
   diaryDate,
   emotionId,
   content,
@@ -67,7 +66,7 @@ function DiaryButton({
         onClick={() =>
           navigate(`/${nextPath}`, {
             state: {
-              userId,
+              userId: 0,
               emotionId,
               content,
               artistId,

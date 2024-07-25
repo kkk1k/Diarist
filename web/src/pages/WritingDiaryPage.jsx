@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react';
-import {useLocation} from 'react-router-dom';
 import styled from 'styled-components';
 import DiaryButton from '../components/DiaryButton';
 import TopNavBar from '../components/TopNavBar';
+import {useDiary} from '../hooks/DiaryContext';
 
 const A11yHidden = styled.h1`
   position: absolute;
@@ -34,10 +34,10 @@ const Container = styled.div`
 const Textarea = styled.textarea`
   width: ${props => 500 * props.theme.widthRatio}px;
   height: ${props =>
-    props.isKeyboardVisible ? 200 * props.theme.widthRatio : 752 * props.theme.widthRatio}px;
+    props.isKeyboardVisible ? 180 * props.theme.widthRatio : 752 * props.theme.widthRatio}px;
   border-radius: ${props => 20 * props.theme.widthRatio}px;
   padding: ${props => 40 * props.theme.widthRatio}px;
-  margin-top: ${props => 60 * props.theme.widthRatio}px;
+  margin-top: ${props => 30 * props.theme.widthRatio}px;
   text-overflow: ellipsis;
   font-size: ${props => 24 * props.theme.widthRatio}px;
   font-weight: 400;
@@ -53,7 +53,7 @@ const InputP = styled.p`
   font-weight: 500;
   line-height: normal;
   letter-spacing: -0.3px;
-  margin-bottom: ${props => 60 * props.theme.widthRatio}px;
+  margin-bottom: ${props => 30 * props.theme.widthRatio}px;
 `;
 
 const TextareaContainer = styled.div`
@@ -69,23 +69,17 @@ const Span = styled.span`
 `;
 
 function WritingDiaryPage() {
-  const location = useLocation();
-  const info = location.state;
+  const {selectedEmotion, diaryContent, setDiaryContent} = useDiary();
 
-  const [inputCount, setInputCount] = useState(0);
-  const [text, setText] = useState('');
+  const [inputCount, setInputCount] = useState(diaryContent.length);
+
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
 
   const onInputHandler = e => {
     const inputValue = e.target.value;
     setInputCount(inputValue.length);
-    setText(inputValue);
-  };
-
-  const resetInput = () => {
-    setText('');
-    setInputCount(0);
+    setDiaryContent(inputValue);
   };
 
   useEffect(() => {
@@ -113,7 +107,11 @@ function WritingDiaryPage() {
         <H2>기록해주세요</H2>
       </div>
       <TextareaContainer>
-        <Textarea onChange={onInputHandler} value={text} isKeyboardVisible={isKeyboardVisible} />
+        <Textarea
+          onChange={onInputHandler}
+          value={diaryContent}
+          isKeyboardVisible={isKeyboardVisible}
+        />
         <InputP>
           {inputCount}
           <Span>/1000</Span>
@@ -123,11 +121,14 @@ function WritingDiaryPage() {
         firstLabel='초기화'
         secondLabel='작성완료'
         nextPath='selectdrawer'
-        emotionId={info.emotionId}
-        content={text}
-        firstDisabled={text.length === 0}
-        secondDisabled={text.length === 0}
-        deleteText={resetInput}
+        emotionId={selectedEmotion}
+        content={diaryContent}
+        firstDisabled={diaryContent.length === 0}
+        secondDisabled={diaryContent.length === 0}
+        deleteText={() => {
+          setDiaryContent('');
+          setInputCount(0);
+        }}
       />
     </Container>
   );
