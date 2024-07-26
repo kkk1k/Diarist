@@ -92,7 +92,7 @@ function BottomSheet({data, isOpen, isClose}) {
       await AxiosApi('post', '/api/v1/diary/create/ad', {
         user_id: 0,
         emotion_id: selectedEmotion,
-        artist_id: 1,
+        artist_id: data.artistId,
         diary_date: '2024-07-25',
         content: diaryContent,
       });
@@ -122,7 +122,7 @@ function BottomSheet({data, isOpen, isClose}) {
         <BottomSheetHeader />
         <BottomSheetContent ref={refs.content}>
           <H3>{data.artistName}</H3>
-          <ExampleImg src='/피카소.png' />
+          <ExampleImg src={data.examplePicture} />
           <P>당신이 일기는 위의 그림 풍으로 재탄생됩니다.</P>
           <P>이 화가와의 작업을 원하시면 선택완료 버튼을 눌러주세요</P>
           <Button onClick={submitData}>선택완료</Button>

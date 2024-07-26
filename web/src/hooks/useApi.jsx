@@ -10,10 +10,10 @@ function useApi() {
   async function AxiosApi(method, url, requestBody = null) {
     setIsLoading(true);
     setError(null);
+    const token = JSON.parse(await checkTokenExpiration());
+
+    console.log('통신 토큰', token);
     try {
-      const token = JSON.parse(await checkTokenExpiration());
-      console.log(requestBody);
-      console.log('통신 토큰', token);
       const config = {
         method,
         url: `${import.meta.env.VITE_API_URL}${url}`,

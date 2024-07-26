@@ -1,9 +1,10 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
 import useApi from '../hooks/useApi';
 import TopNavBar from '../components/TopNavBar';
 import CategoryButton from '../components/CategoryButton';
 import BottomSheet from '../components/bottomsheet/BottomSheet';
+import {useAuth} from '../context/AuthContext';
 
 const Div = styled.div`
   display: flex;
@@ -48,6 +49,7 @@ function SelectDrawerPage() {
   const [selectCategory, setSelectCategory] = useState('르네상스');
   const [selectDrawer, setSelectDrawer] = useState('');
   const [data, setData] = useState([]);
+
   const categoryArr = ['르네상스', '근대', '현대', '기타'];
   const [openModal, setOpenModal] = useState(false);
   const handleModal = item => {
@@ -63,47 +65,18 @@ function SelectDrawerPage() {
     현대: 'Modern',
     기타: 'Asia',
   };
-  const data1 = [
-    {
-      artistName: '존 윌리엄',
-      artistPicture: '/drawer.jpg',
-      description: '화가 설명 ~~~~~~입니다',
-    },
-    {
-      artistName: '존 윌리엄 워',
-      artistPicture: '/drawer.jpg',
-      description: '화가 설명 ~~~~~~입니다',
-    },
-    {
-      artistName: '존 윌리엄 워터',
-      artistPicture: '/drawer.jpg',
-      description: '화가 설명 ~~~~~~입니다',
-    },
-    {
-      artistName: '존 윌리엄 워터하',
-      artistPicture: '/drawer.jpg',
-      description: '화가 설명 ~~~~~~입니다',
-    },
-    {
-      artistName: '존 윌리엄 워터하우',
-      artistPicture: '/drawer.jpg',
-      description: '화가 설명 ~~~~~~입니다',
-    },
-    {
-      artistName: '존 윌리엄 워터하우스',
-      artistPicture: '/drawer.jpg',
-      description: '화가 설명 ~~~~~~입니다',
-    },
-  ];
 
   const {AxiosApi} = useApi();
+  const {checkTokenExpiration} = useAuth();
   const fetchData = async category => {
+    const token = await checkTokenExpiration();
+    console.log('화가 선택,', token);
     try {
-      const response = await AxiosApi('get', `/api/v1/artist/list?period=${category}`);
-      console.log(response);
+      const response = await AxiosApi('get', `/api/v1/artist/select?period=${category}`);
+      console.log('응답', response);
       setData(response.data);
-    } finally {
-      console.log('done');
+    } catch (e) {
+      console.log('에러', e);
     }
   };
   const handleCategory = e => {
@@ -113,6 +86,13 @@ function SelectDrawerPage() {
     // 통신 코드 작성
     fetchData(englishCategory);
   };
+  useEffect(() => {
+    console.log(data);
+  }, [data]);
+
+  useEffect(() => {
+    fetchData('Renaissance');
+  }, []);
 
   return (
     <>

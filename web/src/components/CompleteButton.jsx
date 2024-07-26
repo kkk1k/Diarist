@@ -13,6 +13,7 @@ const ResetButton = styled.button`
   border-radius: ${props => 15 * props.theme.widthRatio}px;
   border: 1px solid #000;
   background: #fff;
+  color: #000;
   font-size: ${props => 24 * props.theme.widthRatio}px;
   font-style: normal;
   font-weight: 500;

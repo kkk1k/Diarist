@@ -63,6 +63,8 @@ function SelectEmotionPage() {
           });
           setReceivedDate(message.selectedDate);
         }
+        console.log('액세스', message.accessToken);
+        console.log('리프레시', message.refreshToken);
       } catch (error) {
         console.error('Error parsing message:', error);
       }
