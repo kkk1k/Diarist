@@ -1,6 +1,7 @@
 import {React, useEffect, useState} from 'react';
-import {Dimensions, Image, Pressable, StyleSheet, Text, View} from 'react-native';
+import {Pressable} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
+import styled from 'styled-components/native';
 import useApi from '../hooks/useApi';
 
 // 한글 설정
@@ -38,119 +39,87 @@ LocaleConfig.locales.fr = {
 };
 LocaleConfig.defaultLocale = 'fr';
 
+const Container = styled.View`
+  flex: 1;
+  background-color: #fff;
+  padding-top: 40px;
+`;
+
+const Header = styled.View`
+  padding: 20px;
+  background-color: #fff;
+`;
+
+const HeaderText = styled.Text`
+  font-size: ${props => 36 * props.theme.widthRatio}px;
+  font-weight: bold;
+`;
+
+const StyledCalendar = styled(Calendar)`
+  border-width: 0;
+  border-color: #eee;
+  padding-left: 0;
+  padding-right: 0;
+`;
+
+const DayContainer = styled.View`
+  width: 100%;
+  aspect-ratio: 1;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px;
+`;
+
+const DayText = styled.Text`
+  text-align: center;
+  font-size: ${props => 22 * props.theme.widthRatio}px;
+  margin-bottom: 2px;
+  font-weight: 300;
+  color: ${props => {
+    if (props.isFuture) {
+      if (props.isSunday) return '#d90c0c';
+      if (props.isSaturday) return '#0851c3';
+      return '#000';
+    }
+    if (props.isSunday) return '#d90c0c';
+    if (props.isSaturday) return '#0851c3';
+    return '#2d4150';
+  }};
+  opacity: ${props => (props.isFuture ? 0.5 : 1)};
+`;
+
+const DiaryImage = styled.Image`
+  width: ${props => 68 * props.theme.widthRatio}px;
+  height: ${props => 68 * props.theme.widthRatio}px;
+  border-radius: 10px;
+  margin-top: 2px;
+`;
+
+const Placeholder = styled.View`
+  width: ${props => 68 * props.theme.widthRatio}px;
+  height: ${props => 68 * props.theme.widthRatio}px;
+  border-radius: 10px;
+  margin-top: 2px;
+  background-color: #e0e0e0;
+`;
+
+const TodayPlaceholder = styled.View`
+  width: ${props => 68 * props.theme.widthRatio}px;
+  height: ${props => 68 * props.theme.widthRatio}px;
+  border-radius: 10px;
+  margin-top: 2px;
+  background-color: #000;
+  justify-content: center;
+  align-items: center;
+`;
+
+const PlusImage = styled.Image`
+  width: ${props => 30 * props.theme.widthRatio}px;
+  height: ${props => 30 * props.theme.widthRatio}px;
+`;
+
 function Calendars({navigation}) {
-  const [widthRatio, setWidthRatio] = useState(0);
-  const FIGMA_WIDTH = 640;
-
-  useEffect(() => {
-    const updateWidthRatio = () => {
-      const windowWidth = Dimensions.get('window').width;
-      const newWidthRatio = windowWidth / FIGMA_WIDTH;
-      setWidthRatio(newWidthRatio);
-    };
-
-    updateWidthRatio();
-
-    const subscription = Dimensions.addEventListener('change', updateWidthRatio);
-
-    return () => subscription?.remove();
-  }, []);
-
-  const theme = {
-    widthRatio,
-  };
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: '#fff',
-      paddingTop: 40,
-    },
-    header: {
-      padding: 20,
-      backgroundColor: '#fff',
-    },
-    headerText: {
-      fontSize: 36 * theme.widthRatio,
-      fontWeight: 'bold',
-    },
-    calendar: {
-      borderWidth: 0,
-      borderColor: '#eee',
-      paddingLeft: 0,
-      paddingRight: 0,
-    },
-    dayContainer: {
-      width: '100%',
-      aspectRatio: 1,
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: 2,
-    },
-    dayText: {
-      textAlign: 'center',
-      fontSize: 22 * theme.widthRatio,
-      marginBottom: 2,
-      fontWeight: 300,
-    },
-    diaryImage: {
-      width: 68 * theme.widthRatio,
-      height: 68 * theme.widthRatio,
-      borderRadius: 10,
-      marginTop: 2,
-    },
-    placeholder: {
-      width: 68 * theme.widthRatio,
-      height: 68 * theme.widthRatio,
-      borderRadius: 10,
-      marginTop: 2,
-      backgroundColor: '#E0E0E0', // 회색 네모의 색상
-    },
-    todayPlaceholder: {
-      width: 68 * theme.widthRatio,
-      height: 68 * theme.widthRatio,
-      borderRadius: 10,
-      marginTop: 2,
-      backgroundColor: '#000',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    plusImage: {
-      width: 30 * theme.widthRatio,
-      height: 30 * theme.widthRatio,
-    },
-    sundayText: {
-      color: '#d90c0c',
-    },
-    saturdayText: {
-      color: '#0851c3',
-    },
-    disabledTextWeekday: {
-      color: '#000',
-      opacity: 0.5,
-    },
-    disabledTextSaturday: {
-      color: '#0851c3',
-      opacity: 0.5,
-    },
-    disabledTextSunday: {
-      color: '#d90c0c',
-      opacity: 0.5,
-    },
-
-    weekDayContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-around',
-      paddingVertical: 10,
-      backgroundColor: '#fff',
-    },
-    weekDayText: {
-      fontSize: 26 * theme.widthRatio,
-      color: '#333',
-    },
-  });
-
-  // 한경 api 호출
+  const [diaryData, setDiaryData] = useState({});
   const {data, isLoading, error, AxiosApi} = useApi();
 
   useEffect(() => {
@@ -166,21 +135,18 @@ function Calendars({navigation}) {
   }, []);
 
   useEffect(() => {
-    if (data) {
-      console.log('바로 나오는지 확인하는', data);
+    if (data && data.data) {
+      const formattedData = data.data.reduce((acc, diary) => {
+        acc[diary.date] = diary;
+        return acc;
+      }, {});
+
+      setDiaryData(formattedData);
     }
   }, [data]);
 
   // 현재 표시중인 월
   const [currentMonth, setCurrentMonth] = useState(new Date());
-
-  // 이미지 URL을 날짜와 매핑한 객체 (서버에서 받아올 데이터)
-  const diaryImages = {
-    '2024-07-01': require('../assets/favicon.png'),
-    '2024-07-06': require('../assets/favicon.png'),
-  };
-
-  // 요일 헤더 렌더링
 
   // 월 변경시 호출되는 함수
   const onMonthChange = month => {
@@ -193,7 +159,7 @@ function Calendars({navigation}) {
 
   // 각 날짜 셀 렌더링
   const renderDay = date => {
-    const imageSource = diaryImages[date.dateString];
+    const diary = diaryData[date.dateString];
     const isToday = date.dateString === new Date().toISOString().split('T')[0];
     const isFuture = new Date(date.dateString) > new Date();
     const dayOfWeek = new Date(date.dateString).getDay();
@@ -201,56 +167,47 @@ function Calendars({navigation}) {
     const isSaturday = dayOfWeek === 6;
 
     let content;
-    if (imageSource) {
-      content = <Image source={imageSource} style={styles.diaryImage} />;
+    if (diary) {
+      content = <DiaryImage source={{uri: diary.imageUrl}} />;
     } else if (isToday) {
       content = (
-        <Pressable
-          style={styles.todayPlaceholder}
-          onPress={() => {
-            navigation.navigate('WriteDiaryWebView');
-          }}
-        >
-          <Image source={require('../assets/Plus.png')} style={styles.plusImage} />
+        <Pressable onPress={() => navigation.navigate('WriteDiaryWebView')}>
+          <TodayPlaceholder>
+            <PlusImage source={require('../assets/Plus.png')} />
+          </TodayPlaceholder>
         </Pressable>
       );
     } else {
-      content = <View style={styles.placeholder} />;
+      content = <Placeholder />;
     }
 
-    let textStyle;
-    if (isFuture) {
-      if (isSunday) {
-        textStyle = [styles.dayText, styles.disabledTextSunday];
-      } else if (isSaturday) {
-        textStyle = [styles.dayText, styles.disabledTextSaturday];
-      } else {
-        textStyle = [styles.dayText, styles.disabledTextWeekday];
-      }
-    } else {
-      textStyle = [
-        styles.dayText,
-        isSunday && styles.sundayText,
-        isSaturday && styles.saturdayText,
-      ];
-    }
     return (
-      <View style={styles.dayContainer}>
-        {content}
-        <Text style={textStyle}>{date.day}</Text>
-      </View>
+      <Pressable
+        onPress={() => {
+          if (diary) {
+            navigation.navigate('DetailDiaryWebView', {id: diary.diaryId});
+          } else if (!isFuture) {
+            navigation.navigate('WriteDiaryWebView', {selectedDate: date.dateString});
+          }
+        }}
+      >
+        <DayContainer>
+          {content}
+          <DayText isFuture={isFuture} isSunday={isSunday} isSaturday={isSaturday}>
+            {date.day}
+          </DayText>
+        </DayContainer>
+      </Pressable>
     );
   };
 
   return (
-    <View style={styles.container}>
-      {/* 헤더 */}
-      <View style={styles.header}>
-        <Text style={styles.headerText}>{formatHeaderDate(currentMonth)}</Text>
-      </View>
+    <Container>
+      <Header>
+        <HeaderText>{formatHeaderDate(currentMonth)}</HeaderText>
+      </Header>
 
-      <Calendar
-        style={styles.calendar}
+      <StyledCalendar
         theme={{
           'stylesheet.calendar.main': {
             week: {
@@ -285,8 +242,6 @@ function Calendars({navigation}) {
           dotColor: '#00adf5',
           selectedDotColor: '#ffffff',
           monthTextColor: 'blue',
-          textDayFontSize: 26 * theme.widthRatio,
-          textDayHeaderFontSize: 26 * theme.widthRatio,
         }}
         dayComponent={({date}) => renderDay(date)}
         firstDay={0}
@@ -299,7 +254,7 @@ function Calendars({navigation}) {
         disableArrowRight
         hideArrows
       />
-    </View>
+    </Container>
   );
 }
 

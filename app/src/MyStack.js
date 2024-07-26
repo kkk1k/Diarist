@@ -7,6 +7,7 @@ import GoogleWebView from './pages/GoogleWebView';
 import Calendars from './pages/Calendar';
 import GoogleRedirect from './pages/GoogleRedirect';
 import WriteDiaryWebView from './pages/WriteDiaryWebView';
+import DetailDiaryWebView from './pages/DetailDiaryWebView';
 
 const Stack = createNativeStackNavigator();
 
@@ -28,6 +29,7 @@ function MyStack() {
       <Stack.Screen name='Calendar' component={Calendars} />
       <Stack.Screen name='GoogleRedirect' component={GoogleRedirect} />
       <Stack.Screen name='WriteDiaryWebView' component={WriteDiaryWebView} />
+      <Stack.Screen name='DetailDiaryWebView' component={DetailDiaryWebView} />
     </Stack.Navigator>
   );
 }
