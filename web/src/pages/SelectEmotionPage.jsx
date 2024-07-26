@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
 import Emotion from '../components/Emotion';
 import EmotionButton from '../components/EmotionButton';
@@ -45,21 +45,19 @@ const Container = styled.div`
 function SelectEmotionPage() {
   const {selectedEmotion, setSelectedEmotion} = useDiary();
   const {setAuth} = useAuth();
+  const [formattedDate, setFormattedDate] = useState('');
+  const [receivedDate, setReceivedDate] = useState(null);
 
   useEffect(() => {
     const handleMessage = event => {
       try {
         const message = JSON.parse(event.data);
-        console.log(
-          'Tokens updated:',
-          JSON.stringify(message.accessToken),
-          JSON.stringify(message.refreshToken),
-        );
         if (message.type === 'tokens' && message.accessToken && message.refreshToken) {
           setAuth({
             accessToken: message.accessToken,
             refreshToken: message.refreshToken,
           });
+          setReceivedDate(message.selectedDate);
         }
       } catch (error) {
         console.error('Error parsing message:', error);
@@ -73,23 +71,79 @@ function SelectEmotionPage() {
     };
   }, []);
 
+  useEffect(() => {
+    const date = new Date(receivedDate);
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const newFormattedDate = `${month}월 ${day}일`;
+    setFormattedDate(newFormattedDate);
+  }, [receivedDate]);
+
   const handleEmotionClick = id => {
     setSelectedEmotion(prevEmotion => (prevEmotion === String(id) ? '0' : String(id)));
   };
 
   const emotions = [
-    {src: '/happy.png', label: '행복', id: 1},
-    {src: '/fun.png', label: '기쁨', id: 2},
-    {src: '/thank.png', label: '감사', id: 3},
-    {src: '/expect.png', label: '기대', id: 4},
-    {src: '/excite.png', label: '신남', id: 5},
-    {src: '/flutter.png', label: '설렘', id: 6},
-    {src: '/sad.png', label: '슬픔', id: 7},
-    {src: '/angry.png', label: '화남', id: 8},
-    {src: '/annoy.png', label: '짜증', id: 9},
-    {src: '/worry.png', label: '걱정', id: 10},
-    {src: '/regret.png', label: '후회', id: 11},
-    {src: '/tired.png', label: '피곤', id: 12},
+    {
+      src: 'https://pub-09792a1b5cf149c985d34ff32f53df0e.r2.dev/emotions/001.png',
+      label: '행복',
+      id: 1,
+    },
+    {
+      src: 'https://pub-09792a1b5cf149c985d34ff32f53df0e.r2.dev/emotions/002.png',
+      label: '기쁨',
+      id: 2,
+    },
+    {
+      src: 'https://pub-09792a1b5cf149c985d34ff32f53df0e.r2.dev/emotions/003.png',
+      label: '감사',
+      id: 3,
+    },
+    {
+      src: 'https://pub-09792a1b5cf149c985d34ff32f53df0e.r2.dev/emotions/004.png',
+      label: '기대',
+      id: 4,
+    },
+    {
+      src: 'https://pub-09792a1b5cf149c985d34ff32f53df0e.r2.dev/emotions/005.png',
+      label: '신남',
+      id: 5,
+    },
+    {
+      src: 'https://pub-09792a1b5cf149c985d34ff32f53df0e.r2.dev/emotions/006.png',
+      label: '설렘',
+      id: 6,
+    },
+    {
+      src: 'https://pub-09792a1b5cf149c985d34ff32f53df0e.r2.dev/emotions/007.png',
+      label: '슬픔',
+      id: 7,
+    },
+    {
+      src: 'https://pub-09792a1b5cf149c985d34ff32f53df0e.r2.dev/emotions/008.png',
+      label: '화남',
+      id: 8,
+    },
+    {
+      src: 'https://pub-09792a1b5cf149c985d34ff32f53df0e.r2.dev/emotions/009.png',
+      label: '짜증',
+      id: 9,
+    },
+    {
+      src: 'https://pub-09792a1b5cf149c985d34ff32f53df0e.r2.dev/emotions/010.png',
+      label: '걱정',
+      id: 10,
+    },
+    {
+      src: 'https://pub-09792a1b5cf149c985d34ff32f53df0e.r2.dev/emotions/011.png',
+      label: '후회',
+      id: 11,
+    },
+    {
+      src: 'https://pub-09792a1b5cf149c985d34ff32f53df0e.r2.dev/emotions/012.png',
+      label: '피곤',
+      id: 12,
+    },
   ];
 
   return (
@@ -97,7 +151,7 @@ function SelectEmotionPage() {
       <div>
         <A11yHidden>감정 선택 페이지</A11yHidden>
         <TopNavBar progress={1} />
-        <H2>6월 16일 하루는 어떤</H2>
+        <H2>{formattedDate} 하루는 어떤</H2>
         <H2>감정이였나요?</H2>
       </div>
 

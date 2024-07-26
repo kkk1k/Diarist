@@ -13,23 +13,23 @@ const StyledWebView = styled(WebView)`
   flex: 1;
 `;
 
-function WriteDiaryWebView({navigation, route}) {
-  const {selectedDate} = route.params;
+function DetailDiaryWebView({navigation, route}) {
   const webviewRef = useRef(null);
+  const {id} = route.params;
 
   useEffect(() => {
     const injectTokens = async () => {
       try {
         const accessToken = await SecureStore.getItemAsync('accessToken');
         const refreshToken = await SecureStore.getItemAsync('refreshToken');
+        console.log(id);
 
         if (accessToken && refreshToken) {
           const script = `
             window.postMessage(JSON.stringify({
               type: 'tokens',
               accessToken: ${accessToken},
-              refreshToken: ${refreshToken},
-              selectedDate: '${selectedDate}',
+              refreshToken: ${refreshToken}
             }), '*');
             true;
           `;
@@ -46,11 +46,11 @@ function WriteDiaryWebView({navigation, route}) {
 
     // 웹뷰가 로드된 후 토큰을 주입하기 위해 약간의 지연을 줍니다.
     setTimeout(injectTokens, 500);
-  }, [selectedDate]);
+  }, []);
 
   const onMessage = e => {
     const message = e.nativeEvent.data;
-    console.log(message);
+    console.log('Received message from WebView:', message);
     if (message === 'closeWebView') {
       navigation.goBack();
     } else if (message === 'check') {
@@ -68,11 +68,12 @@ function WriteDiaryWebView({navigation, route}) {
     })();
     true;
   `;
+
   return (
     <StyledSafeAreaView>
       <StyledWebView
         ref={webviewRef}
-        source={{uri: `http://${LOCAL_IP}:5173/emotion`}}
+        source={{uri: `http://${LOCAL_IP}:5173/detail/${id}`}}
         onMessage={onMessage}
         injectedJavaScript={injectedJavaScript}
         javaScriptEnabled
@@ -81,4 +82,4 @@ function WriteDiaryWebView({navigation, route}) {
   );
 }
 
-export default WriteDiaryWebView;
+export default DetailDiaryWebView;
