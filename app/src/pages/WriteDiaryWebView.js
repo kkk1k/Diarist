@@ -76,6 +76,10 @@ function WriteDiaryWebView({navigation, route}) {
         onMessage={onMessage}
         injectedJavaScript={injectedJavaScript}
         javaScriptEnabled
+        onError={syntheticEvent => {
+          const {nativeEvent} = syntheticEvent;
+          console.warn('WebView error: ', nativeEvent);
+        }}
       />
     </StyledSafeAreaView>
   );

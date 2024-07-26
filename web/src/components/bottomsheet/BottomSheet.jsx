@@ -1,7 +1,10 @@
 import React, {useEffect, useRef} from 'react';
 import styled from 'styled-components';
+import {useLocation, useNavigate} from 'react-router-dom';
 import BottomSheetHeader from './BottomSheetHeader';
 import useBottomSheet from '../../hooks/useBottomSheet';
+import {useDiary} from '../../context/DiaryContext';
+import useApi from '../../hooks/useApi';
 
 const BottomSheetBackground = styled.section`
   position: fixed;
@@ -80,8 +83,25 @@ const Button = styled.button`
 `;
 
 function BottomSheet({data, isOpen, isClose}) {
+  const {selectedEmotion, diaryContent} = useDiary();
+  const navigate = useNavigate();
   const {isOpen: sheetIsOpen, openBottomSheet, closeBottomSheet, refs} = useBottomSheet(isClose);
-
+  const {AxiosApi} = useApi();
+  const submitData = async () => {
+    try {
+      await AxiosApi('post', '/api/v1/diary/create/ad', {
+        user_id: 0,
+        emotion_id: selectedEmotion,
+        artist_id: 1,
+        diary_date: '2024-07-25',
+        content: diaryContent,
+      });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      navigate('/complete');
+    }
+  };
   useEffect(() => {
     if (isOpen) {
       openBottomSheet();
@@ -105,7 +125,7 @@ function BottomSheet({data, isOpen, isClose}) {
           <ExampleImg src='/피카소.png' />
           <P>당신이 일기는 위의 그림 풍으로 재탄생됩니다.</P>
           <P>이 화가와의 작업을 원하시면 선택완료 버튼을 눌러주세요</P>
-          <Button>선택완료</Button>
+          <Button onClick={submitData}>선택완료</Button>
         </BottomSheetContent>
       </Wrapper>
     </BottomSheetBackground>

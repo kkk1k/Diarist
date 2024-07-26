@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
-import {useLocation} from 'react-router-dom';
 import styled from 'styled-components';
+import useApi from '../hooks/useApi';
 import TopNavBar from '../components/TopNavBar';
 import CategoryButton from '../components/CategoryButton';
 import BottomSheet from '../components/bottomsheet/BottomSheet';
@@ -45,10 +45,9 @@ const DrawerImg = styled.img`
 `;
 
 function SelectDrawerPage() {
-  const location = useLocation();
-  const info = location.state;
   const [selectCategory, setSelectCategory] = useState('르네상스');
   const [selectDrawer, setSelectDrawer] = useState('');
+  const [data, setData] = useState([]);
   const categoryArr = ['르네상스', '근대', '현대', '기타'];
   const [openModal, setOpenModal] = useState(false);
   const handleModal = item => {
@@ -64,7 +63,7 @@ function SelectDrawerPage() {
     현대: 'Modern',
     기타: 'Asia',
   };
-  const data = [
+  const data1 = [
     {
       artistName: '존 윌리엄',
       artistPicture: '/drawer.jpg',
@@ -96,11 +95,23 @@ function SelectDrawerPage() {
       description: '화가 설명 ~~~~~~입니다',
     },
   ];
+
+  const {AxiosApi} = useApi();
+  const fetchData = async category => {
+    try {
+      const response = await AxiosApi('get', `/api/v1/artist/list?period=${category}`);
+      console.log(response);
+      setData(response.data);
+    } finally {
+      console.log('done');
+    }
+  };
   const handleCategory = e => {
     setSelectCategory(e.target.innerText);
     const englishCategory = categoryMap[e.target.innerText];
+    console.log(englishCategory);
     // 통신 코드 작성
-    console.log('Selected Category:', englishCategory);
+    fetchData(englishCategory);
   };
 
   return (
@@ -128,7 +139,12 @@ function SelectDrawerPage() {
           {data.map(item => (
             <Figure key={item.artistName}>
               {/* eslint-disable-next-line jsx-a11y/alt-text */}
-              <DrawerImg src={item.artistPicture} onClick={() => handleModal(item)} />
+              <DrawerImg
+                src={item.artistPicture}
+                onClick={() => {
+                  handleModal(item);
+                }}
+              />
               <Figcaption>{item.artistName}</Figcaption>
             </Figure>
           ))}

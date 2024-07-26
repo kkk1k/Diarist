@@ -14,12 +14,9 @@ function KakaoLoginRedirect({navigation, route}) {
   const {code} = route.params;
 
   useEffect(() => {
-    console.log('KakaoLoginRedirect mounted, code:', code); // 추가된 로그
-
     const fetchData = async () => {
       if (code) {
         try {
-          console.log('Sending request to:', `${IP}/oauth2/kakao/login`); // 추가된 로그
           const response = await axios({
             method: 'POST',
             url: `${IP}/oauth2/kakao/login`,

@@ -1,10 +1,9 @@
 import {useContext, useState} from 'react';
 import axios from 'axios';
-import AuthContext from '../context/AuthContext';
+import {useAuth} from '../context/AuthContext';
 
 function useApi() {
-  const {checkTokenExpiration} = useContext(AuthContext);
-  const [data, setData] = useState(null);
+  const {checkTokenExpiration} = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -13,10 +12,11 @@ function useApi() {
     setError(null);
     try {
       const token = JSON.parse(await checkTokenExpiration());
+      console.log(requestBody);
       console.log('통신 토큰', token);
       const config = {
         method,
-        url: `${IP}${url}`,
+        url: `${import.meta.env.VITE_API_URL}${url}`,
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
@@ -25,8 +25,7 @@ function useApi() {
       };
 
       const response = await axios(config);
-
-      setData(response.data);
+      return response.data;
     } catch (e) {
       setError(e);
       console.error('Error fetching data:', e);
@@ -35,7 +34,7 @@ function useApi() {
     }
   }
 
-  return {data, isLoading, error, AxiosApi};
+  return {isLoading, error, AxiosApi};
 }
 
 export default useApi;

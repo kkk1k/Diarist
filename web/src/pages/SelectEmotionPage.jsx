@@ -4,7 +4,7 @@ import Emotion from '../components/Emotion';
 import EmotionButton from '../components/EmotionButton';
 import TopNavBar from '../components/TopNavBar';
 import {useAuth} from '../context/AuthContext';
-import {useDiary} from '../hooks/DiaryContext';
+import {useDiary} from '../context/DiaryContext';
 
 const A11yHidden = styled.h1`
   position: absolute;
@@ -82,10 +82,6 @@ function SelectEmotionPage() {
     const newFormattedDate = `${month}월 ${day}일`;
     setFormattedDate(newFormattedDate);
   }, [receivedDate]);
-
-  const handleEmotionClick = id => {
-    setSelectedEmotion(prevEmotion => (prevEmotion === String(id) ? '0' : String(id)));
-  };
 
   const emotions = [
     {
