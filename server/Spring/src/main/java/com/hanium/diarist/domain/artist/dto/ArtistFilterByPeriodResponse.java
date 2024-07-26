@@ -7,13 +7,14 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class ArtistFilterByPeriodResponse {
+    private final Long artistId;
     private final String artistName;
     private final String artistPicture;
     private final String description;
 
 
     public static ArtistFilterByPeriodResponse of(Artist artist) {
-        return new ArtistFilterByPeriodResponse(artist.getArtistName(), artist.getArtistPicture(), artist.getDescription());
+        return new ArtistFilterByPeriodResponse(artist.getArtistId(),artist.getArtistName(), artist.getArtistPicture(), artist.getDescription());
     }
 
 }

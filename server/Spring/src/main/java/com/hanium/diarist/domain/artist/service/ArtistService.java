@@ -41,6 +41,17 @@ public class ArtistService {
     }
 
     @Transactional
+    public List<SelectArtistResponse> selectPeriod(Period period){
+        List<Artist> artists = artistRepository.findAllByPeriod(period);
+        List<SelectArtistResponse> artistFilterByPeriodResponses = new ArrayList<>();
+        for (Artist artist : artists) {
+            artistFilterByPeriodResponses.add(SelectArtistResponse.of(artist));
+        }
+        return artistFilterByPeriodResponses;
+    }
+
+
+    @Transactional
     public SelectArtistResponse selectArtist(Long artistId) {
         Artist artist = artistRepository.findByArtistId(artistId).orElseThrow(ArtistNotFoundException::new);
         return SelectArtistResponse.of(artist);
