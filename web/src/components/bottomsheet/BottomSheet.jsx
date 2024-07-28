@@ -83,17 +83,18 @@ const Button = styled.button`
 `;
 
 function BottomSheet({data, isOpen, isClose}) {
-  const {selectedEmotion, diaryContent} = useDiary();
+  const {selectedEmotion, diaryContent, diaryDate} = useDiary();
   const navigate = useNavigate();
   const {isOpen: sheetIsOpen, openBottomSheet, closeBottomSheet, refs} = useBottomSheet(isClose);
   const {AxiosApi} = useApi();
+  console.log(diaryDate, selectedEmotion);
   const submitData = async () => {
     try {
       await AxiosApi('post', '/api/v1/diary/create/ad', {
         user_id: 0,
         emotion_id: selectedEmotion,
         artist_id: data.artistId,
-        diary_date: '2024-07-25',
+        diary_date: diaryDate,
         content: diaryContent,
       });
     } catch (error) {
