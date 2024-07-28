@@ -1,5 +1,6 @@
-import {React, useEffect, useState} from 'react';
+import {React, useEffect, useState, useCallback} from 'react';
 import {Pressable} from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
 import styled from 'styled-components/native';
 import useApi from '../hooks/useApi';
@@ -118,21 +119,24 @@ const PlusImage = styled.Image`
   height: ${props => 30 * props.theme.widthRatio}px;
 `;
 
-function Calendars({navigation}) {
+function Calendars({navigation, route}) {
   const [diaryData, setDiaryData] = useState({});
   const {data, isLoading, error, AxiosApi} = useApi();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await AxiosApi('get', '/api/v1/diary/list');
-      } finally {
-        console.log('done');
-      }
-    };
+  const fetchData = async () => {
+    try {
+      await AxiosApi('get', '/api/v1/diary/list');
+      console.log('캘린더 접속');
+    } finally {
+      console.log('done');
+    }
+  };
 
-    fetchData();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [route]),
+  );
 
   useEffect(() => {
     if (data && data.data) {

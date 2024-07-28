@@ -2,6 +2,7 @@ import React, {useEffect, useRef} from 'react';
 import styled from 'styled-components/native';
 import WebView from 'react-native-webview';
 import * as SecureStore from 'expo-secure-store';
+import {CommonActions} from '@react-navigation/native';
 import {LOCAL_IP} from '@env';
 
 const StyledSafeAreaView = styled.SafeAreaView`
@@ -54,7 +55,7 @@ function WriteDiaryWebView({navigation, route}) {
     if (message === 'closeWebView') {
       navigation.goBack();
     } else if (message === 'check') {
-      navigation.navigate('Calendar');
+      navigation.navigate('Calendar', {reload: true});
     }
   };
 
