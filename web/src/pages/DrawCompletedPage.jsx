@@ -4,6 +4,7 @@ import {EventSourcePolyfill} from 'event-source-polyfill';
 import CompleteButton from '../components/CompleteButton';
 import ResetModal from '../components/ResetModal';
 import {useAuth} from '../context/AuthContext';
+import Loading from '../components/Loading';
 
 const Main = styled.div`
   margin-left: ${props => 30 * props.theme.widthRatio}px;
@@ -112,10 +113,9 @@ const OpenButton = styled.button`
   height: ${props => 40 * props.theme.widthRatio}px;
 `;
 
-const Loading = styled.div`
+const LoadingContainer = styled.div`
   display: flex;
   justify-content: center;
-  font-size: 50px;
 `;
 
 function DrawCompletedPage() {
@@ -173,7 +173,9 @@ function DrawCompletedPage() {
   }, []);
 
   return loading ? (
-    <Loading>Loading</Loading>
+    <LoadingContainer>
+      <Loading />
+    </LoadingContainer>
   ) : data ? (
     <Main>
       <AccessibilityHidden>그림 완성 페이지</AccessibilityHidden>

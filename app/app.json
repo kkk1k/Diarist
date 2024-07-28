@@ -8,7 +8,7 @@
     "userInterfaceStyle": "light",
     "scheme": "diarist",
     "splash": {
-      "image": "./src/assets/splash.png",
+      "image": "./src/assets/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },

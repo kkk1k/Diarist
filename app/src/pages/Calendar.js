@@ -121,7 +121,7 @@ const PlusImage = styled.Image`
 
 function Calendars({navigation, route}) {
   const [diaryData, setDiaryData] = useState({});
-  const {data, isLoading, error, AxiosApi} = useApi();
+  const {data, AxiosApi} = useApi();
 
   const fetchData = async () => {
     try {

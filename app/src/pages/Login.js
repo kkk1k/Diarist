@@ -3,7 +3,7 @@ import styled from 'styled-components/native';
 import {TouchableOpacity, Text} from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import * as AuthSession from 'expo-auth-session';
-import Splash from '../assets/splash.png';
+import Splash from '../assets/logo.png';
 import Google from '../assets/googleicon.png';
 import Kakao from '../assets/kakaoicon.png';
 
@@ -25,8 +25,10 @@ const StyledText = styled.Text`
 `;
 
 const LogoIcon = styled.Image`
-  width: ${props => 600 * props.theme.widthRatio}px;
-  height: ${props => 500 * props.theme.widthRatio}px;
+  width: ${props => 400 * props.theme.widthRatio}px;
+  height: ${props => 300 * props.theme.widthRatio}px;
+  margin-top: ${props => 100 * props.theme.widthRatio}px;
+  margin-bottom: ${props => 100 * props.theme.widthRatio}px;
 `;
 
 const KakaoIcon = styled.Image`
@@ -89,10 +91,10 @@ function Login({navigation}) {
         <GoogleIcon source={Google} />
         <ButtonText>Google 로그인</ButtonText>
       </GoogleButton>
-      <GoogleButton onPress={() => navigation.navigate('WriteDiaryWebView')}>
+      {/* <GoogleButton onPress={() => navigation.navigate('WriteDiaryWebView')}>
         <GoogleIcon source={Google} />
         <ButtonText>Google 로그인 임시</ButtonText>
-      </GoogleButton>
+      </GoogleButton> */}
     </Container>
   );
 }
