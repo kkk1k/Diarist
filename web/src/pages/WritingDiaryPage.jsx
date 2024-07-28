@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
 import DiaryButton from '../components/DiaryButton';
 import TopNavBar from '../components/TopNavBar';
-import {useDiary} from '../hooks/DiaryContext';
+import {useDiary} from '../context/DiaryContext';
 
 const A11yHidden = styled.h1`
   position: absolute;

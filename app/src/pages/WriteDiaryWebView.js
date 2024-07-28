@@ -14,38 +14,38 @@ const StyledWebView = styled(WebView)`
 `;
 
 function WriteDiaryWebView({navigation, route}) {
-  const {selectedDate} = route.params;
+  const {selectedDate} = route.params || {};
+  console.log(selectedDate);
   const webviewRef = useRef(null);
 
-  useEffect(() => {
-    const injectTokens = async () => {
-      try {
-        const accessToken = await SecureStore.getItemAsync('accessToken');
-        const refreshToken = await SecureStore.getItemAsync('refreshToken');
+  const injectTokens = async () => {
+    try {
+      const accessToken = await SecureStore.getItemAsync('accessToken');
+      const refreshToken = await SecureStore.getItemAsync('refreshToken');
 
-        if (accessToken && refreshToken) {
-          const script = `
-            window.postMessage(JSON.stringify({
-              type: 'tokens',
-              accessToken: ${accessToken},
-              refreshToken: ${refreshToken},
-              selectedDate: '${selectedDate}',
-            }), '*');
-            true;
-          `;
-          if (webviewRef.current) {
-            webviewRef.current.injectJavaScript(script);
-          }
-        } else {
-          console.log('Tokens not found in SecureStore');
+      if (accessToken && refreshToken) {
+        const script = `
+          window.postMessage(JSON.stringify({
+            type: 'tokens',
+            accessToken: '${accessToken}',
+            refreshToken: '${refreshToken}',
+            selectedDate: '${selectedDate}',
+          }), '*');
+          true;
+        `;
+        if (webviewRef.current) {
+          webviewRef.current.injectJavaScript(script);
         }
-      } catch (error) {
-        console.error('Failed to retrieve tokens from SecureStore:', error);
+      } else {
+        console.log('Tokens not found in SecureStore');
       }
-    };
+    } catch (error) {
+      console.error('Failed to retrieve tokens from SecureStore:', error);
+    }
+  };
 
-    // 웹뷰가 로드된 후 토큰을 주입하기 위해 약간의 지연을 줍니다.
-    setTimeout(injectTokens, 500);
+  useEffect(() => {
+    injectTokens();
   }, [selectedDate]);
 
   const onMessage = e => {
@@ -68,14 +68,20 @@ function WriteDiaryWebView({navigation, route}) {
     })();
     true;
   `;
+
   return (
     <StyledSafeAreaView>
       <StyledWebView
         ref={webviewRef}
         source={{uri: `http://${LOCAL_IP}:5173/emotion`}}
         onMessage={onMessage}
+        onLoad={injectTokens}
         injectedJavaScript={injectedJavaScript}
         javaScriptEnabled
+        onError={syntheticEvent => {
+          const {nativeEvent} = syntheticEvent;
+          console.warn('WebView error: ', nativeEvent);
+        }}
       />
     </StyledSafeAreaView>
   );

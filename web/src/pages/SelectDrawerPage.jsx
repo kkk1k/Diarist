@@ -1,9 +1,10 @@
-import React, {useState} from 'react';
-import {useLocation} from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
+import useApi from '../hooks/useApi';
 import TopNavBar from '../components/TopNavBar';
 import CategoryButton from '../components/CategoryButton';
 import BottomSheet from '../components/bottomsheet/BottomSheet';
+import {useAuth} from '../context/AuthContext';
 
 const Div = styled.div`
   display: flex;
@@ -45,11 +46,10 @@ const DrawerImg = styled.img`
 `;
 
 function SelectDrawerPage() {
-  const newWidthRatio = window.innerWidth;
-  console.log(newWidthRatio);
   const [selectCategory, setSelectCategory] = useState('르네상스');
   const [selectDrawer, setSelectDrawer] = useState('');
-  const location = useLocation();
+  const [data, setData] = useState([]);
+
   const categoryArr = ['르네상스', '근대', '현대', '기타'];
   const [openModal, setOpenModal] = useState(false);
   const handleModal = item => {
@@ -65,45 +65,34 @@ function SelectDrawerPage() {
     현대: 'Modern',
     기타: 'Asia',
   };
-  const data = [
-    {
-      artistName: '존 윌리엄',
-      artistPicture: '/drawer.jpg',
-      description: '화가 설명 ~~~~~~입니다',
-    },
-    {
-      artistName: '존 윌리엄 워',
-      artistPicture: '/drawer.jpg',
-      description: '화가 설명 ~~~~~~입니다',
-    },
-    {
-      artistName: '존 윌리엄 워터',
-      artistPicture: '/drawer.jpg',
-      description: '화가 설명 ~~~~~~입니다',
-    },
-    {
-      artistName: '존 윌리엄 워터하',
-      artistPicture: '/drawer.jpg',
-      description: '화가 설명 ~~~~~~입니다',
-    },
-    {
-      artistName: '존 윌리엄 워터하우',
-      artistPicture: '/drawer.jpg',
-      description: '화가 설명 ~~~~~~입니다',
-    },
-    {
-      artistName: '존 윌리엄 워터하우스',
-      artistPicture: '/drawer.jpg',
-      description: '화가 설명 ~~~~~~입니다',
-    },
-  ];
+
+  const {AxiosApi} = useApi();
+  const {checkTokenExpiration} = useAuth();
+  const fetchData = async category => {
+    const token = await checkTokenExpiration();
+    console.log('화가 선택,', token);
+    try {
+      const response = await AxiosApi('get', `/api/v1/artist/select?period=${category}`);
+      console.log('응답', response);
+      setData(response.data);
+    } catch (e) {
+      console.log('에러', e);
+    }
+  };
   const handleCategory = e => {
     setSelectCategory(e.target.innerText);
     const englishCategory = categoryMap[e.target.innerText];
+    console.log(englishCategory);
     // 통신 코드 작성
-    console.log('Selected Category:', englishCategory);
+    fetchData(englishCategory);
   };
-  console.log(data);
+  useEffect(() => {
+    console.log(data);
+  }, [data]);
+
+  useEffect(() => {
+    fetchData('Renaissance');
+  }, []);
 
   return (
     <>
@@ -130,16 +119,18 @@ function SelectDrawerPage() {
           {data.map(item => (
             <Figure key={item.artistName}>
               {/* eslint-disable-next-line jsx-a11y/alt-text */}
-              <DrawerImg src={item.artistPicture} onClick={() => handleModal(item)} />
+              <DrawerImg
+                src={item.artistPicture}
+                onClick={() => {
+                  handleModal(item);
+                }}
+              />
               <Figcaption>{item.artistName}</Figcaption>
             </Figure>
           ))}
         </DrawerWrapper>
       </div>
-      {openModal && (
-        // <CheckModal data={selectDrawer} openModal={openModal} closeModal={closeModal} />
-        <BottomSheet data={selectDrawer} isOpen={openModal} isClose={closeModal} />
-      )}
+      {openModal && <BottomSheet data={selectDrawer} isOpen={openModal} isClose={closeModal} />}
     </>
   );
 }

@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {Routes, Route} from 'react-router-dom';
 import {ThemeProvider} from 'styled-components';
-import {DiaryProvider} from './hooks/DiaryContext';
+import {DiaryProvider} from './context/DiaryContext';
 import Calendar from './pages/Calendar';
 import WritingDiaryPage from './pages/WritingDiaryPage';
 import DrawCompletedPage from './pages/DrawCompletedPage';

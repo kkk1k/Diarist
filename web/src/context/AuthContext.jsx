@@ -1,7 +1,8 @@
-import React, {createContext, useState, useEffect, useMemo} from 'react';
+// AuthContext.jsx
+import React, {createContext, useState, useMemo, useContext} from 'react';
 import axios from 'axios';
 
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
 export function AuthProvider({children}) {
   const [auth, setAuth] = useState({
@@ -11,8 +12,12 @@ export function AuthProvider({children}) {
 
   const refreshAccessToken = async () => {
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/oauth/refresh`, {
-        refreshToken: auth.refreshToken,
+      const refresh = JSON.parse(auth.refreshToken);
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/oauth/refresh`, null, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${refresh}`,
+        },
       });
 
       const newAccessToken = response.data.data.accessToken;
@@ -54,6 +59,4 @@ export function AuthProvider({children}) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-export const useAuth = () => React.useContext(AuthContext);
-
-export default AuthContext;
+export const useAuth = () => useContext(AuthContext);
