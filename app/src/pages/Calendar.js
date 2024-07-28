@@ -171,7 +171,9 @@ function Calendars({navigation}) {
       content = <DiaryImage source={{uri: diary.imageUrl}} />;
     } else if (isToday) {
       content = (
-        <Pressable onPress={() => navigation.navigate('WriteDiaryWebView')}>
+        <Pressable
+          onPress={() => navigation.navigate('WriteDiaryWebView', {selectedDate: date.dateString})}
+        >
           <TodayPlaceholder>
             <PlusImage source={require('../assets/Plus.png')} />
           </TodayPlaceholder>
@@ -186,7 +188,7 @@ function Calendars({navigation}) {
         onPress={() => {
           if (diary) {
             navigation.navigate('DetailDiaryWebView', {id: diary.diaryId});
-          } else if (!isFuture) {
+          } else if (!isFuture || isToday) {
             navigation.navigate('WriteDiaryWebView', {selectedDate: date.dateString});
           }
         }}
