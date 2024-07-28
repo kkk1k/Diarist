@@ -134,7 +134,7 @@ function DrawCompletedPage() {
     setIsOpenedModal(false);
   };
   const handleCheck = () => {
-    (window.ReactNativeWebView || window).postMessage('closeWebView');
+    (window.ReactNativeWebView || window).postMessage('check');
   };
 
   useEffect(() => {
