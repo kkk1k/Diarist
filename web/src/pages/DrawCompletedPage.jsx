@@ -116,6 +116,8 @@ const OpenButton = styled.button`
 const LoadingContainer = styled.div`
   display: flex;
   justify-content: center;
+  align-items: center;
+  height: 100vh; /* 화면 전체 높이를 차지하도록 설정 */
 `;
 
 function DrawCompletedPage() {
