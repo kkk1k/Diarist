@@ -17,44 +17,35 @@ function DetailDiaryWebView({navigation, route}) {
   const webviewRef = useRef(null);
   const {id} = route.params;
 
-  useEffect(() => {
-    const injectTokens = async () => {
-      try {
-        const accessToken = await SecureStore.getItemAsync('accessToken');
-        const refreshToken = await SecureStore.getItemAsync('refreshToken');
-        console.log(id);
+  const injectTokens = async () => {
+    const accessToken = await SecureStore.getItemAsync('accessToken');
+    const refreshToken = await SecureStore.getItemAsync('refreshToken');
 
-        if (accessToken && refreshToken) {
-          const script = `
-            window.postMessage(JSON.stringify({
-              type: 'tokens',
-              accessToken: ${accessToken},
-              refreshToken: ${refreshToken}
-            }), '*');
-            true;
-          `;
-          if (webviewRef.current) {
-            webviewRef.current.injectJavaScript(script);
-          }
-        } else {
-          console.log('Tokens not found in SecureStore');
-        }
-      } catch (error) {
-        console.error('Failed to retrieve tokens from SecureStore:', error);
-      }
-    };
-
-    // 웹뷰가 로드된 후 토큰을 주입하기 위해 약간의 지연을 줍니다.
-    setTimeout(injectTokens, 500);
-  }, []);
+    if (accessToken && refreshToken) {
+      const script = `
+        window.postMessage(JSON.stringify({
+          type: 'tokens',
+          accessToken: '${accessToken}',
+          refreshToken: '${refreshToken}'
+        }), '*');
+        console.log('Tokens injected');
+        true;
+      `;
+      webviewRef.current?.injectJavaScript(script);
+    } else {
+      console.log('Tokens not found in SecureStore');
+    }
+  };
 
   const onMessage = e => {
     const message = e.nativeEvent.data;
     console.log('Received message from WebView:', message);
-    if (message === 'closeWebView') {
+    if (message.startsWith('CONSOLE:')) {
+      console.log('WebView console:', message.slice(8));
+    } else if (message === 'closeWebView') {
       navigation.goBack();
     } else if (message === 'check') {
-      navigation.navigate('Calendar');
+      navigation.navigate('Calendar', {reload: true});
     }
   };
 
@@ -65,6 +56,9 @@ function DetailDiaryWebView({navigation, route}) {
         originalLog.apply(console, arguments);
         window.ReactNativeWebView.postMessage('CONSOLE: ' + Array.from(arguments).join(' '));
       };
+      window.addEventListener('message', function(event) {
+        console.log('Received message in WebView:', event.data);
+      });
     })();
     true;
   `;
@@ -74,6 +68,7 @@ function DetailDiaryWebView({navigation, route}) {
       <StyledWebView
         ref={webviewRef}
         source={{uri: `http://${LOCAL_IP}:5173/detail/${id}`}}
+        onLoad={injectTokens}
         onMessage={onMessage}
         injectedJavaScript={injectedJavaScript}
         javaScriptEnabled
@@ -81,5 +76,4 @@ function DetailDiaryWebView({navigation, route}) {
     </StyledSafeAreaView>
   );
 }
-
 export default DetailDiaryWebView;

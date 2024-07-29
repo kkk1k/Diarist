@@ -155,7 +155,7 @@ function SelectEmotionPage() {
     <Container>
       <div>
         <A11yHidden>감정 선택 페이지</A11yHidden>
-        <TopNavBar progress={1} />
+        <TopNavBar progress={1} hidden />
         <H2>{formattedDate} 하루는 어떤</H2>
         <H2>감정이였나요?</H2>
       </div>

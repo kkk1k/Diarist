@@ -1,10 +1,7 @@
 import React, {useState} from 'react';
 import {useLocation} from 'react-router-dom';
 import styled from 'styled-components';
-import TopNavBar from '../components/TopNavBar';
 import CategoryButton from '../components/CategoryButton';
-import CheckModal from '../components/CheckModal';
-import DrawerModal from '../components/DrawerModal';
 import DrawerBottomSheet from '../components/bottomsheet/DrawerBottomSheet';
 
 const A11yHidden = styled.h1`

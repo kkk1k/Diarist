@@ -1,4 +1,4 @@
-import {useContext, useState} from 'react';
+import {useState} from 'react';
 import axios from 'axios';
 import {useAuth} from '../context/AuthContext';
 
@@ -11,8 +11,6 @@ function useApi() {
     setIsLoading(true);
     setError(null);
     const token = JSON.parse(await checkTokenExpiration());
-
-    console.log('통신 토큰', token);
     try {
       const config = {
         method,
@@ -25,10 +23,11 @@ function useApi() {
       };
 
       const response = await axios(config);
+
       return response.data;
     } catch (e) {
       setError(e);
-      console.error('Error fetching data:', e);
+      console.log('Error fetching data:', e);
     } finally {
       setIsLoading(false);
     }

@@ -25,10 +25,11 @@ const StyledText = styled.Text`
 `;
 
 const LogoIcon = styled.Image`
-  width: ${props => 400 * props.theme.widthRatio}px;
-  height: ${props => 300 * props.theme.widthRatio}px;
-  margin-top: ${props => 100 * props.theme.widthRatio}px;
-  margin-bottom: ${props => 100 * props.theme.widthRatio}px;
+  width: ${props => 300 * props.theme.widthRatio}px;
+  height: ${props => 150 * props.theme.widthRatio}px;
+  margin-top: ${props => 200 * props.theme.widthRatio}px;
+  margin-bottom: ${props => 200 * props.theme.widthRatio}px;
+  resize-mode: contain; /* 이미지를 부모 컨테이너에 맞게 조정 */
 `;
 
 const KakaoIcon = styled.Image`
