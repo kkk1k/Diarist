@@ -82,8 +82,11 @@ function SelectDrawerPage() {
   const handleCategory = e => {
     setSelectCategory(e.target.innerText);
     const englishCategory = categoryMap[e.target.innerText];
-    console.log(englishCategory);
-    // 통신 코드 작성
+    if (e.target.innerText === '기타') {
+      alert('현재 개발 중입니다.');
+      return;
+    }
+
     fetchData(englishCategory);
   };
   useEffect(() => {

@@ -85,6 +85,9 @@ const SVGWrapper = styled.div`
 `;
 
 function ResetModal({isOpen, closeModal}) {
+  const handleRedraw = () => {
+    alert('현재 개발 중입니다.');
+  };
   if (!isOpen) return null;
   return ReactDOM.createPortal(
     <ModalBackground onClick={closeModal}>
@@ -117,7 +120,7 @@ function ResetModal({isOpen, closeModal}) {
           <Button onClick={closeModal} $isCancel>
             취소
           </Button>
-          <Button>다시 그리기</Button>
+          <Button onClick={handleRedraw}>다시 그리기</Button>
         </ButtonWrapper>
       </ModalContainer>
     </ModalBackground>,

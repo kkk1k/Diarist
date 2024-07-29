@@ -54,7 +54,7 @@ function App() {
         <Route path='/complete' element={<DrawCompletedPage />} />
         <Route path='/drawerlist' element={<DrawerListPage />} />
         <Route path='/album' element={<AlbumPage />} />
-        <Route path='/detail' element={<DrawDetailPage />} />
+        <Route path='/detail/:id' element={<DrawDetailPage />} />
         <Route path='/*' element={<DiaryFlow />} />
       </Routes>
     </ThemeProvider>

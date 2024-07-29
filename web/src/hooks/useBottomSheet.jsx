@@ -37,7 +37,7 @@ const useBottomSheet = onClose => {
 
     touchStart.sheetY = sheetRef.current.getBoundingClientRect().y;
     touchStart.touchY = e.touches[0].clientY;
-    metrics.current.snap = touchStart.sheetY + sheetRef.current.getBoundingClientRect().height / 2;
+    metrics.current.snap = touchStart.sheetY + sheetRef.current.getBoundingClientRect().height / 4;
   };
 
   const handleTouchMove = e => {

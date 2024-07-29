@@ -61,14 +61,14 @@ const H2 = styled.h2`
 `;
 const TitleSpan = styled.span``;
 
-function TopNavBar({page, progress, title1, title2}) {
+function TopNavBar({hidden = false, page, progress, title1, title2}) {
   // page 페이지 이름
   // progress 단계
   // title1 첫번쨰출
   // title2 두번쨰 줄
 
   const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(false);
+
   // 뒤로가기 버튼 클릭 시 이동
   const handleBack = () => {
     navigate(-1);
@@ -81,7 +81,8 @@ function TopNavBar({page, progress, title1, title2}) {
     <>
       <Header>
         <A11yHidden>{page}</A11yHidden>
-        <Img src='/btn_prev.png' alt='뒤로가기' onClick={handleBack} />
+        {hidden ? <Img /> : <Img src='/btn_prev.png' alt='뒤로가기' onClick={handleBack} />}
+
         <Span>{progress} / 3</Span>
         <CloseImg src='/btn_x.png' alt='닫기' onClick={handleClose} />
       </Header>
