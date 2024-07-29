@@ -174,6 +174,7 @@ function Calendars({navigation, route}) {
     if (diary) {
       content = <DiaryImage source={{uri: diary.imageUrl}} />;
     } else if (isToday) {
+      // 오늘이지만 일기 데이터가 없는 경우
       content = (
         <Pressable
           onPress={() => navigation.navigate('WriteDiaryWebView', {selectedDate: date.dateString})}
@@ -184,6 +185,7 @@ function Calendars({navigation, route}) {
         </Pressable>
       );
     } else {
+      // 과거 날짜이면서 일기 데이터가 없는 경우
       content = <Placeholder />;
     }
 
