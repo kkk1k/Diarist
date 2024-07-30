@@ -16,6 +16,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
 from django.conf import settings
+from django.utils import timezone
 from diary.models import Diary, User, Emotion, Image, Artist
 from diary.utils import S3ImgUploader
 
@@ -145,17 +146,17 @@ def process_message(message):
         diary = Diary.objects.get(user=user, diary_date=diary_date)
 
         old_image_url = diary.image.image_url
-        old_image = diary.image
+        diary_image = diary.image
 
         S3ImgUploader.delete_image(old_image_url)
-        old_image.delete()
 
-        new_image = Image.objects.create(image_url=s3_url)
+        diary_image.image_url = s3_url
+        diary_image.created_at = timezone.now()
+        diary_image.save()
 
         diary.content = content
         diary.emotion = emotion
         diary.artist = artist
-        diary.image = new_image
         diary.save()
 
         send_response(user_id, diary.diary_id)
