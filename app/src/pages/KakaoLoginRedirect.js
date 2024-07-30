@@ -37,7 +37,7 @@ function KakaoLoginRedirect({navigation, route}) {
             navigation.dispatch(
               CommonActions.reset({
                 index: 0,
-                routes: [{name: 'Calendar'}],
+                routes: [{name: 'MainTabs'}],
               }),
             );
           }
