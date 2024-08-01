@@ -7,7 +7,7 @@ import GoogleWebView from './pages/GoogleWebView';
 import GoogleRedirect from './pages/GoogleRedirect';
 import DetailDiaryWebView from './pages/DetailDiaryWebView';
 import MyTab from './MyTab';
-// import AlbumWebView from './pages/AlbumWebView';
+import AlbumWebView from './pages/AlbumWebView';
 
 const Stack = createNativeStackNavigator();
 
