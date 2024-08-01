@@ -6,7 +6,8 @@ import KakaoLoginRedirect from './pages/KakaoLoginRedirect';
 import GoogleWebView from './pages/GoogleWebView';
 import GoogleRedirect from './pages/GoogleRedirect';
 import DetailDiaryWebView from './pages/DetailDiaryWebView';
-import MyTab from './MyTab'; // MyTab 컴포넌트를 import 합니다.
+import MyTab from './MyTab';
+import AlbumWebView from './pages/AlbumWebView';
 
 const Stack = createNativeStackNavigator();
 
@@ -27,6 +28,7 @@ function MyStack() {
       <Stack.Screen name='GoogleWebView' component={GoogleWebView} options={{animation: 'none'}} />
       <Stack.Screen name='GoogleRedirect' component={GoogleRedirect} />
       <Stack.Screen name='DetailDiaryWebView' component={DetailDiaryWebView} />
+      <Stack.Screen name='AlbumWebView' component={AlbumWebView} />
       <Stack.Screen name='MainTabs' component={MyTab} />
     </Stack.Navigator>
   );

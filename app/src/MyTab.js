@@ -3,6 +3,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {Image} from 'react-native';
 import WriteDiaryWebView from './pages/WriteDiaryWebView';
 import Calendars from './pages/Calendar';
+import AlbumWebView from './pages/AlbumWebView';
 
 const Tab = createBottomTabNavigator();
 
@@ -64,7 +65,7 @@ function MyTab() {
       />
       <Tab.Screen
         name='Album'
-        component={Calendars}
+        component={AlbumWebView}
         options={{
           tabBarLabel: '앨범',
           tabBarIcon: ({focused, color, size}) => (
