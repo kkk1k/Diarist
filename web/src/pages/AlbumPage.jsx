@@ -1,9 +1,10 @@
 import {React, useState, useEffect} from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
+import {useAuth} from '../context/AuthContext';
 import {parseISO, format, compareDesc, compareAsc} from 'date-fns';
 import ListAlbum from '../components/ListAlbum';
 import ThumbnailAlbum from '../components/ThumbnailAlbum';
+import useApi from '../hooks/useApi';
 
 const A11yHidden = styled.h1`
   position: absolute;
@@ -125,20 +126,88 @@ const BottomButton = styled.button`
   background-color: #fff;
 `;
 
-const API_BASE_URL = 'https://hellorvdworld.com';
-const TOKEN = '';
-
 function AlbumPage() {
   const [view, setView] = useState('thumbnail');
   const [selectedIds, setSelectedIds] = useState([]);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
-
   const [bookmarks, setBookmarks] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-
+  const [isToken, setIsToken] = useState(false);
   const [sortOrder, setSortOrder] = useState('최신순');
   const [originalBookmarks, setOriginalBookmarks] = useState([]);
+  const {setAuth} = useAuth();
+
+  const {isLoading, error, AxiosApi} = useApi();
+
+  const getSeason = month => {
+    if (month >= 3 && month <= 5) {
+      return '봄';
+    }
+    if (month >= 6 && month <= 8) {
+      return '여름';
+    }
+    if (month >= 9 && month <= 11) {
+      return '가을';
+    }
+    return '겨울';
+  };
+
+  const formatAndSortBookmarks = (data, order) =>
+    data
+      .sort((a, b) =>
+        order === '최신순'
+          ? compareDesc(parseISO(a.diaryDate), parseISO(b.diaryDate))
+          : compareAsc(parseISO(a.diaryDate), parseISO(b.diaryDate)),
+      )
+      .map(bookmark => ({
+        ...bookmark,
+        formattedDate: format(parseISO(bookmark.diaryDate), 'MM. dd'),
+        year: format(parseISO(bookmark.diaryDate), 'yyyy'),
+        season: getSeason(parseISO(bookmark.diaryDate).getMonth() + 1),
+      }));
+
+  const [sortedBookmarks, setSortedBookmarks] = useState([]);
+
+  const fetchBookmarks = async () => {
+    try {
+      const response = await AxiosApi('get', '/api/v1/diary/bookmark/list');
+      console.log('북마크 데이터:', response.data);
+      if (response && response.data) {
+        const formattedAndSortedBookmarks = formatAndSortBookmarks(response.data, sortOrder);
+        setSortedBookmarks(formattedAndSortedBookmarks);
+      }
+    } catch (e) {
+      console.error('북마크 가져오기 오류:', e);
+    }
+  };
+
+  useEffect(() => {
+    const handleMessage = event => {
+      try {
+        const message = JSON.parse(event.data);
+        if (message.type === 'tokens' && message.accessToken && message.refreshToken) {
+          setAuth({
+            accessToken: message.accessToken,
+            refreshToken: message.refreshToken,
+          });
+          setIsToken(true);
+        }
+      } catch (e) {
+        console.log('Error parsing message:', e);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isToken) {
+      fetchBookmarks();
+    }
+  }, [isToken]);
 
   const handleListView = () => {
     setView('list');
@@ -159,19 +228,6 @@ function AlbumPage() {
     console.log('Navigate to detail page:', id);
   };
 
-  const getSeason = month => {
-    if (month >= 3 && month <= 5) {
-      return '봄';
-    }
-    if (month >= 6 && month <= 8) {
-      return '여름';
-    }
-    if (month >= 9 && month <= 11) {
-      return '가을';
-    }
-    return '겨울';
-  };
-
   const handleThumbnailClick = id => {
     if (isSelectionMode) {
       setSelectedIds(prevSelectedIds =>
@@ -184,60 +240,17 @@ function AlbumPage() {
     }
   };
 
-  const formatAndSortBookmarks = (data, order) =>
-    data
-      .sort((a, b) =>
-        order === '최신순'
-          ? compareDesc(parseISO(a.diaryDate), parseISO(b.diaryDate))
-          : compareAsc(parseISO(a.diaryDate), parseISO(b.diaryDate)),
-      )
-      .map(bookmark => ({
-        ...bookmark,
-        formattedDate: format(parseISO(bookmark.diaryDate), 'MM. dd'),
-        year: format(parseISO(bookmark.diaryDate), 'yyyy'),
-        season: getSeason(parseISO(bookmark.diaryDate).getMonth() + 1),
-      }));
-
-  const [sortedBookmarks, setSortedBookmarks] = useState([]);
-
   useEffect(() => {
     if (bookmarks.data) {
       setSortedBookmarks(formatAndSortBookmarks(bookmarks.data, sortOrder));
     }
   }, [bookmarks.data, sortOrder]);
 
-  const fetchBookmarks = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await axios.get(`${API_BASE_URL}/api/v1/diary/bookmark/list`, {
-        headers: {
-          Authorization: `Bearer ${TOKEN}`,
-          Accept: '*/*',
-        },
-      });
-      setOriginalBookmarks(response.data.data);
-      console.log(response.data);
-      const formattedAndSortedBookmarks = formatAndSortBookmarks(response.data.data, sortOrder);
-      console.log(formattedAndSortedBookmarks);
-      setBookmarks({...response.data, data: formattedAndSortedBookmarks});
-    } catch (err) {
-      console.error('Error fetching bookmarks:', err);
-      setError('북마크 목록을 불러오는 데 실패했습니다.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
     if (!isSelectionMode) {
       setSelectedIds([]);
     }
   }, [isSelectionMode]);
-
-  useEffect(() => {
-    fetchBookmarks();
-  }, []);
 
   const handleSortChange = e => {
     setSortOrder(e.target.value);

@@ -4,10 +4,10 @@ import Login from './pages/Login';
 import KakaoWebView from './pages/KakaoWebView';
 import KakaoLoginRedirect from './pages/KakaoLoginRedirect';
 import GoogleWebView from './pages/GoogleWebView';
-import Calendars from './pages/Calendar';
 import GoogleRedirect from './pages/GoogleRedirect';
-import WriteDiaryWebView from './pages/WriteDiaryWebView';
 import DetailDiaryWebView from './pages/DetailDiaryWebView';
+import MyTab from './MyTab';
+import AlbumWebView from './pages/AlbumWebView';
 
 const Stack = createNativeStackNavigator();
 
@@ -26,10 +26,10 @@ function MyStack() {
         options={{animation: 'none'}}
       />
       <Stack.Screen name='GoogleWebView' component={GoogleWebView} options={{animation: 'none'}} />
-      <Stack.Screen name='Calendar' component={Calendars} />
       <Stack.Screen name='GoogleRedirect' component={GoogleRedirect} />
-      <Stack.Screen name='WriteDiaryWebView' component={WriteDiaryWebView} />
       <Stack.Screen name='DetailDiaryWebView' component={DetailDiaryWebView} />
+      <Stack.Screen name='AlbumWebView' component={AlbumWebView} />
+      <Stack.Screen name='MainTabs' component={MyTab} />
     </Stack.Navigator>
   );
 }
