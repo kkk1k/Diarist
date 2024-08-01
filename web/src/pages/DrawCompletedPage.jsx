@@ -203,12 +203,12 @@ function DrawCompletedPage() {
       </Div>
       <Div $mt='38' $justify='space-evenly'>
         <Div $gap='10'>
-          <IconImg $width='83' $radius='100%' src={data.emotionPicture} alt='감정 이미지' />
-          <Span>{data.emotionName}</Span>
+          <IconImg $width='83' src={data.emotionPicture} alt='감정 이미지' />
+          <Span># {data.emotionName}</Span>
         </Div>
         <Figure $gap='10'>
           <IconImg $width='83' $radius='100%' src={data.artistPicture} alt='아티스트 이미지' />
-          <Figcaption>{data.artistName}</Figcaption>
+          <Figcaption># {data.artistName}</Figcaption>
         </Figure>
       </Div>
       <P $isOpened={isOpened} $mt='38'>

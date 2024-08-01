@@ -61,9 +61,9 @@ function SelectDrawerPage() {
   };
   const categoryMap = {
     르네상스: 'Renaissance',
-    근대: 'Contemporary',
-    현대: 'Modern',
-    기타: 'Asia',
+    근대: 'Modern',
+    현대: 'Contemporary',
+    기타: 'Animation',
   };
 
   const {AxiosApi} = useApi();
