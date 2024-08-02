@@ -1,9 +1,10 @@
-import {React, useState, useEffect} from 'react';
+import {compareAsc, compareDesc, format, parseISO} from 'date-fns';
+import {React, useEffect, useState} from 'react';
+import {useNavigate} from 'react-router-dom';
 import styled from 'styled-components';
-import {parseISO, format, compareDesc, compareAsc} from 'date-fns';
-import {useAuth} from '../context/AuthContext';
 import ListAlbum from '../components/ListAlbum';
 import ThumbnailAlbum from '../components/ThumbnailAlbum';
+import {useAuth} from '../context/AuthContext';
 import useApi from '../hooks/useApi';
 
 const A11yHidden = styled.h1`
@@ -135,6 +136,7 @@ function AlbumPage() {
   const [sortOrder, setSortOrder] = useState('최신순');
   const [originalBookmarks, setOriginalBookmarks] = useState([]);
   const {setAuth} = useAuth();
+  const navigate = useNavigate();
 
   const {isLoading, error, AxiosApi} = useApi();
 
@@ -213,6 +215,7 @@ function AlbumPage() {
 
   const navigateToDetailPage = id => {
     console.log('Navigate to detail page:', id);
+    navigate(`/detail/${id}`);
   };
 
   const handleThumbnailClick = id => {
@@ -228,10 +231,11 @@ function AlbumPage() {
   };
 
   useEffect(() => {
-    if (bookmarks.data) {
-      setSortedBookmarks(formatAndSortBookmarks(bookmarks.data, sortOrder));
+    if (sortedBookmarks.length > 0) {
+      const newSortedBookmarks = formatAndSortBookmarks([...sortedBookmarks], sortOrder);
+      setSortedBookmarks(newSortedBookmarks);
     }
-  }, [bookmarks.data, sortOrder]);
+  }, [sortOrder]);
 
   useEffect(() => {
     if (!isSelectionMode) {
