@@ -3,6 +3,7 @@ import styled from 'styled-components/native';
 import WebView from 'react-native-webview';
 import * as SecureStore from 'expo-secure-store';
 import {LOCAL_IP} from '@env';
+import * as Linking from 'expo-linking'; // 이 줄을 수정합니다.
 
 const StyledSafeAreaView = styled.SafeAreaView`
   flex: 1;
@@ -63,6 +64,14 @@ function DetailDiaryWebView({navigation, route}) {
     true;
   `;
 
+  const handleShouldStartLoadWithRequest = event => {
+    if (event.url.includes('kakaolink')) {
+      Linking.openURL(event.url);
+      return false;
+    }
+    return true;
+  };
+
   return (
     <StyledSafeAreaView>
       <StyledWebView
@@ -71,6 +80,8 @@ function DetailDiaryWebView({navigation, route}) {
         onLoad={injectTokens}
         onMessage={onMessage}
         injectedJavaScript={injectedJavaScript}
+        onShouldStartLoadWithRequest={handleShouldStartLoadWithRequest}
+        originWhitelist={['http://*', 'https://*', 'intent://*', 'kakaolink://*']}
         javaScriptEnabled
       />
     </StyledSafeAreaView>

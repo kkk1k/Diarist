@@ -115,6 +115,8 @@ const OpenButton = styled.button`
   height: ${props => 40 * props.theme.widthRatio}px;
 `;
 
+const ShareButton = styled.button``;
+
 function DrawDetailPage() {
   const {AxiosApi} = useApi();
   const [favorite, setFavorite] = useReducer(state => !state, false);
@@ -145,7 +147,26 @@ function DrawDetailPage() {
       window.removeEventListener('message', handleMessage);
     };
   }, []);
-
+  const shareKakao = () => {
+    console.log('click kakao');
+    if (window.Kakao) {
+      try {
+        window.Kakao.Share.sendCustom({
+          templateId: 110736,
+          templateArgs: {
+            TITLE: data.diaryDate,
+            DESCRIPTION: data.content,
+            THU: data.imageUrl,
+            id,
+          },
+        });
+      } catch (error) {
+        console.error('Error sending Kakao link:', error);
+      }
+    } else {
+      console.log('Kakao does not exist');
+    }
+  };
   const fetchData = async () => {
     try {
       const response = await AxiosApi('get', `/api/v1/diary/detail/${id}`);
@@ -161,6 +182,19 @@ function DrawDetailPage() {
       fetchData();
     }
   }, [isToken]);
+
+  useEffect(() => {
+    if (window.Kakao) {
+      if (!window.Kakao.isInitialized()) {
+        window.Kakao.init('bb297d10245b6c1f10b206263cb98d26'); // 여기에 JavaScript 키를 입력
+        console.log('Kakao initialized');
+      } else {
+        console.log('Kakao already initialized');
+      }
+    } else {
+      console.log('Kakao not loaded');
+    }
+  }, []);
   return (
     <Main>
       <AccessibilityHidden>그림 완성 페이지 </AccessibilityHidden>
@@ -203,6 +237,12 @@ function DrawDetailPage() {
         <OpenButton type='button' aria-label='더보기' onClick={setIsOpened}>
           <IconImg $isOpened={isOpened} $width='30' src='/prev.png' alt='더보기 버튼' />
         </OpenButton>
+      </Div>
+      <Div $mt='38'>
+        <ShareButton onClick={shareKakao}>카카오톡 공유</ShareButton>
+      </Div>
+      <Div $mt='38'>
+        <ShareButton>공유하기</ShareButton>
       </Div>
     </Main>
   );
