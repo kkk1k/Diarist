@@ -8,6 +8,7 @@ import GoogleRedirect from './pages/GoogleRedirect';
 import DetailDiaryWebView from './pages/DetailDiaryWebView';
 import MyTab from './MyTab';
 import AlbumWebView from './pages/AlbumWebView';
+import ArtistWebView from './pages/ArtistWebView';
 
 const Stack = createNativeStackNavigator();
 
@@ -29,6 +30,7 @@ function MyStack() {
       <Stack.Screen name='GoogleRedirect' component={GoogleRedirect} />
       <Stack.Screen name='DetailDiaryWebView' component={DetailDiaryWebView} />
       <Stack.Screen name='AlbumWebView' component={AlbumWebView} />
+      <Stack.Screen name='ArtistWebView' component={ArtistWebView} />
       <Stack.Screen name='MainTabs' component={MyTab} />
     </Stack.Navigator>
   );

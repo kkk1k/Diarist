@@ -4,6 +4,7 @@ import {Image} from 'react-native';
 import WriteDiaryWebView from './pages/WriteDiaryWebView';
 import Calendars from './pages/Calendar';
 import AlbumWebView from './pages/AlbumWebView';
+import ArtistWebView from './pages/ArtistWebView';
 
 const Tab = createBottomTabNavigator();
 
@@ -35,7 +36,7 @@ function MyTab() {
       />
       <Tab.Screen
         name='artist'
-        component={Calendars}
+        component={ArtistWebView}
         options={{
           tabBarLabel: '화가보기',
           tabBarIcon: ({focused, color, size}) => (
