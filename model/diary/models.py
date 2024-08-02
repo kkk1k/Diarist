@@ -37,8 +37,9 @@ class Artist(models.Model):
     artist_id = models.AutoField(primary_key=True)
     artist_name = models.CharField(max_length=255)
     artist_picture = models.CharField(max_length=255)
-    artist_prompt = models.CharField(max_length=255)
+    artist_prompt = models.CharField(max_length=1000)
     description = models.CharField(max_length=255)
+    example_picture = models.CharField(max_length=200)
     period = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
 
