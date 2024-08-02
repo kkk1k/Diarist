@@ -1,7 +1,7 @@
 import {React, useState, useEffect} from 'react';
 import styled from 'styled-components';
-import {useAuth} from '../context/AuthContext';
 import {parseISO, format, compareDesc, compareAsc} from 'date-fns';
+import {useAuth} from '../context/AuthContext';
 import ListAlbum from '../components/ListAlbum';
 import ThumbnailAlbum from '../components/ThumbnailAlbum';
 import useApi from '../hooks/useApi';
@@ -138,19 +138,6 @@ function AlbumPage() {
 
   const {isLoading, error, AxiosApi} = useApi();
 
-  const getSeason = month => {
-    if (month >= 3 && month <= 5) {
-      return '봄';
-    }
-    if (month >= 6 && month <= 8) {
-      return '여름';
-    }
-    if (month >= 9 && month <= 11) {
-      return '가을';
-    }
-    return '겨울';
-  };
-
   const formatAndSortBookmarks = (data, order) =>
     data
       .sort((a, b) =>
@@ -162,7 +149,7 @@ function AlbumPage() {
         ...bookmark,
         formattedDate: format(parseISO(bookmark.diaryDate), 'MM. dd'),
         year: format(parseISO(bookmark.diaryDate), 'yyyy'),
-        season: getSeason(parseISO(bookmark.diaryDate).getMonth() + 1),
+        month: format(parseISO(bookmark.diaryDate), 'MM'),
       }));
 
   const [sortedBookmarks, setSortedBookmarks] = useState([]);
@@ -325,14 +312,14 @@ function AlbumPage() {
             const showHeader =
               index === 0 ||
               sortedBookmarks[index - 1].year !== bookmark.year ||
-              sortedBookmarks[index - 1].season !== bookmark.season;
+              sortedBookmarks[index - 1].month !== bookmark.month;
 
             return (
               <div key={bookmark.diaryId}>
                 {showHeader && (
                   <HeaderMenu>
                     <H3>
-                      {bookmark.year}년 <Bold>{bookmark.season}</Bold>
+                      {bookmark.year}년 <Bold>{bookmark.month}월</Bold>
                     </H3>
                     {index === 0 && (
                       <Select
