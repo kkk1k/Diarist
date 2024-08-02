@@ -206,10 +206,26 @@ function AlbumPage() {
     setView('thumbnail');
   };
 
+  const deleteBookmarks = async () => {
+    try {
+      await AxiosApi('post', '/api/v1/diary/bookmark/delete', selectedIds);
+      fetchBookmarks();
+      setIsSelectionMode(false);
+      setSelectedIds([]);
+    } catch (e) {
+      console.error('북마크 삭제 오류:', e);
+    }
+  };
+
   const handleSelectClick = () => {
-    setIsSelectionMode(!isSelectionMode);
     if (isSelectionMode) {
-      console.log('Selected IDs:', selectedIds);
+      if (selectedIds.length > 0) {
+        deleteBookmarks();
+      } else {
+        setIsSelectionMode(false);
+      }
+    } else {
+      setIsSelectionMode(true);
     }
   };
 
