@@ -1,9 +1,8 @@
-import React, {useEffect, useRef} from 'react';
-import styled from 'styled-components/native';
-import WebView from 'react-native-webview';
-import * as SecureStore from 'expo-secure-store';
-import {CommonActions} from '@react-navigation/native';
 import {LOCAL_IP} from '@env';
+import * as SecureStore from 'expo-secure-store';
+import React, {useEffect, useRef} from 'react';
+import WebView from 'react-native-webview';
+import styled from 'styled-components/native';
 
 const StyledSafeAreaView = styled.SafeAreaView`
   flex: 1;
