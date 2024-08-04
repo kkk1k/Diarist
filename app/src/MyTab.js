@@ -4,10 +4,18 @@ import {Image} from 'react-native';
 import WriteDiaryWebView from './pages/WriteDiaryWebView';
 import Calendars from './pages/Calendar';
 import AlbumWebView from './pages/AlbumWebView';
+import ArtistWebView from './pages/ArtistWebView';
+
+// 오늘 날짜 구하기 (yyyy-mm-dd)
 
 const Tab = createBottomTabNavigator();
 
 function MyTab() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  const todayDate = `${year}-${month}-${day}`;
   return (
     <Tab.Navigator
       screenOptions={{
@@ -35,7 +43,7 @@ function MyTab() {
       />
       <Tab.Screen
         name='artist'
-        component={Calendars}
+        component={ArtistWebView}
         options={{
           tabBarLabel: '화가보기',
           tabBarIcon: ({focused, color, size}) => (
@@ -50,7 +58,6 @@ function MyTab() {
       />
       <Tab.Screen
         name='WriteDiaryWebView'
-        component={WriteDiaryWebView}
         options={{
           tabBarLabel: '일기쓰기',
           tabBarIcon: ({focused, color, size}) => (
@@ -62,7 +69,11 @@ function MyTab() {
             />
           ),
         }}
-      />
+      >
+        {({navigation}) => (
+          <WriteDiaryWebView navigation={navigation} route={{params: {selectedDate: todayDate}}} />
+        )}
+      </Tab.Screen>
       <Tab.Screen
         name='Album'
         component={AlbumWebView}

@@ -1,9 +1,10 @@
-import {React, useState, useEffect} from 'react';
+import {compareAsc, compareDesc, format, parseISO} from 'date-fns';
+import {React, useEffect, useState} from 'react';
+import {useNavigate} from 'react-router-dom';
 import styled from 'styled-components';
-import {useAuth} from '../context/AuthContext';
-import {parseISO, format, compareDesc, compareAsc} from 'date-fns';
 import ListAlbum from '../components/ListAlbum';
 import ThumbnailAlbum from '../components/ThumbnailAlbum';
+import {useAuth} from '../context/AuthContext';
 import useApi from '../hooks/useApi';
 
 const A11yHidden = styled.h1`
@@ -84,7 +85,17 @@ const Bold = styled.span`
 `;
 
 const Select = styled.select`
-  border: none;
+  border: 1px solid black;
+  background-color: white;
+  color: black;
+  font-size: ${props => 16 * props.theme.widthRatio}px;
+  height: ${props => 40 * props.theme.widthRatio}px;
+  min-width: ${props => 100 * props.theme.widthRatio}px;
+`;
+
+const SelectOption = styled.option`
+  background-color: white;
+  color: black;
 `;
 
 const ThumbnailUl = styled.ul`
@@ -130,26 +141,12 @@ function AlbumPage() {
   const [view, setView] = useState('thumbnail');
   const [selectedIds, setSelectedIds] = useState([]);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
-  const [bookmarks, setBookmarks] = useState([]);
   const [isToken, setIsToken] = useState(false);
   const [sortOrder, setSortOrder] = useState('최신순');
-  const [originalBookmarks, setOriginalBookmarks] = useState([]);
   const {setAuth} = useAuth();
+  const navigate = useNavigate();
 
   const {isLoading, error, AxiosApi} = useApi();
-
-  const getSeason = month => {
-    if (month >= 3 && month <= 5) {
-      return '봄';
-    }
-    if (month >= 6 && month <= 8) {
-      return '여름';
-    }
-    if (month >= 9 && month <= 11) {
-      return '가을';
-    }
-    return '겨울';
-  };
 
   const formatAndSortBookmarks = (data, order) =>
     data
@@ -162,7 +159,7 @@ function AlbumPage() {
         ...bookmark,
         formattedDate: format(parseISO(bookmark.diaryDate), 'MM. dd'),
         year: format(parseISO(bookmark.diaryDate), 'yyyy'),
-        season: getSeason(parseISO(bookmark.diaryDate).getMonth() + 1),
+        month: format(parseISO(bookmark.diaryDate), 'MM'),
       }));
 
   const [sortedBookmarks, setSortedBookmarks] = useState([]);
@@ -217,15 +214,32 @@ function AlbumPage() {
     setView('thumbnail');
   };
 
+  const deleteBookmarks = async () => {
+    try {
+      await AxiosApi('post', '/api/v1/diary/bookmark/delete', selectedIds);
+      fetchBookmarks();
+      setIsSelectionMode(false);
+      setSelectedIds([]);
+    } catch (e) {
+      console.error('북마크 삭제 오류:', e);
+    }
+  };
+
   const handleSelectClick = () => {
-    setIsSelectionMode(!isSelectionMode);
     if (isSelectionMode) {
-      console.log('Selected IDs:', selectedIds);
+      if (selectedIds.length > 0) {
+        deleteBookmarks();
+      } else {
+        setIsSelectionMode(false);
+      }
+    } else {
+      setIsSelectionMode(true);
     }
   };
 
   const navigateToDetailPage = id => {
     console.log('Navigate to detail page:', id);
+    navigate(`/detail/${id}`);
   };
 
   const handleThumbnailClick = id => {
@@ -241,10 +255,11 @@ function AlbumPage() {
   };
 
   useEffect(() => {
-    if (bookmarks.data) {
-      setSortedBookmarks(formatAndSortBookmarks(bookmarks.data, sortOrder));
+    if (sortedBookmarks.length > 0) {
+      const newSortedBookmarks = formatAndSortBookmarks([...sortedBookmarks], sortOrder);
+      setSortedBookmarks(newSortedBookmarks);
     }
-  }, [bookmarks.data, sortOrder]);
+  }, [sortOrder]);
 
   useEffect(() => {
     if (!isSelectionMode) {
@@ -300,8 +315,8 @@ function AlbumPage() {
         <>
           <ThumbnailHeaderMenu>
             <Select disabled={isSelectionMode} onChange={handleSortChange} value={sortOrder}>
-              <option value='최신순'>최신순</option>
-              <option value='오래된순'>오래된순</option>
+              <SelectOption value='최신순'>최신순</SelectOption>
+              <SelectOption value='오래된순'>오래된순</SelectOption>
             </Select>
           </ThumbnailHeaderMenu>
           <ThumbnailUl>
@@ -325,14 +340,14 @@ function AlbumPage() {
             const showHeader =
               index === 0 ||
               sortedBookmarks[index - 1].year !== bookmark.year ||
-              sortedBookmarks[index - 1].season !== bookmark.season;
+              sortedBookmarks[index - 1].month !== bookmark.month;
 
             return (
               <div key={bookmark.diaryId}>
                 {showHeader && (
                   <HeaderMenu>
                     <H3>
-                      {bookmark.year}년 <Bold>{bookmark.season}</Bold>
+                      {bookmark.year}년 <Bold>{bookmark.month}월</Bold>
                     </H3>
                     {index === 0 && (
                       <Select
