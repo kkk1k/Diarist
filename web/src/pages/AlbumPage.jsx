@@ -85,7 +85,17 @@ const Bold = styled.span`
 `;
 
 const Select = styled.select`
-  border: none;
+  border: 1px solid black;
+  background-color: white;
+  color: black;
+  font-size: ${props => 16 * props.theme.widthRatio}px;
+  height: ${props => 40 * props.theme.widthRatio}px;
+  min-width: ${props => 100 * props.theme.widthRatio}px;
+`;
+
+const SelectOption = styled.option`
+  background-color: white;
+  color: black;
 `;
 
 const ThumbnailUl = styled.ul`
@@ -131,10 +141,8 @@ function AlbumPage() {
   const [view, setView] = useState('thumbnail');
   const [selectedIds, setSelectedIds] = useState([]);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
-  const [bookmarks, setBookmarks] = useState([]);
   const [isToken, setIsToken] = useState(false);
   const [sortOrder, setSortOrder] = useState('최신순');
-  const [originalBookmarks, setOriginalBookmarks] = useState([]);
   const {setAuth} = useAuth();
   const navigate = useNavigate();
 
@@ -307,8 +315,8 @@ function AlbumPage() {
         <>
           <ThumbnailHeaderMenu>
             <Select disabled={isSelectionMode} onChange={handleSortChange} value={sortOrder}>
-              <option value='최신순'>최신순</option>
-              <option value='오래된순'>오래된순</option>
+              <SelectOption value='최신순'>최신순</SelectOption>
+              <SelectOption value='오래된순'>오래된순</SelectOption>
             </Select>
           </ThumbnailHeaderMenu>
           <ThumbnailUl>
