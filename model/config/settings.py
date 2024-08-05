@@ -96,6 +96,10 @@ KAFKA_RESPONSE_GROUP = env('KAFKA_RESPONSE_GROUP')
 # Open Ai 관련 설정
 OPENAI_API_KEY = env('OPENAI_API_KEY')
 
+# Redis 관련 설정
+REDIS_HOST = env('REDIS_HOST')
+REDIS_PORT = int(env('REDIS_PORT'))
+
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
