@@ -18,7 +18,7 @@ public class Artist extends BaseEntity {
     @Column(nullable = false)
     private String artistName;
 
-    @Column(nullable = false)
+    @Column(nullable = false,length = 1000)
     private String artistPrompt;
 
     @Column(nullable = false)
