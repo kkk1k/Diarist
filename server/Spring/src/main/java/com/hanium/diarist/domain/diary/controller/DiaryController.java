@@ -35,22 +35,26 @@ public class DiaryController {
     private final CreateDiaryConsumerService createDiaryConsumerService;
     private final DiaryService diaryService;
 
-    @Deprecated
+    /*
+    * @deprecated(since = "2024-07-27",  reason = "일기 생성 요청 및 수정 요청 API로 대체")
+    *
+    * */
+    @Deprecated(since = "2024-07-27")
     @PostMapping("create/no_ad")
-    @Operation(summary = "일기 생성 요청, 광고 없음", description = "일기 생성 요청 API.")
+    @Operation(summary = "일기 생성 요청", description = "일기 생성 요청 API.")
     @ApiResponse(responseCode = "200", description = "일기 생성 요청 메세지큐에 등록 완료")
     public ResponseEntity<SuccessResponse<String>> createDiary(@Valid @RequestBody CreateDiaryRequest createDiaryRequest) {
-        createDiaryProducerService.sendCreateDiaryMessage(createDiaryRequest);
+        createDiaryProducerService.CreateDiaryMessage(createDiaryRequest);
         return SuccessResponse.of("일기 생성 요청 메세지큐에 등록 완료").asHttp(HttpStatus.CREATED);// 광고 시청 여부 반환
     }
 
-    @PostMapping("create/ad")
-    @Operation(summary = "일기 생성 요청 및 광고 시청", description = "일기 생성 요청 및 광고 시청 API.")
+    @PostMapping("create")
+    @Operation(summary = "일기 생성 요청 및 일기 수정 요청", description = "일기 생성 요청 및 수정 요청 API.")
     @ApiResponse(responseCode = "200", description = "일기 생성 요청 메세지큐에 등록 완료")
     public ResponseEntity<SuccessResponse<AdResponse>> createDiaryWithAd(@Valid @RequestBody CreateDiaryRequest createDiaryRequest
             , @AuthUser JwtTokenInfo jwtTokenInfo) {
         createDiaryRequest.setUserId(jwtTokenInfo.getUserId());
-        boolean adRequired = createDiaryProducerService.sendCreateDiaryMessageWithAd(createDiaryRequest);
+        boolean adRequired = createDiaryProducerService.sendCreateDiaryMessage(createDiaryRequest);
         return SuccessResponse.of(new AdResponse(adRequired)).asHttp(HttpStatus.CREATED);// 광고 시청 여부 반환
     }
 

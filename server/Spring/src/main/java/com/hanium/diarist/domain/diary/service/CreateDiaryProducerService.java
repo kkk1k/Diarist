@@ -35,7 +35,7 @@ public class CreateDiaryProducerService {
     private final String reCreateTopicName = "re-create-diary";
 
 
-    public void sendCreateDiaryMessage(CreateDiaryRequest createDiaryRequest) {
+    public void CreateDiaryMessage(CreateDiaryRequest createDiaryRequest) {
         try {
             String message = objectMapper.writeValueAsString(createDiaryRequest);
             sendKafkaMessage(CreateTopicName,message);
@@ -46,19 +46,16 @@ public class CreateDiaryProducerService {
 
 
 
-    public boolean sendCreateDiaryMessageWithAd(CreateDiaryRequest createDiaryRequest) {
+    public boolean sendCreateDiaryMessage(CreateDiaryRequest createDiaryRequest) {
         LocalDate date = createDiaryRequest.getDiaryDate();// 일기 작성 날짜 가져옴
         User user = userRepository.findById(createDiaryRequest.getUserId()).orElseThrow();// 해당 유저 찾음
         Optional<Diary> existingDiary = diaryRepository.findByUserAndDiaryDate(user, date);// 해당 유저의 일기 작성 날짜에 일기가 있는지 확인
-
         try{
             String message = objectMapper.writeValueAsString(createDiaryRequest);
-            if (existingDiary.isPresent()) { // 당시 날짜의 일기가 있거나
-                // 광고 시청 필수
+            if (existingDiary.isPresent()) { // 당시 날짜의 일기가 있다면 수정 요청
                 sendKafkaMessage(reCreateTopicName, message);
-                watchAd();
                 return true;
-            }else{// 과거 날짜 일기 작성
+            }else{// 일기가 없다면 일기를 생성
                  sendKafkaMessage(CreateTopicName, message);
                  return false;
             }
@@ -81,12 +78,6 @@ public class CreateDiaryProducerService {
             }
             return null;
         });
-    }
-
-
-    @Async
-    public void watchAd() {
-        System.out.println("광고 시청 중");
     }
 
 }
