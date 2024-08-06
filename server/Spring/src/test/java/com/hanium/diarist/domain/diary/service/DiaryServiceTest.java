@@ -2,7 +2,6 @@ package com.hanium.diarist.domain.diary.service;
 
 import com.hanium.diarist.domain.artist.domain.Artist;
 import com.hanium.diarist.domain.artist.domain.Period;
-import com.hanium.diarist.domain.artist.repository.ArtistRepository;
 import com.hanium.diarist.domain.diary.domain.Diary;
 import com.hanium.diarist.domain.diary.domain.Image;
 import com.hanium.diarist.domain.diary.dto.AlbumResponse;
@@ -13,12 +12,9 @@ import com.hanium.diarist.domain.diary.exception.DiaryNotFoundException;
 import com.hanium.diarist.domain.diary.repository.DiaryRepository;
 import com.hanium.diarist.domain.diary.repository.ImageRepository;
 import com.hanium.diarist.domain.emotion.domain.Emotion;
-import com.hanium.diarist.domain.emotion.repository.EmotionRepository;
 import com.hanium.diarist.domain.user.domain.SocialCode;
 import com.hanium.diarist.domain.user.domain.User;
-import com.hanium.diarist.domain.user.repository.UserRepository;
 import com.hanium.diarist.domain.user.service.ValidateUserService;
-import jakarta.validation.constraints.Min;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -63,11 +59,11 @@ class DiaryServiceTest {
     void bookmarkDiary() {
         //given
         User user = User.create("a@gmail.com","test", SocialCode.KAKAO );
-        Artist artist = Artist.create("test1","test", Period.Contemporary, "test","test.png","example.png");
+        Artist artist = Artist.create("test1","test", Period.CONTEMPORARY, "test","test.png","example.png");
         Emotion emotion = Emotion.create("test", "testPrompt", "test.png");
 
         boolean favorite=true;
-        Diary testdiary = new Diary(user, emotion,artist, LocalDate.now(), "test", favorite,null);
+        Diary testdiary = new Diary(user, emotion,artist, LocalDate.now(), "test", favorite);
 
         //when
         when(diaryRepository.findByDiaryId(1L)).thenReturn(Optional.of(testdiary));
@@ -87,11 +83,11 @@ class DiaryServiceTest {
     void BookmarkDiary_DiaryNotFound(){
         // given
         User user = User.create("a@gmail.com","test", SocialCode.KAKAO );
-        Artist artist = Artist.create("test1","test", Period.Contemporary, "test","test.png","example.png");
+        Artist artist = Artist.create("test1","test", Period.CONTEMPORARY, "test","test.png","example.png");
         Emotion emotion = Emotion.create("test", "testPrompt", "test.png");
 
         boolean favorite=true;
-        Diary testdiary = new Diary(user, emotion,artist, LocalDate.now(), "test", favorite,null);
+        Diary testdiary = new Diary(user, emotion,artist, LocalDate.now(), "test", favorite);
         testdiary.setDiaryId(1L);
 
         //when
@@ -109,13 +105,13 @@ class DiaryServiceTest {
     void deleteBookmarkDiary() {
         List<Long> diaryIdList = Arrays.asList(1L, 2L, 3L);
         User user = User.create("a@gmail.com","test", SocialCode.KAKAO );
-        Artist artist = Artist.create("test1","test", Period.Contemporary, "test","test.png","example.png");
+        Artist artist = Artist.create("test1","test", Period.CONTEMPORARY, "test","test.png","example.png");
         Emotion emotion = Emotion.create("test", "testPrompt", "test.png");
 
         boolean favorite=true;
-        Diary diary1 = new Diary(user, emotion,artist, LocalDate.now(), "test1", favorite,null);
-        Diary diary2 = new Diary(user, emotion,artist, LocalDate.now(), "test2", favorite,null);
-        Diary diary3 = new Diary(user, emotion,artist, LocalDate.now(), "test3", favorite,null);
+        Diary diary1 = new Diary(user, emotion,artist, LocalDate.now(), "test1", favorite);
+        Diary diary2 = new Diary(user, emotion,artist, LocalDate.now(), "test2", favorite);
+        Diary diary3 = new Diary(user, emotion,artist, LocalDate.now(), "test3", favorite);
 
 
 
@@ -141,12 +137,12 @@ class DiaryServiceTest {
         //given
         long diaryId = 1L;
         User user = User.create("a@gmail.com","test", SocialCode.KAKAO );
-        Artist artist = Artist.create("test1","test", Period.Contemporary, "test","test.png","example.png");
+        Artist artist = Artist.create("test1","test", Period.CONTEMPORARY, "test","test.png","example.png");
         Emotion emotion = Emotion.create("test", "testPrompt", "test.png");
 
 
         boolean favorite=true;
-        Diary mockDiary = new Diary(user, emotion,artist, LocalDate.now(), "test1", favorite,null);
+        Diary mockDiary = new Diary(user, emotion,artist, LocalDate.now(), "test1", favorite);
 
         Image image = new Image(mockDiary,"test.png");
         mockDiary.setImage(image);
@@ -177,11 +173,11 @@ class DiaryServiceTest {
         long diaryId = 1L;
         long userId = 1L;
         User user = User.create("a@gmail.com", "test", SocialCode.KAKAO);
-        Artist artist = Artist.create("test1", "test", Period.Contemporary, "test", "test.png", "example.png");
+        Artist artist = Artist.create("test1", "test", Period.CONTEMPORARY, "test", "test.png", "example.png");
         Emotion emotion = Emotion.create("test", "testPrompt", "test.png");
         boolean favorite = true;
 
-        Diary mockDiary = new Diary(user, emotion, artist, LocalDate.now(), "test1", favorite, null);
+        Diary mockDiary = new Diary(user, emotion, artist, LocalDate.now(), "test1", favorite);
         Image image = new Image(mockDiary, "test.png");
         mockDiary.setImage(image);
 
@@ -202,13 +198,13 @@ class DiaryServiceTest {
         // Given
         User user = User.create("a@gmail.com", "test", SocialCode.KAKAO);
 
-        Artist artist = Artist.create("test1", "test", Period.Contemporary, "test", "test.png", "example.png");
+        Artist artist = Artist.create("test1", "test", Period.CONTEMPORARY, "test", "test.png", "example.png");
 
         Emotion emotion = Emotion.create("test", "testPrompt", "test.png");
 
-        Diary diary1 = new Diary(user, emotion, artist, LocalDate.now(), "test1", true, null);
-        Diary diary2 = new Diary(user, emotion, artist, LocalDate.now(), "test2", true, null);
-        Diary diary3 = new Diary(user, emotion, artist, LocalDate.now(), "test3", true, null);
+        Diary diary1 = new Diary(user, emotion, artist, LocalDate.now(), "test1", true);
+        Diary diary2 = new Diary(user, emotion, artist, LocalDate.now(), "test2", true);
+        Diary diary3 = new Diary(user, emotion, artist, LocalDate.now(), "test3", true);
         List<Diary> diaries = Arrays.asList(diary1, diary2, diary3);
 
         Image image1 = new Image(diary1, "test1.png");
@@ -242,13 +238,13 @@ class DiaryServiceTest {
         // Given
         User user = User.create("a@gmail.com", "test", SocialCode.KAKAO);
 
-        Artist artist = Artist.create("test1", "test", Period.Contemporary, "test", "test.png", "example.png");
+        Artist artist = Artist.create("test1", "test", Period.CONTEMPORARY, "test", "test.png", "example.png");
 
         Emotion emotion = Emotion.create("test", "testPrompt", "test.png");
 
-        Diary diary1 = new Diary(user, emotion, artist, LocalDate.now(), "test1", true, null);
-        Diary diary2 = new Diary(user, emotion, artist, LocalDate.now(), "test2", true, null);
-        Diary diary3 = new Diary(user, emotion, artist, LocalDate.now(), "test3", true, null);
+        Diary diary1 = new Diary(user, emotion, artist, LocalDate.now(), "test1", true);
+        Diary diary2 = new Diary(user, emotion, artist, LocalDate.now(), "test2", true);
+        Diary diary3 = new Diary(user, emotion, artist, LocalDate.now(), "test3", true);
         List<Diary> diaries = Arrays.asList(diary1, diary2, diary3);
 
         Image image1 = new Image(diary1, "test1.png");
