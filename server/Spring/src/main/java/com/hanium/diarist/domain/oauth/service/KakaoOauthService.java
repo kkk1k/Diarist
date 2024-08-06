@@ -24,11 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
 
@@ -97,10 +95,6 @@ public class KakaoOauthService {
             bw.write(sb.toString());
             bw.flush();
 
-            // 결과 코드가 200이라면 성공
-            int responseCode = conn.getResponseCode();
-//            System.out.println("responseCode : " + responseCode);
-
             BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line = "";
             String result = "";
@@ -118,8 +112,10 @@ public class KakaoOauthService {
             bw.close();
 
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            throw new OAuthNotFoundException();
+        }catch (IOException e){
+            throw new BusinessException(ErrorCode.OAUTH_SERVER_FAILED, e);
         }
         return tokens;
     }
