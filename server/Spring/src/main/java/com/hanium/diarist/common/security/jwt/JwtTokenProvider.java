@@ -44,13 +44,10 @@ public class JwtTokenProvider {
     private final long REFRESH_TOKEN_EXPIRE_TIME;
 
     private final Key key;
-    private final ObjectMapper objectMapper;
 
-    @Autowired
     private final AuthRepository authRepository;
 
 
-    @Autowired
     private final UserRepository userRepository;
 
     @Value("${jwt.secret}")
@@ -67,7 +64,6 @@ public class JwtTokenProvider {
         this.userRepository = userRepository;
         byte[] keyBytes = Base64.getDecoder().decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
-        this.objectMapper = new ObjectMapper();
     }
 
 
@@ -149,20 +145,7 @@ public class JwtTokenProvider {
     }
 
 
-    //    public Authentication getAuthentication(String accessToken) {
-//        Claims claims = parseClaims(accessToken);
-//        if(claims.get(CLAIM_USER_ROLE)==null || !StringUtils.hasText(
-//                claims.get(CLAIM_USER_ROLE).toString())){
-//            throw new BusinessException(ErrorCode.AUTHORITY_NOT_FOUND);// 유저 권한 없음.
-//        }
-//
-//        Collection<? extends GrantedAuthority> authorities =
-//            Arrays.stream(claims.get(CLAIM_USER_ROLE).toString().split(","))
-//                .map(SimpleGrantedAuthority::new)
-//                .collect(Collectors.toList());
-//        return new JwtAuthenticationToken(claims.get(CLAIM_USER_ID).toString(), authorities);
-//
-//    }
+
     public Authentication getAuthentication(String accessToken) {
         Claims claims = parseClaims(accessToken);
 
