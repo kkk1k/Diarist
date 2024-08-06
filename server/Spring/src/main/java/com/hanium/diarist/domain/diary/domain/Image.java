@@ -31,7 +31,10 @@ public class Image extends BaseEntity {
         this.imageUrl = imageUrl;
     }
 
-    @Deprecated
+    /*
+    * @deprecated (since 2024-07-27, reason = "이미지 삭제 API로 대체")
+    * */
+    @Deprecated(since = "2024-07-27")
     public void deleteImage(){
         this.imageUrl = "deleted";
     }

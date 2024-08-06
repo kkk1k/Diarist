@@ -11,11 +11,6 @@ public class DiaryDateValidator implements ConstraintValidator<ValidDiaryDate, L
     private static final Logger logger = LoggerFactory.getLogger(DiaryDateValidator.class);
 
     @Override
-    public void initialize(ValidDiaryDate constraintAnnotation) {
-
-    }
-
-    @Override
     public boolean isValid(LocalDate diaryDate, ConstraintValidatorContext context) {
         if (diaryDate == null) {
             return true;

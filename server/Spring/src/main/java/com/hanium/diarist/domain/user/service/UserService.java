@@ -14,19 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final AuthRepository authRepository;
-
-    // 테스트용 회원가입 메서드
-    @Transactional
-    public User registerUserTest(String email, String name, SocialCode socialCode){
-        User user = userRepository.save(User.create(email, name, socialCode));
-        return user;
-    }
 
     @Transactional
     public User registerUser(String email, String name,SocialCode socialCode){
-        User user = userRepository.save(User.create(email,name, socialCode));
-        return user;
+        return userRepository.save(User.create(email,name, socialCode));
     }
+
+
 
 }
