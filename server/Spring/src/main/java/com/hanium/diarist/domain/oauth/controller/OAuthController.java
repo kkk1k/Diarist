@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
+@Tag(name = "OAuth", description = "로그인 API")
 @RequestMapping("/oauth2")
 public class OAuthController {
 
@@ -41,7 +43,10 @@ public class OAuthController {
         return SuccessResponse.of(null).asHttp(HttpStatus.OK);
     }
 
-    @Deprecated
+    /*
+    * @deprecated(since = "2024-07-27",  reason = "구글 승인코드를 프런트엔드에서 가져오는것으로 대체")
+    * */
+    @Deprecated(since = "2024-07-27")
     @Operation(summary = "구글 승인코드", description = "구글에서 Authorization code를 받아옵니다.")
     @GetMapping("/google/login/code")
     public ResponseEntity<SuccessResponse<Object>> googleCallback() {
@@ -66,7 +71,6 @@ public class OAuthController {
     })
     @PostMapping("/kakao/login")
     public ResponseEntity<SuccessResponse<ResponseJwtToken>> kakaoLogin(@RequestBody AuthorizationCode authorizationCode) {
-//        System.out.println(code);
         String code = authorizationCode.getCode();
         return SuccessResponse.of(kakaoOauthService.login(code)).asHttp(HttpStatus.OK);
     }
@@ -136,14 +140,11 @@ public class OAuthController {
         String refreshToken = HeaderUtils.getJwtToken(request, JwtType.REFRESH);
         try{
             ResponseJwtToken responseJwtToken = jwtTokenProvider.refreshToken(refreshToken);
-
             return SuccessResponse.of(responseJwtToken).asHttp(HttpStatus.OK);
             }catch (ExpiredAccessTokenException e){
             throw new ExpiredAccessTokenException();
         }catch (InvalidTokenException e){
             throw new InvalidTokenException();
-        }catch (Exception e){
-            throw new RuntimeException();
         }
     }
 
