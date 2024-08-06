@@ -1,14 +1,10 @@
 package com.hanium.diarist.common.resolver;
 
-import com.hanium.diarist.common.exception.BusinessException;
-import com.hanium.diarist.common.exception.ErrorCode;
 import com.hanium.diarist.common.security.jwt.JwtProperties;
 import com.hanium.diarist.common.security.jwt.JwtTokenInfo;
-import com.hanium.diarist.common.security.jwt.JwtTokenProvider;
 import com.hanium.diarist.domain.user.domain.UserRole;
 import io.jsonwebtoken.Claims;
 import org.springframework.core.MethodParameter;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -20,10 +16,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 @Component
 public class AuthUserArgumentResolver implements HandlerMethodArgumentResolver {
 
-    private final JwtTokenProvider jwtTokenProvider;
-
-    public AuthUserArgumentResolver(JwtTokenProvider jwtTokenProvider) {
-        this.jwtTokenProvider = jwtTokenProvider;
+    public AuthUserArgumentResolver() {
     }
 
     @Override
