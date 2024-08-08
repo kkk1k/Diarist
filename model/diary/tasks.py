@@ -18,8 +18,8 @@ django.setup()
 from django.conf import settings
 from django.utils import timezone
 from diary.models import Diary, User, Emotion, Image, Artist
-from diary.utils import S3ImgUploader
-
+from diary.utils.s3_uploader import S3ImgUploader
+from diary.utils.redis_lock import distributed_lock
 
 KAFKA_BROKER_URL = settings.KAFKA_BROKER_URL
 CREATE_DIARY_TOPIC = settings.KAFKA_TOPIC_CREATE
@@ -140,25 +140,27 @@ def process_message(data):
         image_url = generate_image(content, artist.artist_name, emotion.emotion_name, artist.artist_prompt, artist.example_picture)
         
         print(f"Generated image URL: {image_url}")
-    
-        s3_url = S3ImgUploader.upload_from_url(image_url)
 
-        if not s3_url:
-            raise Exception("Failed to upload image to S3")
+        lock_name = f"lock:diary:{user_id}:{diary_date}"
+        with distributed_lock(lock_name):
+            s3_url = S3ImgUploader.upload_from_url(image_url)
 
-        image = Image.objects.create(image_url=s3_url)
+            if not s3_url:
+                raise Exception("Failed to upload image to S3")
 
-        user = User.objects.get(user_id=user_id)
+            image = Image.objects.create(image_url=s3_url)
 
-        new_diary = Diary(
-            user=user,
-            diary_date=diary_date,
-            content=content,
-            emotion=emotion,
-            artist=artist,
-            image=image
-        )
-        new_diary.save()
+            user = User.objects.get(user_id=user_id)
+
+            new_diary = Diary(
+                user=user,
+                diary_date=diary_date,
+                content=content,
+                emotion=emotion,
+                artist=artist,
+                image=image
+            )
+            new_diary.save()
 
         send_response(user_id, new_diary.diary_id)
     
@@ -198,29 +200,31 @@ def re_process_message(data):
         image_url = generate_image(content, artist.artist_name, emotion.emotion_name, artist.artist_prompt, artist.example_picture)
 
         print(f"Generated image URL: {image_url}")
-    
-        s3_url = S3ImgUploader.upload_from_url(image_url)
 
-        if not s3_url:
-            raise Exception("Failed to upload image to S3")
-        
-        user = User.objects.get(user_id=user_id)
+        lock_name = f"lock:re-diary:{user_id}:{diary_date}"
+        with distributed_lock(lock_name):
+            s3_url = S3ImgUploader.upload_from_url(image_url)
 
-        diary = Diary.objects.get(user=user, diary_date=diary_date)
+            if not s3_url:
+                raise Exception("Failed to upload image to S3")
+            
+            user = User.objects.get(user_id=user_id)
 
-        old_image_url = diary.image.image_url
-        diary_image = diary.image
+            diary = Diary.objects.get(user=user, diary_date=diary_date)
 
-        S3ImgUploader.delete_image(old_image_url)
+            old_image_url = diary.image.image_url
+            diary_image = diary.image
 
-        diary_image.image_url = s3_url
-        diary_image.created_at = timezone.now()
-        diary_image.save()
+            S3ImgUploader.delete_image(old_image_url)
 
-        diary.content = content
-        diary.emotion = emotion
-        diary.artist = artist
-        diary.save()
+            diary_image.image_url = s3_url
+            diary_image.created_at = timezone.now()
+            diary_image.save()
+
+            diary.content = content
+            diary.emotion = emotion
+            diary.artist = artist
+            diary.save()
 
         send_response(user_id, diary.diary_id)
 
