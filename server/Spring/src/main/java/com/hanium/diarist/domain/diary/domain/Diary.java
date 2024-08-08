@@ -57,7 +57,7 @@ public class Diary extends BaseEntityWithUpdate {
     private Image image;
 
 
-    public Diary(User user, Emotion emotion, Artist artist, LocalDate diaryDate, String content, boolean favorite, Image image) {
+    public Diary(User user, Emotion emotion, Artist artist, LocalDate diaryDate, String content, boolean favorite) {
         this.user = user;
         this.emotion = emotion;
         this.artist = artist;

@@ -4,11 +4,9 @@ import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
 
 @EnableJpaAuditing
-//@EnableScheduling
 @SpringBootApplication
 public class DiaristApplication {
 
@@ -17,7 +15,6 @@ public class DiaristApplication {
         System.setProperty("DB_HOST", dotenv.get("DB_HOST"));
         System.setProperty("DB_PORT", dotenv.get("DB_PORT"));
         System.setProperty("DB_USERNAME", dotenv.get("DB_USERNAME"));
-        System.setProperty("DB_PASSWORD", dotenv.get("DB_PASSWORD"));
         System.setProperty("DB_PASSWORD", dotenv.get("DB_PASSWORD"));
         System.setProperty("KAFKA_BOOTSTRAP_SERVERS", dotenv.get("KAFKA_BOOTSTRAP_SERVERS"));
         System.setProperty("KAKAO_REST_API_KEY", dotenv.get("KAKAO_REST_API_KEY"));
@@ -32,11 +29,6 @@ public class DiaristApplication {
         System.setProperty("AWS_ACCESS_KEY_ID", dotenv.get("AWS_ACCESS_KEY_ID"));
         System.setProperty("AWS_S3_BUCKET", dotenv.get("AWS_S3_BUCKET"));
         System.setProperty("AWS_ENDPOINT", dotenv.get("AWS_ENDPOINT"));
-
-
-
-
-
 
 
         SpringApplication.run(DiaristApplication.class, args);

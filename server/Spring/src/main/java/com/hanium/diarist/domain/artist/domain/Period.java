@@ -1,7 +1,7 @@
 package com.hanium.diarist.domain.artist.domain;
 
 public enum Period {
-    Renaissance("르네상스"),Modern("근대"),Contemporary("현대"),Animation("만화");
+    RENAISSANCE("르네상스"),MODERN("근대"),CONTEMPORARY("현대"),ANIMATION("만화");
     private String keyword;
 
     Period(String keyword) {
