@@ -1,3 +1,4 @@
+import time 
 import json
 import os
 import sys
@@ -141,15 +142,18 @@ def process_message(data):
         
         print(f"Generated image URL: {image_url}")
 
-        lock_name = f"lock:diary:{user_id}:{diary_date}"
-        with distributed_lock(lock_name):
+        # S3 lock
+        lock_name_s3 = f"lock:s3-access"
+        with distributed_lock(lock_name_s3):
             s3_url = S3ImgUploader.upload_from_url(image_url)
 
             if not s3_url:
                 raise Exception("Failed to upload image to S3")
 
+        # RDS lock
+        lock_name_rds = f"lock:rds-access"
+        with distributed_lock(lock_name_rds):
             image = Image.objects.create(image_url=s3_url)
-
             user = User.objects.get(user_id=user_id)
 
             new_diary = Diary(
@@ -163,6 +167,7 @@ def process_message(data):
             new_diary.save()
 
         send_response(user_id, new_diary.diary_id)
+
     
     except Diary.DoesNotExist:
         return f"Diary for user {user_id} on {diary_date} does not exist."
