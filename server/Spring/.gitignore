@@ -40,3 +40,9 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### yml 파일
+src/main/resources/application.yml
+src/main/resources/application-oauth.yml
+src/main/resources/application-aws.yml
+src/main/resources/application-kafka.yml
