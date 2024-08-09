@@ -83,7 +83,9 @@ public class SecurityConfig {
                 "/oauth2/refresh",
                 "/oauth2/google/login",
                 "/oauth2/google/login/code",
-                "/oauth2/kakao/login"
+                "/oauth2/kakao/login",
+                "/actuator/**",
+                "/health/**"
         };
     }
 }
