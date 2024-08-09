@@ -1,0 +1,70 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+
+      - name: Install dependencies
+        run: |
+          cd model
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create .env file
+        run: |
+          cd model
+          touch .env
+          echo '${{ secrets.DJANGO_ENV }}' >> .env
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Tag Docker images
+        run: |
+          cd model
+          docker-compose -f docker-compose.yml build
+          docker tag django-server:latest ${{ steps.login-ecr.outputs.registry }}/diarist-ai-server:django-server-latest
+          docker tag celery-worker:latest ${{ steps.login-ecr.outputs.registry }}/diarist-ai-server:celery-worker-latest
+
+      - name: Push Docker images to ECR
+        run: |
+          cd model
+          docker push ${{ steps.login-ecr.outputs.registry }}/diarist-ai-server:django-server-latest
+          docker push ${{ steps.login-ecr.outputs.registry }}/diarist-ai-server:celery-worker-latest
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.3
+        with:
+          host: ${{ secrets.DJANGO_EC2_HOST }}
+          username: ${{ secrets.DJANGO_EC2_USERNAME }}
+          key: ${{ secrets.DJANGO_EC2_KEY }}
+          script: |
+            cd /home/ubuntu
+            docker-compose down
+            docker-compose pull
+            docker-compose up -d
