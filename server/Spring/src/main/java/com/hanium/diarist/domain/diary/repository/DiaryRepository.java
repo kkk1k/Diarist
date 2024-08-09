@@ -22,4 +22,6 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
 
     @Query("select d from Diary d join fetch d.emotion join fetch d.artist join fetch d.image where d.user.userId = :userId and d.favorite = :bool")
     List<Diary> findByUserIdAndFavorite(Long userId, boolean bool);
+
+    boolean existsByUserAndDiaryDate(User user, LocalDate now);
 }

@@ -118,5 +118,13 @@ public class DiaryController {
         return SuccessResponse.of(response).asHttp(HttpStatus.OK);
     }
 
+    @GetMapping("/today")
+    @Operation(summary = "오늘 일기 작성 여부 조회", description = "오늘 일기 작성 여부 조회 API")
+    @ApiResponse(responseCode = "200", description = "오늘 일기 작성 여부 조회 성공")
+    public ResponseEntity<SuccessResponse<TodayDiaryResponse>> getTodayDiary(@AuthUser JwtTokenInfo jwtTokenInfo) {
+        TodayDiaryResponse response = diaryService.getTodayDiary(jwtTokenInfo.getUserId());
+        return SuccessResponse.of(response).asHttp(HttpStatus.OK);
+    }
+
 
 }
