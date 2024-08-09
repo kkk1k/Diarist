@@ -5,10 +5,10 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /app
 
 COPY requirements.txt /app/
-COPY . /app/
-COPY .env /app/.env
-
 RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . /app/
+
 RUN apt-get update && \
     apt-get install -y openjdk-17-jdk && \
     apt-get clean

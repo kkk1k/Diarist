@@ -4,7 +4,8 @@ services:
   django-server:
     container_name: django-server-container
     build: .
-    # platform: linux/amd64
+    image: django-server:latest
+    platform: linux/amd64
     command: >
       sh -c "
       python manage.py runserver 0.0.0.0:8000 &
@@ -29,12 +30,13 @@ services:
   celery-worker:
     container_name: celery_worker_container
     build: .
+    image: celery-worker:latest
+    platform: linux/amd64
     command: celery -A config worker --loglevel=info --pool=threads --concurrency=10
     volumes:
       - .:/app
-    environment:
-      CELERY_BROKER_URL: $CELERY_BROKER_URL
-      CELERY_RESULT_BACKEND: $CELERY_RESULT_BACKEND
+    env_file:
+      - ./.env
     depends_on:
       - redis
 
