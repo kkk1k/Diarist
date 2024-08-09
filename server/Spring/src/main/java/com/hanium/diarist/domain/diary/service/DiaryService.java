@@ -2,10 +2,7 @@ package com.hanium.diarist.domain.diary.service;
 
 import com.hanium.diarist.domain.diary.domain.Diary;
 import com.hanium.diarist.domain.diary.domain.Image;
-import com.hanium.diarist.domain.diary.dto.AlbumResponse;
-import com.hanium.diarist.domain.diary.dto.BookmarkDiaryResponse;
-import com.hanium.diarist.domain.diary.dto.DiaryDetailResponse;
-import com.hanium.diarist.domain.diary.dto.DiaryListResponse;
+import com.hanium.diarist.domain.diary.dto.*;
 import com.hanium.diarist.domain.diary.exception.DiaryNotFoundException;
 import com.hanium.diarist.domain.diary.repository.DiaryRepository;
 import com.hanium.diarist.domain.diary.repository.ImageRepository;
@@ -18,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -108,6 +106,12 @@ public class DiaryService {
         return diaryList.stream()
                 .map(diary -> new DiaryListResponse(diary.getDiaryId(), diary.getDiaryDate().toString(),diary.getImage().getImageUrl()))
                 .collect(Collectors.toList());
+    }
+
+    public TodayDiaryResponse getTodayDiary(Long userId) {
+        User user = validateUserService.validateUserById(userId);
+        boolean diaryExist = diaryRepository.existsByUserAndDiaryDate(user, LocalDate.now());
+        return new TodayDiaryResponse(diaryExist);
     }
 }
 

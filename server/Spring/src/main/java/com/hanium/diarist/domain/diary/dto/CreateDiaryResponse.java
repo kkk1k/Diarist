@@ -1,14 +1,7 @@
 package com.hanium.diarist.domain.diary.dto;
 
-import com.hanium.diarist.domain.artist.domain.Artist;
-import com.hanium.diarist.domain.diary.domain.Image;
-import com.hanium.diarist.domain.emotion.domain.Emotion;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
