@@ -1,6 +1,7 @@
 package com.hanium.diarist.common.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hanium.diarist.common.log.MDCRequestLoggingFilter;
 import com.hanium.diarist.common.security.jwt.JwtAuthenticationEntryPoint;
 import com.hanium.diarist.common.security.jwt.JwtAuthenticationFilter;
 import com.hanium.diarist.common.security.jwt.JwtTokenProvider;
@@ -52,7 +53,8 @@ public class SecurityConfig {
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtAuthenticationEntryPoint(objectMapper(),permitAllEndpointList(),jwtTokenProvider),
-                        JwtAuthenticationFilter.class);
+                        JwtAuthenticationFilter.class)
+                .addFilterBefore(new MDCRequestLoggingFilter(),JwtAuthenticationEntryPoint.class);
 
         return http.build();
     }
@@ -81,7 +83,9 @@ public class SecurityConfig {
                 "/oauth2/refresh",
                 "/oauth2/google/login",
                 "/oauth2/google/login/code",
-                "/oauth2/kakao/login"
+                "/oauth2/kakao/login",
+                "/actuator/**",
+                "/health/**"
         };
     }
 }

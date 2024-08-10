@@ -9,6 +9,8 @@ import com.hanium.diarist.domain.diary.repository.ImageRepository;
 import com.hanium.diarist.domain.user.domain.User;
 import com.hanium.diarist.domain.user.service.ValidateUserService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class DiaryService {
+    private static final Logger log = LoggerFactory.getLogger(DiaryService.class);
     private final DiaryRepository diaryRepository;
     private final ImageRepository imageRepository;
     private final ValidateUserService validateUserService;
@@ -95,6 +98,7 @@ public class DiaryService {
     @Transactional
     public List<AlbumResponse> getBookmarkList(Long userId) {
         List<Diary> diaries = diaryRepository.findByUserIdAndFavorite(userId, true);
+        log.info("diaries : {}",diaries);
         return diaries.stream()
                 .map(diary -> new AlbumResponse(diary.getDiaryId(), diary.getDiaryDate().toString(), diary.getContent(), diary.getEmotion().getEmotionName(), diary.getArtist().getArtistName(), diary.getImage().getImageUrl()))
                 .collect(Collectors.toList());

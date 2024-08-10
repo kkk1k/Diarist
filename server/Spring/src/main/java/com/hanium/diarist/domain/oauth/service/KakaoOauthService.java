@@ -18,6 +18,8 @@ import com.hanium.diarist.domain.user.domain.User;
 import com.hanium.diarist.domain.user.service.UserService;
 import com.hanium.diarist.domain.user.service.ValidateUserService;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +36,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class KakaoOauthService {
 
+    private static final Logger log = LoggerFactory.getLogger(KakaoOauthService.class);
     private final KakaoProperties kakaoProperties;
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
@@ -45,6 +48,7 @@ public class KakaoOauthService {
     @Transactional
     public ResponseJwtToken login(String code) {
         String[] kakaoAccessToken = getKakaoAccessToken(code);
+        log.info("accessCode : {}, kakaoAccessToken : {}",code, kakaoAccessToken);
         String accessToken = kakaoAccessToken[0];
 
         KakaoUserProfile userProfile = getUserProfile(accessToken);

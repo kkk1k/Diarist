@@ -10,6 +10,8 @@ import com.hanium.diarist.domain.diary.exception.JsonProcessException;
 import com.hanium.diarist.domain.diary.exception.SseException;
 import com.hanium.diarist.domain.diary.repository.DiaryRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -23,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class CreateDiaryConsumerService {
 
+    private static final Logger log = LoggerFactory.getLogger(CreateDiaryConsumerService.class);
     private final DiaryRepository diaryRepository;
     private final ObjectMapper objectMapper;
     private final Map<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
@@ -56,7 +59,7 @@ public class CreateDiaryConsumerService {
         try {
             long diaryId = Long.parseLong(String.valueOf(message.get("diary_id")));
             long userId = Long.parseLong(String.valueOf(message.get("user_id")));
-
+            log.info("consumeCreateDiaryResponse diaryId : {} , user_id : {}", diaryId, userId);
             Diary diary = diaryRepository.findByDiaryIdWithDetails(diaryId)
                     .orElseThrow(DiaryNotFoundException::new);
 
