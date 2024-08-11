@@ -1,6 +1,8 @@
 import React, {useState, useRef, useEffect} from 'react';
 import ReactDOM from 'react-dom';
 import styled, {keyframes} from 'styled-components';
+import {useNavigate, useParams} from 'react-router-dom';
+import useApi from '../hooks/useApi';
 
 const slideUp = keyframes`
   from {
@@ -91,8 +93,23 @@ const SVGWrapper = styled.div`
 `;
 
 function DeleteModal({isOpen, closeModal}) {
-  const handleRedraw = () => {
-    alert('현재 개발 중입니다.');
+  const navigate = useNavigate();
+  const {id} = useParams();
+  const {AxiosApi} = useApi();
+  const handleRedraw = async () => {
+    try {
+      const response = await AxiosApi('delete', `/api/v1/diary/detail/${id}`);
+      console.log(response);
+      if (window.history.length > 1) {
+        // 뒤로 가기가 가능하면 navigate(-1)
+        navigate(-1);
+      } else {
+        // 그렇지 않으면 React Native WebView로 메시지를 보냄
+        window.ReactNativeWebView.postMessage('closeWebView');
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
   if (!isOpen) return null;
   return ReactDOM.createPortal(
