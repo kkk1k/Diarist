@@ -25,7 +25,6 @@ jobs:
       - name: 테스트 및 빌드하기
         run: |
           cd server/Spring
-          mkdir -p src/main/resources
           echo "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application.yml
           echo "${{ secrets.KAFKA_YML }}" > ./src/main/resources/application-kafka.yml
           echo "${{ secrets.OAUTH_YML }}" > ./src/main/resources/application-oauth.yml
