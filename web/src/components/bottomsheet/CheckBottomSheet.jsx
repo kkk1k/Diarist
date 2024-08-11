@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import styled from 'styled-components';
 import ReactDOM from 'react-dom';
+import {useNavigate} from 'react-router-dom';
 import BottomSheetHeader from './BottomSheetHeader';
 import useBottomSheet from '../../hooks/useBottomSheet';
 import DeleteModal from '../DeleteModal';
@@ -65,6 +66,7 @@ const Div = styled.div`
   gap: ${props => 20 * props.theme.widthRatio}px;
 `;
 function CheckBottomSheet({isOpen, isClose}) {
+  const navigate = useNavigate();
   const {isOpen: sheetIsOpen, openBottomSheet, closeBottomSheet, refs} = useBottomSheet(isClose);
   const [openModal, setOpenModal] = useState(false);
   useEffect(() => {
@@ -78,6 +80,10 @@ function CheckBottomSheet({isOpen, isClose}) {
   const closeModal = () => {
     setOpenModal(false);
   };
+
+  const handleEdit = () => {
+    navigate('/emotion');
+  };
   return ReactDOM.createPortal(
     <BottomSheetBackground onClick={isClose}>
       <Wrapper
@@ -90,7 +96,7 @@ function CheckBottomSheet({isOpen, isClose}) {
         <BottomSheetHeader />
         <BottomSheetContent ref={refs.content}>
           <ImgWrapper>
-            <Div>
+            <Div onClick={handleEdit}>
               {' '}
               <Img src='/edit.png' />
               <P>수정하기</P>
