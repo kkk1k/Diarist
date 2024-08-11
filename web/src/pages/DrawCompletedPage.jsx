@@ -151,7 +151,7 @@ function DrawCompletedPage() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        heartbeatTimeout: 120000, // 60초로 타임아웃 설정
+        heartbeatTimeout: 60000, // 60초로 타임아웃 설정
       });
 
       eventSource.onmessage = event => {
@@ -165,6 +165,8 @@ function DrawCompletedPage() {
         console.log('EventSource failed:', error);
         eventSource.close();
         setLoading(false);
+        // 일기 생성 실패시 캘린더 페이지로 이동
+        window.ReactNativeWebView.postMessage('check');
       };
 
       return () => {

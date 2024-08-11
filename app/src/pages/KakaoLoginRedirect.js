@@ -15,6 +15,7 @@ function KakaoLoginRedirect({navigation, route}) {
 
   useEffect(() => {
     const fetchData = async () => {
+      console.log(code);
       if (code) {
         try {
           const response = await axios({

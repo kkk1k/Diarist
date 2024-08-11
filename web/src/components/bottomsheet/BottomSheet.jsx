@@ -90,7 +90,7 @@ function BottomSheet({data, isOpen, isClose}) {
   console.log(diaryDate, selectedEmotion);
   const submitData = async () => {
     try {
-      await AxiosApi('post', '/api/v1/diary/create/ad', {
+      await AxiosApi('post', '/api/v1/diary/create', {
         user_id: 0,
         emotion_id: selectedEmotion,
         artist_id: data.artistId,

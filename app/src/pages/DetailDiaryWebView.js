@@ -4,6 +4,8 @@ import WebView from 'react-native-webview';
 import * as SecureStore from 'expo-secure-store';
 import {LOCAL_IP} from '@env';
 import * as Linking from 'expo-linking'; // 이 줄을 수정합니다.
+import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system';
 
 const StyledSafeAreaView = styled.SafeAreaView`
   flex: 1;
@@ -38,18 +40,47 @@ function DetailDiaryWebView({navigation, route}) {
     }
   };
 
-  const onMessage = e => {
+  const onMessage = async e => {
     const message = e.nativeEvent.data;
     console.log('Received message from WebView:', message);
+
     if (message.startsWith('CONSOLE:')) {
       console.log('WebView console:', message.slice(8));
     } else if (message === 'closeWebView') {
-      navigation.goBack();
+      navigation.pop();
     } else if (message === 'check') {
       navigation.navigate('Calendar', {reload: true});
+    } else {
+      try {
+        const data = JSON.parse(message);
+
+        if (data.type === 'capturedImage') {
+          const base64Image = data.data.replace('data:image/png;base64,', '');
+          const fileUri = `${FileSystem.documentDirectory}shared_image.jpg`;
+
+          await FileSystem.writeAsStringAsync(fileUri, base64Image, {
+            encoding: FileSystem.EncodingType.Base64,
+          });
+
+          try {
+            if (await Sharing.isAvailableAsync()) {
+              await Sharing.shareAsync(fileUri, {
+                mimeType: 'image/png',
+                dialogTitle: '공유하기',
+                UTI: 'public.png',
+              });
+            } else {
+              console.log("Sharing isn't available on your platform");
+            }
+          } catch (error) {
+            console.log('Error sharing image:', error);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to parse message:', message, error);
+      }
     }
   };
-
   const injectedJavaScript = `
     (function() {
       var originalLog = console.log;
@@ -76,7 +107,12 @@ function DetailDiaryWebView({navigation, route}) {
     <StyledSafeAreaView>
       <StyledWebView
         ref={webviewRef}
-        source={{uri: `http://${LOCAL_IP}:5173/detail/${id}`}}
+        source={{
+          uri: `http://${LOCAL_IP}:5173/detail/${id}`,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          },
+        }}
         onLoad={injectTokens}
         onMessage={onMessage}
         injectedJavaScript={injectedJavaScript}

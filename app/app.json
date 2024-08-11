@@ -26,14 +26,23 @@
     "web": {
       "favicon": "./src/assets/favicon.png"
     },
-    "assetBundlePatterns": ["**/*"],
-    "plugins": ["expo-secure-store"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "plugins": [
+      "expo-secure-store",
+      "expo-asset"
+    ],
     "extra": {
       "eas": {
         "projectId": "05ea68e6-0032-47e3-994d-79443cf8adba"
       }
     },
-    "platforms": ["ios", "android", "web"],
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
     "owner": "kkk1k"
   }
 }
