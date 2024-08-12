@@ -1,12 +1,25 @@
-import React, {useState, useEffect, useReducer} from 'react';
+import React, {useState, useEffect, useRef, useReducer} from 'react';
 import {useParams} from 'react-router-dom';
 import styled from 'styled-components';
+import html2canvas from 'html2canvas';
 import {useAuth} from '../context/AuthContext';
+import {useDiary} from '../context/DiaryContext';
 import useApi from '../hooks/useApi';
+import DetailHeader from '../components/DetailHeader';
+import useDebounce from '../hooks/useDebounce';
 
 const Main = styled.div`
   margin-left: ${props => 30 * props.theme.widthRatio}px;
   margin-right: ${props => 30 * props.theme.widthRatio}px;
+`;
+
+const Card = styled.div`
+  margin-top: ${props => 38 * props.theme.widthRatio}px;
+  padding-top: ${props => 38 * props.theme.widthRatio}px;
+  padding-bottom: ${props => 38 * props.theme.widthRatio}px;
+  border-radius: 5%;
+  padding-left: ${props => 15 * props.theme.widthRatio}px;
+  padding-right: ${props => 15 * props.theme.widthRatio}px;
 `;
 
 const AccessibilityHidden = styled.h1`
@@ -43,7 +56,7 @@ const StyledH2 = styled.h2`
 
 const Button = styled.button`
   position: absolute;
-  right: 0;
+  right: 10px;
   border: none;
   background-color: transparent;
 `;
@@ -56,7 +69,7 @@ const IconImg = styled.img`
 `;
 
 const PaintingImg = styled.img`
-  width: ${props => 515 * props.theme.widthRatio}px;
+  width: 100%;
   border-radius: 5%;
   flex-shrink: 0;
 `;
@@ -88,13 +101,10 @@ const Figcaption = styled.figcaption`
   letter-spacing: ${props => -0.39 * props.theme.widthRatio}px;
 `;
 
-const Svg = styled.svg`
-  width: ${props => 83 * props.theme.widthRatio}px;
-`;
-
 const P = styled.p`
   font-size: ${props => 24 * props.theme.widthRatio}px;
   margin-top: ${props => props.$mt * props.theme.widthRatio}px;
+  margin-bottom: ${props => props.$mb * props.theme.widthRatio}px;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: ${({$isOpened}) => ($isOpened === true ? 'none' : '3')};
@@ -115,14 +125,23 @@ const OpenButton = styled.button`
   height: ${props => 40 * props.theme.widthRatio}px;
 `;
 
+const ShareButton = styled.button``;
+
 function DrawDetailPage() {
+  const mainRef = useRef(null);
   const {AxiosApi} = useApi();
-  const [favorite, setFavorite] = useReducer(state => !state, false);
+  const [favorite, setFavorite] = useState(false);
+  const [initialFavorite, setInitialFavorite] = useState(false);
   const [isOpened, setIsOpened] = useReducer(state => !state, false);
   const [isToken, setIsToken] = useState(false);
+  const [isShowPlusButton, setIsShowPlusButton] = useState(false);
   const {setAuth} = useAuth();
+  const {setSelectedEmotion, setDiaryContent, setDiaryDate} = useDiary();
   const [data, setData] = useState([]);
   const {id} = useParams();
+  const numberId = parseInt(id, 10);
+  const debounceFavorite = useDebounce(favorite, 500);
+
   useEffect(() => {
     const handleMessage = event => {
       try {
@@ -138,22 +157,60 @@ function DrawDetailPage() {
         console.log('Error parsing message:', error);
       }
     };
-
     window.addEventListener('message', handleMessage);
 
     return () => {
       window.removeEventListener('message', handleMessage);
     };
   }, []);
+  // const data = {
+  //   diaryDate: '2024-07-15',
+  //   favorite: false,
+  //   imageUrl: '/s3-bucket/img/e46e0406498611efb86f0242ac110002',
+  //   emotionName: '행복',
+  //   emotionPicture: '/r2/emotions/001.png', // R2에 대한 프록시 경로로 수정
+  //   artistName: '레오나르도 다빈치',
+  //   artistPicture: '/r2/artists/davinci.webp', // R2에 대한 프록시 경로로 수정
+  //   content: '테스트용 데이터!!!!!!!!!',
+  // };
 
   const fetchData = async () => {
     try {
       const response = await AxiosApi('get', `/api/v1/diary/detail/${id}`);
-      setData(response.data);
+      const modifiedData = {
+        ...response.data,
+        imageUrl: `/s3-bucket/img/${response.data.imageUrl.split('/').pop()}`,
+        emotionPicture: `/r2/emotions/${response.data.emotionPicture.split('/').pop()}`,
+        artistPicture: `/r2/artists/${response.data.artistPicture.split('/').pop()}`,
+      };
+      setData(modifiedData);
+      setDiaryDate(response.data.diaryDate);
+      setDiaryContent(response.data.content);
+      setSelectedEmotion(response.data.emotionName);
+      setFavorite(response.data.favorite);
+      setInitialFavorite(response.data.favorite);
       console.log('fetchData response data:', response.data);
+      if (response.data.content.length > 30) {
+        setIsShowPlusButton(true);
+      }
     } catch (e) {
       console.error('fetchData error:', e);
     }
+  };
+
+  const updateFavoriteStatus = async () => {
+    try {
+      await AxiosApi('post', '/api/v1/diary/bookmark', {
+        diaryId: numberId,
+        favorite,
+      });
+      console.log('Favorite status updated successfully');
+    } catch (error) {
+      console.error('Error updating favorite status:', error);
+    }
+  };
+  const handleFavoriteClick = () => {
+    setFavorite(prev => !prev);
   };
 
   useEffect(() => {
@@ -161,50 +218,65 @@ function DrawDetailPage() {
       fetchData();
     }
   }, [isToken]);
-  return (
-    <Main>
-      <AccessibilityHidden>그림 완성 페이지 </AccessibilityHidden>
-      <Div $mt='100'>
-        <H2Container>
-          <StyledH2>{data.diaryDate}</StyledH2>
-        </H2Container>
-        <Button type='button' aria-label='즐겨찾기'>
-          {favorite ? (
-            <IconImg
-              onClick={setFavorite}
-              $width='50'
-              src='/fullStar.png'
-              alt='채워진 즐겨찾기 버튼'
-            />
-          ) : (
-            <IconImg onClick={setFavorite} $width='50' src='/star.png' alt='즐겨찾기 버튼' />
-          )}
-        </Button>
-      </Div>
-      <Div $mt='38'>
-        <PaintingImg src={data.imageUrl} alt='완성된 그림' />
-      </Div>
-      <Div $mt='38' $justify='space-evenly'>
-        <Div $gap='10'>
-          <IconImg $width='83' $radius='100%' src={data.emotionPicture} />
-          <Span>{data.emotionName}</Span>
-        </Div>
-        <Figure $gap='10'>
-          {/* eslint-disable-next-line jsx-a11y/alt-text */}
-          <IconImg $width='83' $radius='100%' src={data.artistPicture} />
-          <Figcaption>{data.artistName}</Figcaption>
-        </Figure>
-      </Div>
 
-      <P $isOpened={isOpened} $mt='38'>
-        {data.content}
-      </P>
-      <Div $mt='38'>
-        <OpenButton type='button' aria-label='더보기' onClick={setIsOpened}>
-          <IconImg $isOpened={isOpened} $width='30' src='/prev.png' alt='더보기 버튼' />
-        </OpenButton>
-      </Div>
-    </Main>
+  useEffect(() => {
+    if (initialFavorite !== debounceFavorite) {
+      // Listen to debounce value
+      updateFavoriteStatus();
+    }
+  }, [debounceFavorite, initialFavorite]);
+
+  return (
+    <>
+      <DetailHeader data={data} ref={mainRef} />
+      <Main>
+        <AccessibilityHidden>그림 완성 페이지 </AccessibilityHidden>
+        <Card ref={mainRef} $mt='100'>
+          <Div>
+            <H2Container>
+              {data.diaryDate && (
+                <StyledH2>
+                  {data.diaryDate.slice(0, 4)}년 {data.diaryDate.slice(5, 7)}월{' '}
+                  {data.diaryDate.slice(8, 10)}일
+                </StyledH2>
+              )}
+            </H2Container>
+            <Button type='button' aria-label='즐겨찾기' onClick={handleFavoriteClick}>
+              {favorite ? (
+                <IconImg $width='50' src='/fullStar.png' alt='채워진 즐겨찾기 버튼' />
+              ) : (
+                <IconImg $width='50' src='/star.png' alt='즐겨찾기 버튼' />
+              )}
+            </Button>
+          </Div>
+          <Div $mt='38'>
+            <PaintingImg src={data.imageUrl} alt='완성된 그림' />
+          </Div>
+          <Div $mt='38' $justify='space-evenly'>
+            <Div $gap='10'>
+              <IconImg $width='83' $radius='100%' src={data.emotionPicture} />
+              <Span>{data.emotionName}</Span>
+            </Div>
+            <Figure $gap='10'>
+              {/* eslint-disable-next-line jsx-a11y/alt-text */}
+              <IconImg $width='83' $radius='100%' src={data.artistPicture} />
+              <Figcaption>{data.artistName}</Figcaption>
+            </Figure>
+          </Div>
+
+          <P $isOpened={isOpened} $mt='38' $mb='38'>
+            {data.content}
+          </P>
+        </Card>
+        {isShowPlusButton && (
+          <Div>
+            <OpenButton type='button' aria-label='더보기' onClick={setIsOpened}>
+              <IconImg $isOpened={isOpened} $width='30' src='/prev.png' alt='더보기 버튼' />
+            </OpenButton>
+          </Div>
+        )}
+      </Main>
+    </>
   );
 }
 

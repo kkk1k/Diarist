@@ -19,6 +19,7 @@ function DiaryFlow() {
         <Route path='/emotion' element={<SelectEmotionPage />} />
         <Route path='/write' element={<WritingDiaryPage />} />
         <Route path='/selectdrawer' element={<SelectDrawerPage />} />
+        <Route path='/detail/:id' element={<DrawDetailPage />} />
       </Routes>
     </DiaryProvider>
   );
@@ -54,7 +55,6 @@ function App() {
         <Route path='/complete' element={<DrawCompletedPage />} />
         <Route path='/drawerlist' element={<DrawerListPage />} />
         <Route path='/album' element={<AlbumPage />} />
-        <Route path='/detail/:id' element={<DrawDetailPage />} />
         <Route path='/*' element={<DiaryFlow />} />
       </Routes>
     </ThemeProvider>

@@ -60,10 +60,10 @@ function SelectDrawerPage() {
     setOpenModal(false);
   };
   const categoryMap = {
-    르네상스: 'Renaissance',
-    근대: 'Modern',
-    현대: 'Contemporary',
-    기타: 'Animation',
+    르네상스: 'RENAISSANCE',
+    근대: 'MODERN',
+    현대: 'CONTEMPORARY',
+    기타: 'ANIMATION',
   };
 
   const {AxiosApi} = useApi();
@@ -94,7 +94,7 @@ function SelectDrawerPage() {
   }, [data]);
 
   useEffect(() => {
-    fetchData('Renaissance');
+    fetchData('RENAISSANCE');
   }, []);
 
   return (
