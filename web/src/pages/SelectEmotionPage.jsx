@@ -88,6 +88,8 @@ function SelectEmotionPage() {
     setFormattedDate(newFormattedDate);
   }, [receivedDate]);
 
+  console.log('rece', receivedDate)
+
   const emotions = [
     {
       src: 'https://pub-09792a1b5cf149c985d34ff32f53df0e.r2.dev/emotions/001.png',

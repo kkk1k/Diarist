@@ -9,6 +9,7 @@ import DetailDiaryWebView from './pages/DetailDiaryWebView';
 import MyTab from './MyTab';
 import AlbumWebView from './pages/AlbumWebView';
 import ArtistWebView from './pages/ArtistWebView';
+import Setting from './pages/Setting';
 
 const Stack = createNativeStackNavigator();
 
@@ -32,6 +33,7 @@ function MyStack() {
       <Stack.Screen name='AlbumWebView' component={AlbumWebView} />
       <Stack.Screen name='ArtistWebView' component={ArtistWebView} />
       <Stack.Screen name='MainTabs' component={MyTab} />
+      <Stack.Screen name='Setting' component={Setting} />
     </Stack.Navigator>
   );
 }

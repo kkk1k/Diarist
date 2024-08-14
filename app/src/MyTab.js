@@ -1,21 +1,34 @@
-import React from 'react';
+import React, {useState, useCallback, useEffect} from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {Image} from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
 import WriteDiaryWebView from './pages/WriteDiaryWebView';
 import Calendars from './pages/Calendar';
 import AlbumWebView from './pages/AlbumWebView';
 import ArtistWebView from './pages/ArtistWebView';
-
-// 오늘 날짜 구하기 (yyyy-mm-dd)
+import Alert from './pages/Alert';
 
 const Tab = createBottomTabNavigator();
 
 function MyTab() {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
-  const todayDate = `${year}-${month}-${day}`;
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  });
+
+  const handleDateSelect = useCallback(date => {
+    setSelectedDate(date);
+  }, []);
+
+  const resetToToday = useCallback(() => {
+    const today = new Date();
+    setSelectedDate(today.toISOString().split('T')[0]);
+  }, []);
+
+  useEffect(() => {
+    console.log('Selected date changed:', selectedDate);
+  }, [selectedDate]);
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -26,31 +39,26 @@ function MyTab() {
     >
       <Tab.Screen
         name='Calendar'
-        component={Calendars}
         options={{
           tabBarLabel: '캘린더',
-          tabBarIcon: ({focused, color, size}) => (
+          tabBarIcon: ({color, size}) => (
             <Image
-              source={
-                focused
-                  ? require('./assets/calendarIcon.png')
-                  : require('./assets/calendarIcon.png')
-              }
+              source={require('./assets/calendarIcon.png')}
               style={{width: size, height: size, tintColor: color}}
             />
           ),
         }}
-      />
+      >
+        {props => <Calendars {...props} onSelectDate={handleDateSelect} />}
+      </Tab.Screen>
       <Tab.Screen
         name='artist'
         component={ArtistWebView}
         options={{
           tabBarLabel: '화가보기',
-          tabBarIcon: ({focused, color, size}) => (
+          tabBarIcon: ({color, size}) => (
             <Image
-              source={
-                focused ? require('./assets/artistIcon.png') : require('./assets/artistIcon.png')
-              }
+              source={require('./assets/artistIcon.png')}
               style={{width: size, height: size, tintColor: color}}
             />
           ),
@@ -60,30 +68,41 @@ function MyTab() {
         name='WriteDiaryWebView'
         options={{
           tabBarLabel: '일기쓰기',
-          tabBarIcon: ({focused, color, size}) => (
+          tabBarIcon: ({color, size}) => (
             <Image
-              source={
-                focused ? require('./assets/writeIcon.png') : require('./assets/writeIcon.png')
-              }
+              source={require('./assets/writeIcon.png')}
               style={{width: size, height: size, tintColor: color}}
             />
           ),
         }}
       >
-        {({navigation}) => (
-          <WriteDiaryWebView navigation={navigation} route={{params: {selectedDate: todayDate}}} />
-        )}
+        {({navigation}) => {
+          useFocusEffect(
+            useCallback(() => {
+              resetToToday();
+            }, [resetToToday])
+          );
+
+          return (
+            <WriteDiaryWebView
+              navigation={navigation}
+              route={{
+                params: {
+                  selectedDate: selectedDate,
+                },
+              }}
+            />
+          );
+        }}
       </Tab.Screen>
       <Tab.Screen
         name='Album'
         component={AlbumWebView}
         options={{
           tabBarLabel: '앨범',
-          tabBarIcon: ({focused, color, size}) => (
+          tabBarIcon: ({color, size}) => (
             <Image
-              source={
-                focused ? require('./assets/albumIcon.png') : require('./assets/albumIcon.png')
-              }
+              source={require('./assets/albumIcon.png')}
               style={{width: size, height: size, tintColor: color}}
             />
           ),
@@ -91,14 +110,12 @@ function MyTab() {
       />
       <Tab.Screen
         name='Mypage'
-        component={Calendars}
+        component={Alert}
         options={{
           tabBarLabel: '마이페이지',
-          tabBarIcon: ({focused, color, size}) => (
+          tabBarIcon: ({color, size}) => (
             <Image
-              source={
-                focused ? require('./assets/myPageIcon.png') : require('./assets/myPageIcon.png')
-              }
+              source={require('./assets/myPageIcon.png')}
               style={{width: size, height: size, tintColor: color}}
             />
           ),
@@ -107,4 +124,5 @@ function MyTab() {
     </Tab.Navigator>
   );
 }
+
 export default MyTab;

@@ -1,8 +1,9 @@
 import {LOCAL_IP} from '@env';
 import * as SecureStore from 'expo-secure-store';
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import WebView from 'react-native-webview';
 import styled from 'styled-components/native';
+import {useFocusEffect} from '@react-navigation/native';
 
 const StyledSafeAreaView = styled.SafeAreaView`
   flex: 1;
@@ -15,8 +16,9 @@ const StyledWebView = styled(WebView)`
 
 function WriteDiaryWebView({navigation, route}) {
   const {selectedDate} = route.params || {};
-  console.log(selectedDate);
   const webviewRef = useRef(null);
+  console.log(selectedDate);
+  const [webViewKey, setWebViewKey] = useState(0);
 
   const injectTokens = async () => {
     try {
@@ -48,6 +50,12 @@ function WriteDiaryWebView({navigation, route}) {
     injectTokens();
   }, [selectedDate]);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      setWebViewKey(prevKey => prevKey + 1);
+    }, []),
+  );
+
   const onMessage = e => {
     const message = e.nativeEvent.data;
     console.log(message);
@@ -69,13 +77,25 @@ function WriteDiaryWebView({navigation, route}) {
     true;
   `;
 
+  const onLoadEnd = () => {
+    const resetScript = `
+      if (typeof resetDiaryContent === 'function') {
+        resetDiaryContent();
+      }
+      true;
+    `;
+    webviewRef.current.injectJavaScript(resetScript);
+    injectTokens();
+  };
+
   return (
     <StyledSafeAreaView>
       <StyledWebView
+        key={webViewKey}
         ref={webviewRef}
         source={{uri: `http://${LOCAL_IP}:5173/emotion`}}
         onMessage={onMessage}
-        onLoad={injectTokens}
+        onLoadEnd={onLoadEnd}
         injectedJavaScript={injectedJavaScript}
         javaScriptEnabled
         onError={syntheticEvent => {

@@ -121,7 +121,6 @@ function SelectDrawerPage() {
         <DrawerWrapper>
           {data.map(item => (
             <Figure key={item.artistName}>
-              {/* eslint-disable-next-line jsx-a11y/alt-text */}
               <DrawerImg
                 src={item.artistPicture}
                 onClick={() => {
