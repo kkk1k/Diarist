@@ -1,5 +1,5 @@
 import {React, useEffect, useState, useCallback} from 'react';
-import {Pressable} from 'react-native';
+import {Pressable, Image} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
 import styled from 'styled-components/native';
@@ -49,6 +49,8 @@ const Container = styled.View`
 const Header = styled.View`
   padding: 20px;
   background-color: #fff;
+  flex-direction: row;
+  justify-content: space-between;
 `;
 
 const HeaderText = styled.Text`
@@ -96,6 +98,11 @@ const DiaryImage = styled.Image`
   margin-top: 2px;
 `;
 
+const SettingImage = styled.Image`
+  width: ${props => 40 * props.theme.widthRatio}px;
+  height: ${props => 40 * props.theme.widthRatio}px;
+`;
+
 const Placeholder = styled.View`
   width: ${props => 68 * props.theme.widthRatio}px;
   height: ${props => 68 * props.theme.widthRatio}px;
@@ -119,7 +126,7 @@ const PlusImage = styled.Image`
   height: ${props => 30 * props.theme.widthRatio}px;
 `;
 
-function Calendars({navigation, route}) {
+function Calendars({navigation, route, onSelectDate}) {
   const [diaryData, setDiaryData] = useState({});
   const {data, AxiosApi} = useApi();
 
@@ -177,7 +184,10 @@ function Calendars({navigation, route}) {
       // 오늘이지만 일기 데이터가 없는 경우
       content = (
         <Pressable
-          onPress={() => navigation.navigate('WriteDiaryWebView', {selectedDate: date.dateString})}
+          onPress={() => {
+            onSelectDate(date.dateString);
+            navigation.navigate('WriteDiaryWebView', {selectedDate: date.dateString});
+          }}
         >
           <TodayPlaceholder>
             <PlusImage source={require('../assets/Plus.png')} />
@@ -193,8 +203,10 @@ function Calendars({navigation, route}) {
       <Pressable
         onPress={() => {
           if (diary) {
+            onSelectDate(date.dateString);
             navigation.navigate('DetailDiaryWebView', {id: diary.diaryId});
           } else if (!isFuture || isToday) {
+            onSelectDate(date.dateString);
             navigation.navigate('WriteDiaryWebView', {selectedDate: date.dateString});
           }
         }}
@@ -213,6 +225,13 @@ function Calendars({navigation, route}) {
     <Container>
       <Header>
         <HeaderText>{formatHeaderDate(currentMonth)}</HeaderText>
+        <Pressable
+          onPress={() => {
+            navigation.navigate('Setting');
+          }}
+        >
+          <SettingImage source={require('../assets/setting.jpeg')} />
+        </Pressable>
       </Header>
 
       <StyledCalendar
