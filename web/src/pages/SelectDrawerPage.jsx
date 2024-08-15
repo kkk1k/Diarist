@@ -67,10 +67,7 @@ function SelectDrawerPage() {
   };
 
   const {AxiosApi} = useApi();
-  const {checkTokenExpiration} = useAuth();
   const fetchData = async category => {
-    const token = await checkTokenExpiration();
-    console.log('화가 선택,', token);
     try {
       const response = await AxiosApi('get', `/api/v1/artist/select?period=${category}`);
       console.log('응답', response);
@@ -89,9 +86,6 @@ function SelectDrawerPage() {
 
     fetchData(englishCategory);
   };
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
 
   useEffect(() => {
     fetchData('RENAISSANCE');

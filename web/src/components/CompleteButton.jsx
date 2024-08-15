@@ -5,10 +5,12 @@ const ButtonWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   margin-top: ${props => 100 * props.theme.widthRatio}px;
+  padding-left: ${props => 15 * props.theme.widthRatio}px;
+  padding-right: ${props => 15 * props.theme.widthRatio}px;
 `;
 
 const ResetButton = styled.button`
-  width: ${props => 280 * props.theme.widthRatio}px;
+  width: ${props => 260 * props.theme.widthRatio}px;
   height: ${props => 80 * props.theme.widthRatio}px;
   border-radius: ${props => 15 * props.theme.widthRatio}px;
   border: 1px solid #000;
@@ -21,7 +23,7 @@ const ResetButton = styled.button`
 `;
 
 const CheckButton = styled.button`
-  width: ${props => 280 * props.theme.widthRatio}px;
+  width: ${props => 260 * props.theme.widthRatio}px;
   height: ${props => 80 * props.theme.widthRatio}px;
   border-radius: ${props => 15 * props.theme.widthRatio}px;
   border: 1px solid #000;

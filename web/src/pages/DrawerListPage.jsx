@@ -1,8 +1,10 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {useLocation} from 'react-router-dom';
 import styled from 'styled-components';
 import CategoryButton from '../components/CategoryButton';
 import DrawerBottomSheet from '../components/bottomsheet/DrawerBottomSheet';
+import useApi from '../hooks/useApi';
+import {useAuth} from '../context/AuthContext';
 
 const A11yHidden = styled.h1`
   position: absolute;
@@ -70,9 +72,11 @@ const DrawerImg = styled.img`
 `;
 
 function DrawerListPage() {
+  const {setAuth} = useAuth();
+  const {AxiosApi} = useApi();
+  const [data, setData] = useState([]);
   const [selectCategory, setSelectCategory] = useState('르네상스');
   const [selectDrawer, setSelectDrawer] = useState('');
-  const location = useLocation();
   const categoryArr = ['르네상스', '근대', '현대', '기타'];
   const [openModal, setOpenModal] = useState(false);
   const handleModal = item => {
@@ -83,50 +87,83 @@ function DrawerListPage() {
     setOpenModal(false);
   };
   const categoryMap = {
-    르네상스: 'Renaissance',
-    근대: 'Contemporary',
-    현대: 'Modern',
-    기타: 'Asia',
+    르네상스: 'RENAISSANCE',
+    근대: 'MODERN',
+    현대: 'CONTEMPORARY',
+    기타: 'ANIMATION',
   };
-  const data = [
-    {
-      artistName: '존 윌리엄',
-      artistPicture: '/drawer.jpg',
-      description: '화가 설명 ~~~~~~입니다',
-    },
-    {
-      artistName: '존 윌리엄 워',
-      artistPicture: '/drawer.jpg',
-      description: '화가 설명 ~~~~~~입니다',
-    },
-    {
-      artistName: '존 윌리엄 워터',
-      artistPicture: '/drawer.jpg',
-      description: '화가 설명 ~~~~~~입니다',
-    },
-    {
-      artistName: '존 윌리엄 워터하',
-      artistPicture: '/drawer.jpg',
-      description: '화가 설명 ~~~~~~입니다',
-    },
-    {
-      artistName: '존 윌리엄 워터하우',
-      artistPicture: '/drawer.jpg',
-      description: '화가 설명 ~~~~~~입니다',
-    },
-    {
-      artistName: '존 윌리엄 워터하우스',
-      artistPicture: '/drawer.jpg',
-      description: '화가 설명 ~~~~~~입니다',
-    },
-  ];
+  // const data = [
+  //   {
+  //     artistName: '존 윌리엄',
+  //     artistPicture: '/drawer.jpg',
+  //     description: '화가 설명 ~~~~~~입니다',
+  //   },
+  //   {
+  //     artistName: '존 윌리엄 워',
+  //     artistPicture: '/drawer.jpg',
+  //     description: '화가 설명 ~~~~~~입니다',
+  //   },
+  //   {
+  //     artistName: '존 윌리엄 워터',
+  //     artistPicture: '/drawer.jpg',
+  //     description: '화가 설명 ~~~~~~입니다',
+  //   },
+  //   {
+  //     artistName: '존 윌리엄 워터하',
+  //     artistPicture: '/drawer.jpg',
+  //     description: '화가 설명 ~~~~~~입니다',
+  //   },
+  //   {
+  //     artistName: '존 윌리엄 워터하우',
+  //     artistPicture: '/drawer.jpg',
+  //     description: '화가 설명 ~~~~~~입니다',
+  //   },
+  //   {
+  //     artistName: '존 윌리엄 워터하우스',
+  //     artistPicture: '/drawer.jpg',
+  //     description: '화가 설명 ~~~~~~입니다',
+  //   },
+  // ];
+  const fetchData = async category => {
+    try {
+      const response = await AxiosApi('get', `/api/v1/artist/list?period=${category}`);
+      console.log('응답', response);
+      setData(response.data);
+    } catch (e) {
+      console.log('에러', e);
+    }
+  };
   const handleCategory = e => {
     setSelectCategory(e.target.innerText);
     const englishCategory = categoryMap[e.target.innerText];
-    // 통신 코드 작성
-    console.log('Selected Category:', englishCategory);
+    fetchData(englishCategory);
   };
-  console.log(data);
+
+  useEffect(() => {
+    const handleMessage = event => {
+      try {
+        const message = JSON.parse(event.data);
+        if (message.type === 'tokens' && message.accessToken && message.refreshToken) {
+          setAuth({
+            accessToken: message.accessToken,
+            refreshToken: message.refreshToken,
+          });
+        }
+        setIsToken(true);
+      } catch (error) {
+        console.log('Error parsing message:', error);
+      }
+    };
+    window.addEventListener('message', handleMessage);
+
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, []);
+
+  useEffect(() => {
+    fetchData('RENAISSANCE');
+  }, []);
 
   return (
     <>

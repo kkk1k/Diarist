@@ -1,7 +1,6 @@
 import React, {useState, useEffect, useRef, useReducer} from 'react';
 import {useParams} from 'react-router-dom';
 import styled from 'styled-components';
-import html2canvas from 'html2canvas';
 import {useAuth} from '../context/AuthContext';
 import {useDiary} from '../context/DiaryContext';
 import useApi from '../hooks/useApi';
@@ -63,6 +62,7 @@ const Button = styled.button`
 
 const IconImg = styled.img`
   width: ${props => props.$width * props.theme.widthRatio}px;
+  height: ${props => props.$width * props.theme.widthRatio}px;
   border-radius: ${props => (props.$radius ? props.$radius : '')};
   transform: rotate(${({$isOpened}) => ($isOpened === true ? '180deg' : '0deg')});
   transition: transform 0.5s ease;
@@ -231,7 +231,7 @@ function DrawDetailPage() {
       <DetailHeader data={data} ref={mainRef} />
       <Main>
         <AccessibilityHidden>그림 완성 페이지 </AccessibilityHidden>
-        <Card ref={mainRef} $mt='100'>
+        <Card ref={mainRef}>
           <Div>
             <H2Container>
               {data.diaryDate && (
@@ -254,7 +254,7 @@ function DrawDetailPage() {
           </Div>
           <Div $mt='38' $justify='space-evenly'>
             <Div $gap='10'>
-              <IconImg $width='83' $radius='100%' src={data.emotionPicture} />
+              <IconImg $width='83' src={data.emotionPicture} />
               <Span>{data.emotionName}</Span>
             </Div>
             <Figure $gap='10'>

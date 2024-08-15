@@ -5,10 +5,19 @@ import CompleteButton from '../components/CompleteButton';
 import ResetModal from '../components/ResetModal';
 import {useAuth} from '../context/AuthContext';
 import Loading from '../components/Loading';
+import useDebounce from '../hooks/useDebounce';
+import useApi from '../hooks/useApi';
 
 const Main = styled.div`
   margin-left: ${props => 30 * props.theme.widthRatio}px;
   margin-right: ${props => 30 * props.theme.widthRatio}px;
+`;
+
+const Card = styled.div`
+  padding-bottom: ${props => 38 * props.theme.widthRatio}px;
+  border-radius: 5%;
+  padding-left: ${props => 15 * props.theme.widthRatio}px;
+  padding-right: ${props => 15 * props.theme.widthRatio}px;
 `;
 
 const AccessibilityHidden = styled.h1`
@@ -45,20 +54,21 @@ const StyledH2 = styled.h2`
 
 const Button = styled.button`
   position: absolute;
-  right: 0;
+  right: 10px;
   border: none;
   background-color: transparent;
 `;
 
 const IconImg = styled.img`
   width: ${props => props.$width * props.theme.widthRatio}px;
+  height: ${props => props.$width * props.theme.widthRatio}px;
   border-radius: ${props => (props.$radius ? props.$radius : '')};
   transform: rotate(${({$isOpened}) => ($isOpened === true ? '180deg' : '0deg')});
   transition: transform 0.5s ease;
 `;
 
 const PaintingImg = styled.img`
-  width: ${props => 515 * props.theme.widthRatio}px;
+  width: 100%;
   border-radius: 5%;
   flex-shrink: 0;
 `;
@@ -121,13 +131,16 @@ const LoadingContainer = styled.div`
 `;
 
 function DrawCompletedPage() {
-  const [favorite, setFavorite] = useReducer(state => !state, false);
+  const {AxiosApi} = useApi();
   const [isOpened, setIsOpened] = useReducer(state => !state, false);
   const [isOpenedModal, setIsOpenedModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const {checkTokenExpiration} = useAuth();
   const [data, setData] = useState(null); // data 상태 추가
-
+  const [isShowPlusButton, setIsShowPlusButton] = useState(false);
+  const [favorite, setFavorite] = useState(false);
+  const [initialFavorite, setInitialFavorite] = useState(false);
+  const debounceFavorite = useDebounce(favorite, 500);
   const openModal = () => {
     setIsOpenedModal(true);
   };
@@ -138,6 +151,29 @@ function DrawCompletedPage() {
   const handleCheck = () => {
     (window.ReactNativeWebView || window).postMessage('check');
   };
+
+  const updateFavoriteStatus = async () => {
+    try {
+      await AxiosApi('post', '/api/v1/diary/bookmark', {
+        diaryId: numberId,
+        favorite,
+      });
+      console.log('Favorite status updated successfully');
+    } catch (error) {
+      console.error('Error updating favorite status:', error);
+    }
+  };
+
+  const handleFavoriteClick = () => {
+    setFavorite(prev => !prev);
+  };
+
+  useEffect(() => {
+    if (initialFavorite !== debounceFavorite) {
+      // Listen to debounce value
+      updateFavoriteStatus();
+    }
+  }, [debounceFavorite, initialFavorite]);
 
   useEffect(() => {
     async function fetchData() {
@@ -158,6 +194,11 @@ function DrawCompletedPage() {
         const jsonData = JSON.parse(event.data);
         console.log(jsonData);
         setData(jsonData);
+        setFavorite(jsonData.favorite);
+        setInitialFavorite(jsonData.favorite);
+        if (jsonData.content.length > 30) {
+          setIsShowPlusButton(true);
+        }
         setLoading(false);
       };
 
@@ -166,7 +207,7 @@ function DrawCompletedPage() {
         eventSource.close();
         setLoading(false);
         // 일기 생성 실패시 캘린더 페이지로 이동
-        window.ReactNativeWebView.postMessage('check');
+        // window.ReactNativeWebView.postMessage('check');
       };
 
       return () => {
@@ -183,44 +224,48 @@ function DrawCompletedPage() {
   ) : data ? (
     <Main>
       <AccessibilityHidden>그림 완성 페이지</AccessibilityHidden>
-      <Div $mt='100'>
-        <H2Container>
-          <StyledH2>{data.diaryDate}</StyledH2>
-        </H2Container>
-        <Button type='button' aria-label='즐겨찾기'>
-          {favorite ? (
-            <IconImg
-              onClick={setFavorite}
-              $width='50'
-              src='/fullStar.png'
-              alt='합쳐진 즐겨찾기 버튼'
-            />
-          ) : (
-            <IconImg onClick={setFavorite} $width='50' src='/star.png' alt='즐겨찾기 버튼' />
-          )}
-        </Button>
-      </Div>
-      <Div $mt='38'>
-        <PaintingImg src={data.imageUrl} alt='완성된 그림' />
-      </Div>
-      <Div $mt='38' $justify='space-evenly'>
-        <Div $gap='10'>
-          <IconImg $width='83' src={data.emotionPicture} alt='감정 이미지' />
-          <Span># {data.emotionName}</Span>
+      <Card>
+        <Div $mt='100'>
+          <H2Container>
+            {data.diaryDate && (
+              <StyledH2>
+                {data.diaryDate.slice(0, 4)}년 {data.diaryDate.slice(5, 7)}월{' '}
+                {data.diaryDate.slice(8, 10)}일
+              </StyledH2>
+            )}
+          </H2Container>
+          <Button type='button' aria-label='즐겨찾기' onClick={handleFavoriteClick}>
+            {favorite ? (
+              <IconImg $width='50' src='/fullStar.png' alt='합쳐진 즐겨찾기 버튼' />
+            ) : (
+              <IconImg $width='50' src='/star.png' alt='즐겨찾기 버튼' />
+            )}
+          </Button>
         </Div>
-        <Figure $gap='10'>
-          <IconImg $width='83' $radius='100%' src={data.artistPicture} alt='아티스트 이미지' />
-          <Figcaption># {data.artistName}</Figcaption>
-        </Figure>
-      </Div>
-      <P $isOpened={isOpened} $mt='38'>
-        {data.content}
-      </P>
-      <Div $mt='38'>
-        <OpenButton type='button' aria-label='더보기' onClick={setIsOpened}>
-          <IconImg $isOpened={isOpened} $width='30' src='/prev.png' alt='더보기 버튼' />
-        </OpenButton>
-      </Div>
+        <Div $mt='38'>
+          <PaintingImg src={data.imageUrl} alt='완성된 그림' />
+        </Div>
+        <Div $mt='38' $justify='space-evenly'>
+          <Div $gap='10'>
+            <IconImg $width='83' src={data.emotionPicture} alt='감정 이미지' />
+            <Span># {data.emotionName}</Span>
+          </Div>
+          <Figure $gap='10'>
+            <IconImg $width='83' $radius='100%' src={data.artistPicture} alt='아티스트 이미지' />
+            <Figcaption># {data.artistName}</Figcaption>
+          </Figure>
+        </Div>
+        <P $isOpened={isOpened} $mt='38'>
+          {data.content}
+        </P>
+      </Card>
+      {isShowPlusButton && (
+        <Div $mt='38'>
+          <OpenButton type='button' aria-label='더보기' onClick={setIsOpened}>
+            <IconImg $isOpened={isOpened} $width='30' src='/prev.png' alt='더보기 버튼' />
+          </OpenButton>
+        </Div>
+      )}
       <CompleteButton handleCheck={handleCheck} handleRedraw={openModal} />
       {isOpenedModal && <ResetModal isOpen={isOpenedModal} closeModal={closeModal} />}
     </Main>

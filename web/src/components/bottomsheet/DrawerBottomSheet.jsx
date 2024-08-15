@@ -46,12 +46,12 @@ const Img = styled.img`
 
 const P = styled.p`
   color: #000;
-  text-align: center;
   font-size: ${props => 24 * props.theme.widthRatio}px;
   font-weight: 600;
   line-height: ${props => 36 * props.theme.widthRatio}px;
   letter-spacing: ${props => -0.36 * props.theme.widthRatio}px;
   word-break: keep-all;
+  margin-bottom: ${props => 36 * props.theme.widthRatio}px;
 `;
 
 const BottomSheetContent = styled.div`

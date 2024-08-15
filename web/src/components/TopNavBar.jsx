@@ -75,13 +75,7 @@ function TopNavBar({hidden = false, page, progress, title1, title2}) {
   };
 
   const handleClose = () => {
-    if (window.history.length > 1) {
-      // 뒤로 가기가 가능하면 navigate(-1)
-      navigate(-1);
-    } else {
-      // 그렇지 않으면 React Native WebView로 메시지를 보냄
-      window.ReactNativeWebView.postMessage('closeWebView');
-    }
+    window.ReactNativeWebView.postMessage('closeWebView');
   };
   return (
     <>
