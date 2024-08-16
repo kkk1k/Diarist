@@ -28,6 +28,7 @@ jobs:
         
     - name: build react
       run: |
+        cd web
         pnpm install
         pnpm run build
     - name: upload S3
