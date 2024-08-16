@@ -3,7 +3,10 @@ name: CI/CD hdev_client to AWS S3
 on:
   push:
     branches:
-    - test
+    - dev
+    - main
+    paths:
+    - web/**
 
 jobs:
   deploy:
@@ -14,6 +17,11 @@ jobs:
     steps:
     - name: code checkout
       uses: actions/checkout@v3
+
+    - name: Install pnpm
+      run: |
+        cd web
+        npm install -g pnpm
 
     - name: Decode .env
       run: |
@@ -28,10 +36,14 @@ jobs:
 
     - name: build react
       run: |
+        cd web
         pnpm install
         pnpm run build
+
     - name: upload S3
-      run: aws s3 sync dist/ s3://${{ secrets.AWS_S3_BUCKET }} --acl public-read
+      run: |
+        cd web
+        aws s3 sync dist/ s3://${{ secrets.AWS_S3_BUCKET }}
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

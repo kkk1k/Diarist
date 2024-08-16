@@ -384,7 +384,7 @@ function AlbumPage() {
             <Bold>{selectedIds.length}개</Bold>의 일기가 선택됨
           </BottomP>
           <BottomButton type='button' onClick={handleSelectClick} aria-label='button'>
-            <BottomImage src='BlackStar.png' alt='' />
+            <BottomImage src='/fullStar.png' alt='' />
           </BottomButton>
         </BottomNav>
       )}
