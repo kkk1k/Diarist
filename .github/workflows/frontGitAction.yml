@@ -4,6 +4,8 @@ on:
   push:
     branches:
     - test
+    paths:
+    - web/**
 
 jobs:
   deploy:
@@ -30,8 +32,11 @@ jobs:
       run: |
         pnpm install
         pnpm run build
+
     - name: upload S3
-      run: aws s3 sync dist/ s3://${{ secrets.AWS_S3_BUCKET }} --acl public-read
+      run: |
+        cd web
+        aws s3 sync dist/ s3://${{ secrets.AWS_S3_BUCKET }} --acl public-read
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
