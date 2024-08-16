@@ -15,6 +15,11 @@ jobs:
     - name: code checkout
       uses: actions/checkout@v3
 
+    - name: Install pnpm
+      run: |
+        cd web
+        npm install -g pnpm
+
     - name: Decode .env
       run: |
         echo "${{ secrets.ENV }}" | base64 --decode > .env
